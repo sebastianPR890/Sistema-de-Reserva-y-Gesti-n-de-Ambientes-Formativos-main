@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} {% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <section class="hero-section">
+        <!-- Botón de Manual mejorado -->
+        <div class="manual-button-container">
+            <a href="{% url 'reservas:manual_usuario' %}" class="btn-manual" title="Manual de Usuario">
+                <i class="fas fa-book-open"></i>
+                <span class="manual-text">Manual</span>
+            </a>
+        </div>
+
+        <div class="hero-logo">
+            <img src="{% static 'logo_proyecto/logo.png' %}" alt="Logo Proyecto" class="logo-img">
+        </div>
+        <h1 class="hero-title">Sistema de reservas SENA</h1>
+        <h2 class="hero-subtitle">Gestión de Ambientes Formativos</h2>
+        <p class="hero-description">
+            Bienvenido al sistema de reservas de ambientes del Centro Minero
+        </p>
+        <div class="cta-buttons">
+            {% if user.is_authenticated %}
+                <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-primary">
+                    <i class="fas fa-calendar-alt"></i> Ver Reservas
+                </a>
+                <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-secondary">
+                    <i class="fas fa-plus"></i> Crear Reserva
+                </a>
+            {% else %}
+                <a href="{% url 'login:login' %}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </a>
+                <a href="{% url 'login:registro' %}" class="btn btn-secondary">
+                    <i class="fas fa-user-plus"></i> Registrarse
+                </a>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<style>
+.hero-logo {
+    width: 230px;        
+    height: 230px;       
+    margin: 0 auto 20px auto;
+    border-radius: 50%;
+    background: white;
+    padding: 6px;        
+    overflow: hidden;    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-logo .logo-img {
+    width: 150%;          
+    height: auto;
+    object-fit: contain;
+}
+
+/* Estilos para el botón de manual */
+.manual-button-container {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+}
+
+.btn-manual {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-manual:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-manual:active {
+    transform: translateY(0);
+}
+
+.btn-manual i {
+    font-size: 16px;
+}
+
+.manual-text {
+    font-weight: 600;
+}
+
+/* Responsive: en pantallas pequeñas mostrar solo el icono */
+@media (max-width: 768px) {
+    .manual-button-container {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .btn-manual {
+        padding: 10px;
+        width: 44px;
+        height: 44px;
+        justify-content: center;
+    }
+    
+    .manual-text {
+        display: none;
+    }
+    
+    .btn-manual i {
+        font-size: 18px;
+    }
+}
+</style>
+{% endblock %}

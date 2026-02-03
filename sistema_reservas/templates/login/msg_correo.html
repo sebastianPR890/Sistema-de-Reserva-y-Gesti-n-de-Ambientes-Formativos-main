@@ -1,0 +1,351 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperación de Contraseña - SENA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+        
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #39b54a 0%, #047857 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .logo-container {
+            background: white;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo-container img {
+            width: 85%;
+            height: auto;
+        }
+        
+        .email-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .email-body {
+            padding: 40px 30px;
+            background: white;
+        }
+        
+        .greeting {
+            font-size: 20px;
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .message-text {
+            color: #4b5563;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+        
+        .button-container {
+            text-align: center;
+            margin: 35px 0;
+        }
+        
+        .reset-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #39b54a 0%, #047857 100%);
+            color: white;
+            padding: 16px 40px;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(57, 181, 74, 0.3);
+        }
+        
+        .link-box {
+            background: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .link-label {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .link-url {
+            color: #39b54a;
+            word-break: break-all;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .info-box {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .info-box-title {
+            color: #065f46;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-icon {
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        
+        .info-box-text {
+            color: #047857;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .warning-box {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .warning-box-title {
+            color: #991b1b;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .warning-box-text {
+            color: #b91c1c;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .email-footer {
+            background: #1f2937;
+            padding: 30px;
+            text-align: center;
+            color: #9ca3af;
+        }
+        
+        .footer-text {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            margin: 20px 0;
+        }
+        
+        .footer-link {
+            color: #60a5fa;
+            text-decoration: none;
+            margin: 0 12px;
+            font-size: 14px;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-link {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin: 0 6px;
+            line-height: 36px;
+            color: #9ca3af;
+            text-decoration: none;
+        }
+        
+        .copyright {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 20px;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 30px 0;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .email-header {
+                padding: 30px 20px;
+            }
+            
+            .email-title {
+                font-size: 24px;
+            }
+            
+            .email-body {
+                padding: 30px 20px;
+            }
+            
+            .reset-button {
+                padding: 14px 30px;
+                font-size: 15px;
+            }
+            
+            .logo-container {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .footer-link {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <!-- Header -->
+        <div class="email-header">
+            <div class="logo-container">
+                <img src="{% static 'logo_proyecto/logo_C.png' %}" alt="Logo SENA">
+            </div>
+            <h1 class="email-title">Recuperación de Contraseña</h1>
+        </div>
+        
+        <!-- Body -->
+        <div class="email-body">
+            <p class="greeting">¡Hola {{ username }}!</p>
+            
+            <p class="message-text">
+                Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en el 
+                <strong>Sistema de Reservas del SENA</strong>.
+            </p>
+            
+            <p class="message-text">
+                Para crear una nueva contraseña segura, haz clic en el siguiente botón:
+            </p>
+            
+            <div class="button-container">
+                <a href="{{ reset_url }}" class="reset-button">
+                    🔐 Restablecer mi Contraseña
+                </a>
+            </div>
+            
+            <div class="link-box">
+                <div class="link-label">
+                    Si el botón no funciona, copia y pega este enlace en tu navegador:
+                </div>
+                <div class="link-url">{{ reset_url }}</div>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-box-title">
+                    <span class="info-icon">ℹ️</span>
+                    Información Importante
+                </div>
+                <p class="info-box-text">
+                    Este enlace de recuperación es válido por <strong>24 horas</strong>. 
+                    Después de este tiempo, deberás solicitar un nuevo enlace de recuperación.
+                </p>
+            </div>
+            
+            <div class="warning-box">
+                <div class="warning-box-title">
+                    <span class="info-icon">⚠️</span>
+                    Seguridad
+                </div>
+                <p class="warning-box-text">
+                    Si <strong>NO solicitaste</strong> restablecer tu contraseña, puedes ignorar este correo. 
+                    Tu cuenta permanecerá segura y no se realizará ningún cambio.
+                </p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <p class="message-text">
+                Si tienes alguna pregunta o necesitas ayuda adicional, no dudes en contactarnos 
+                respondiendo a este correo o visitando nuestro centro de ayuda.
+            </p>
+            
+            <p class="message-text" style="margin-bottom: 0;">
+                <strong>Saludos cordiales,</strong><br>
+                El equipo del Sistema de Reservas SENA
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="email-footer">
+            <p class="footer-text">
+                Este es un correo electrónico automático, por favor no respondas directamente a este mensaje.
+            </p>
+            
+            <div class="footer-links">
+                <a href="#" class="footer-link">Centro de Ayuda</a>
+                <span style="color: #4b5563;">•</span>
+                <a href="#" class="footer-link">Política de Privacidad</a>
+                <span style="color: #4b5563;">•</span>
+                <a href="#" class="footer-link">Términos de Uso</a>
+            </div>
+            
+            <div class="social-links">
+                <a href="#" class="social-link">f</a>
+                <a href="#" class="social-link">t</a>
+                <a href="#" class="social-link">in</a>
+                <a href="#" class="social-link">ig</a>
+            </div>
+            
+            <div class="divider" style="background: #374151;"></div>
+            
+            <p class="copyright">
+                © 2024 SENA - Sistema de Reservas. Todos los derechos reservados.<br>
+                Servicio Nacional de Aprendizaje
+            </p>
+        </div>
+    </div>
+</body>
+</html>

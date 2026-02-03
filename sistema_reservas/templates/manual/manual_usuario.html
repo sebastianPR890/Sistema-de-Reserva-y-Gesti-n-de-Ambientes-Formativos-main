@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manual de Usuario - SRGAF{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="manual-card border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- Header con gradiente verde SENA -->
+                <div class="manual-header text-white text-center py-5 px-4">
+                    <div class="manual-icon mb-3">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h1 class="fw-bold display-5 mb-2">Manual de Usuario</h1>
+                    <p class="lead opacity-90 mb-0">
+                        Sistema de Reserva y Gestión de Ambientes Formativos (SRGAF)
+                    </p>
+                </div>
+
+                <!-- Contenido principal -->
+                <div class="manual-body p-5" id="manual-content">
+                    <p class="text-muted mb-5 fs-5">
+                        Bienvenido al Sistema de Reserva y Gestión de Ambientes Formativos (SRGAF). 
+                        Esta guía le ayudará a navegar y utilizar las funcionalidades clave del sistema de manera eficiente.
+                    </p>
+
+                    <!-- Sección 1 -->
+                    <section class="manual-section mb-5 pb-4 border-bottom">
+                        <h3 class="d-flex align-items-center text-success mb-3">
+                            <i class="fas fa-user-lock me-3 icon-lg"></i>
+                            <span>1. Inicio de Sesión y Registro</span>
+                        </h3>
+                        <p class="text-muted fs-6">
+                            Para acceder al sistema, debe poseer credenciales de usuario. Si no tiene una cuenta, 
+                            por favor, contacte al administrador del sistema. El acceso se realiza desde la página de 
+                            inicio de sesión, donde deberá ingresar su nombre de usuario y contraseña.
+                        </p>
+                    </section>
+
+                    <!-- Sección 2 -->
+                    <section class="manual-section mb-5 pb-4 border-bottom">
+                        <h3 class="d-flex align-items-center text-success mb-3">
+                            <i class="fas fa-tachometer-alt me-3 icon-lg"></i>
+                            <span>2. Panel Principal (Dashboard)</span>
+                        </h3>
+                        <p class="text-muted fs-6">
+                            Tras iniciar sesión, será redirigido al panel principal, que le brinda accesos directos 
+                            a las secciones más importantes: <strong>Ambientes</strong>, <strong>Reservas</strong> y 
+                            su <strong>Perfil de usuario</strong>.
+                        </p>
+                    </section>
+
+                    <!-- Sección 3 -->
+                    <section class="manual-section mb-5 pb-4 border-bottom">
+                        <h3 class="d-flex align-items-center text-success mb-3">
+                            <i class="fas fa-door-open me-3 icon-lg"></i>
+                            <span>3. Gestión de Ambientes</span>
+                        </h3>
+                        <p class="text-muted fs-6">
+                            En esta sección podrá explorar todos los ambientes formativos registrados. Cada ficha 
+                            incluye información detallada: capacidad, tipo, ubicación, equipamiento disponible y estado 
+                            actual (activo/inactivo).
+                        </p>
+                    </section>
+
+                    <!-- Sección 4 -->
+                    <section class="manual-section mb-5 pb-4 border-bottom">
+                        <h3 class="d-flex align-items-center text-success mb-3">
+                            <i class="fas fa-calendar-plus me-3 icon-lg"></i>
+                            <span>4. Creación de Reservas</span>
+                        </h3>
+                        <ul class="text-muted fs-6 ps-4">
+                            <li class="mb-2">Navegue a <strong>Reservas → Crear Reserva</strong>.</li>
+                            <li class="mb-2">Seleccione el ambiente, fecha, hora de inicio y hora de fin.</li>
+                            <li class="mb-2">El sistema validará automáticamente conflictos de horario.</li>
+                            <li>Confirme la reserva y recibirá una notificación de confirmación.</li>
+                        </ul>
+                    </section>
+
+                    <!-- Sección 5 -->
+                    <section class="manual-section mb-5 pb-4 border-bottom">
+                        <h3 class="d-flex align-items-center text-success mb-3">
+                            <i class="fas fa-user-cog me-3 icon-lg"></i>
+                            <span>5. Gestión de Perfil</span>
+                        </h3>
+                        <p class="text-muted fs-6">
+                            Desde su perfil, puede actualizar sus datos personales, cambiar su contraseña y 
+                            visualizar el historial de sus reservas.
+                        </p>
+                    </section>
+
+                    <!-- Botón de descarga -->
+                    <div class="text-center mt-5 pt-4">
+                        <a href="{% static 'docs/manual_usuario.pdf' %}" class="btn btn-download px-5 py-3 fs-5 fw-semibold" download>
+                            <i class="fas fa-file-pdf me-2"></i>Descargar Manual en PDF
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="manual-footer bg-light text-center py-3">
+                    <small class="text-muted">© {{ now.year }} SRGAF - Sistema de Reserva y Gestión de Ambientes Formativos</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Fondo suave inspirado en el SENA */
+    body {
+        background: 
+            radial-gradient(ellipse at top, rgba(255,255,255,0.1) 0%, transparent 50%),
+            radial-gradient(ellipse at bottom, rgba(0,0,0,0.1) 0%, transparent 50%),
+            linear-gradient(180deg, 
+                #0d4f1c 0%,
+                #1e7e34 20%,
+                #28a745 50%,
+                #20c997 80%,
+                #a8e6cf 100%
+            );
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+    }
+
+/* Tarjeta principal */
+.manual-card {
+    background: white;
+    transition: transform 0.3s ease;
+}
+.manual-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Header del manual */
+.manual-header {
+    background: linear-gradient(135deg, #155724 0%, #28a745 100%);
+    position: relative;
+    overflow: hidden;
+}
+.manual-header::before {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+.manual-icon {
+    font-size: 2.5rem;
+    opacity: 0.9;
+}
+.manual-header h1 {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+/* Íconos animados */
+.icon-lg {
+    font-size: 1.4rem;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+.manual-section:hover .icon-lg {
+    transform: scale(1.1);
+    color: #155724 !important;
+}
+
+/* Secciones */
+.manual-section h3 {
+    font-weight: 700;
+    font-size: 1.35rem;
+}
+.manual-section p, .manual-section ul {
+    line-height: 1.7;
+    color: #495057;
+}
+.manual-section ul {
+    list-style-type: none;
+}
+.manual-section ul li::before {
+    content: "✓ ";
+    color: #28a745;
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+/* Botón de descarga */
+.btn-download {
+    background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+    transition: all 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+}
+.btn-download:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(211, 47, 47, 0.45);
+    background: linear-gradient(135deg, #b71c1c 0%, #9a0007 100%);
+}
+.btn-download:active {
+    transform: translateY(0);
+}
+
+/* Footer */
+.manual-footer {
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .manual-header {
+        padding: 1.5rem !important;
+    }
+    .manual-header h1 {
+        font-size: 1.8rem;
+    }
+    .manual-body {
+        padding: 1.5rem !important;
+    }
+    .manual-section h3 {
+        font-size: 1.2rem;
+    }
+    .btn-download {
+        width: 100%;
+        font-size: 1.1rem;
+    }
+}
+</style>
+
+{% endblock %}

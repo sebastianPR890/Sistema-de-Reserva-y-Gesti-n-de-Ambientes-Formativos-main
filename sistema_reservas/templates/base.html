@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Reservas SENA{% endblock %}</title>
+    {% load static %}
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        .sidebar-nav .nav-link:focus {
+            outline: 2px solid #39a900;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        .sidebar-nav .nav-link:focus:not(:focus-visible) {
+            outline: none;
+        }
+        .sidebar-nav .nav-link:focus-visible {
+            outline: 2px solid #39a900;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+    </style>
+
+</head>
+
+<body class="{% if user.is_authenticated %}user-authenticated{% endif %} {% block body_class %}{% endblock %}">
+    {% if user.is_authenticated %}
+    <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="https://www.soydebuenaventura.com/media/transparent/20230802_logosena.png" alt="Logo SENA">
+                </div>
+                <div class="sidebar-title">SISTEMA DE RESERVAS</div>
+            </div>        <nav class="sidebar-nav" role="navigation" aria-label="Menu principal">
+            {% if user.rol == 'usuario' %}
+                <!-- Vista para usuarios normales -->
+                <div class="nav-item">
+                    <a href="/" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}"><i class="fas fa-home nav-icon"></i>Inicio</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'notificaciones:listar_notificaciones' %}" class="nav-link {% if request.resolver_match.app_name == 'notificaciones' %}active{% endif %}"><i class="fas fa-bell nav-icon"></i>Notificaciones</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'usuarios:perfil' %}" class="nav-link"><i class="fas fa-user nav-icon"></i>Mi Perfil</a>
+                </div>
+                <div class="nav-item mt-5">
+                    <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                        <i class="fas fa-info-circle" style="font-size: 24px; color: #007bff; margin-bottom: 10px;"></i>
+                        <p style="margin-bottom: 15px; font-size: 14px;"><strong>¿Necesitas más acceso?</strong></p>
+                        <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Solicita cambiar tu rol para acceder a más características.</p>
+                        <a href="{% url 'usuarios:solicitar_cambio_rol' %}" class="btn btn-sm btn-primary w-100" style="font-size: 12px;">
+                            <i class="fas fa-arrow-up"></i> Solicitar Cambio de Rol
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Vista para otros roles -->
+                <div class="nav-item">
+                    <a href="/" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}"><i class="fas fa-home nav-icon"></i>Inicio</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'reservas:lista_reservas' %}" class="nav-link {% if request.resolver_match.app_name == 'reservas' and request.resolver_match.url_name != 'index' or request.resolver_match.app_name == 'calendario' %}active{% endif %}"><i class="fas fa-calendar-alt nav-icon"></i>Reservas</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'ambientes:lista' %}" class="nav-link {% if request.resolver_match.app_name == 'ambientes' %}active{% endif %}"><i class="fas fa-door-open nav-icon"></i>Ambientes</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'equipos:lista' %}" class="nav-link {% if request.resolver_match.app_name == 'equipos' %}active{% endif %}"><i class="fas fa-desktop nav-icon"></i>Equipos</a>
+                </div>
+                <div class="nav-item">
+                    <!-- solo superuser-->
+                    {% if user.is_staff %}
+                    <a href="{% url 'usuarios:lista_usuarios' %}" class="nav-link {% if request.resolver_match.app_name == 'usuarios' %}active{% endif %}"><i class="fas fa-users nav-icon"></i>Usuarios</a>
+                    {% endif %}
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'notificaciones:listar_notificaciones' %}" class="nav-link {% if request.resolver_match.app_name == 'notificaciones' %}active{% endif %}"><i class="fas fa-bell nav-icon"></i>Notificaciones</a>
+                </div>
+                <!-- base de datos (backups)-->
+                <div class="nav-item">
+                    {% if user.is_staff %}
+                    <a href="{% url 'backups:backup_dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'backups' %}active{% endif %}"><i class="fas fa-database nav-icon"></i>Backups</a>
+                    {% endif %}
+                </div>
+                <div class="nav-item">
+                    <!-- solo superuser-->
+                    {% if user.is_staff %}
+                    <a href="{% url 'admin:index' %}" class="nav-link"><i class="fas fa-cog nav-icon"></i> Panel Admin</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <div class="nav-item mt-4">
+                    <hr class="nav-divider">
+                    <a href="{% url 'login:logout' %}" class="nav-link text-danger">
+                        <i class="fas fa-sign-out-alt nav-icon"></i>Cerrar Sesión
+                    </a>
+                    <div class="nav-user-info text-center mt-2">
+                        <small>Conectado como:</small>
+                        <a href="{% url 'usuarios:perfil' %}" style="text-decoration: none; font-weight: bold;">
+                            {% if user.nombres or user.apellidos %}
+                                {{ user.nombres }} {{ user.apellidos }}
+                            {% else %}
+                                {{ user.documento }}
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </nav>
+    </div>
+    
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    {% endif %}
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="content-wrapper animate__animated animate__fadeIn">
+        {% block content %}{% endblock content %}
+    </div>
+
+    <!-- Widget de Accesibilidad -->
+    <div class="accessibility-widget">
+        <button id="accessibility-fab" class="accessibility-fab" aria-label="Herramientas de accesibilidad">
+            <i class="fas fa-universal-access"></i>
+        </button>
+        <div id="accessibility-panel" class="accessibility-panel">
+            <div class="panel-header">
+                <h3>Accesibilidad</h3>
+                <button id="close-accessibility-panel" class="close-btn" aria-label="Cerrar panel de accesibilidad">&times;</button>
+            </div>
+            <div class="panel-grid">
+                <button id="increase-text" data-action="increase-text"><i class="fas fa-search-plus"></i><span>Aumentar Texto</span></button>
+                <button id="decrease-text" data-action="decrease-text"><i class="fas fa-search-minus"></i><span>Disminuir Texto</span></button>
+                <button id="high-contrast" data-action="high-contrast"><i class="fas fa-adjust"></i><span>Alto Contraste</span></button>
+                <button id="grayscale" data-action="grayscale"><i class="fas fa-palette"></i><span>Escala de Grises</span></button>
+                <button id="highlight-links" data-action="highlight-links"><i class="fas fa-link"></i><span>Resaltar Enlaces</span></button>
+                <button id="highlight-headers" data-action="highlight-headers"><i class="fas fa-heading"></i><span>Resaltar Títulos</span></button>
+                <button id="big-cursor" data-action="big-cursor"><i class="fas fa-mouse-pointer"></i><span>Cursor Grande</span></button>
+                <button id="reset-accessibility" data-action="reset"><i class="fas fa-undo"></i><span>Restablecer</span></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    <script src="{% static 'js/app.js' %}"></script>
+
+    {% block extra_js %} 
+    {% endblock extra_js %}
+
+</body>
+
+</html>

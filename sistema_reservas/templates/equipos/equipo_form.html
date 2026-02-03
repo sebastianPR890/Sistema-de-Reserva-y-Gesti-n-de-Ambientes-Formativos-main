@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}Editar Equipo: {{ form.instance.nombre }}{% else %}Crear Nuevo Equipo{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            {% include 'messages.html' %}
+
+            <!-- Header -->
+            <div class="mb-4 animate__animated animate__fadeInDown">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h1 class="display-6 fw-bold text-white mb-2">
+                            {% if form.instance.pk %}
+                                <i class="fas fa-edit me-2"></i> Editar Equipo
+                            {% else %}
+                                <i class="fas fa-plus-circle me-2"></i> Agregar Nuevo Equipo
+                            {% endif %}
+                        </h1>
+                        <p class="text-white-50 mb-0">
+                            {% if form.instance.pk %}
+                                Modifica los detalles del equipo <strong>{{ form.instance.nombre }}</strong>.
+                            {% else %}
+                                Completa el formulario para añadir un equipo al ambiente <strong>{{ ambiente.nombre }}</strong>.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Form Card -->
+            <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" id="equipoForm" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Errores generales del formulario -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger mb-4">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Por favor, corrige los siguientes errores:</strong>
+                                <ul class="mb-0 mt-2">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        <!-- Sección de Información Principal -->
+                        <div class="form-section mb-5">
+                            <div class="section-header mb-4">
+                                <h5 class="fw-bold text-success mb-1"><i class="fas fa-id-card me-2"></i>Información Principal</h5>
+                                <div class="divider"></div>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    {% include 'partials/form_field.html' with field=form.codigo %}
+                                </div>
+                                <div class="col-md-4">
+                                    {% include 'partials/form_field.html' with field=form.nombre %}
+                                </div>
+                                <div class="col-md-4">
+                                    {% include 'partials/form_field.html' with field=form.estado %}
+                                </div>
+                                <div class="col-md-4">
+                                    {% include 'partials/form_field.html' with field=form.ambiente %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Detalles Técnicos -->
+                        <div class="form-section mb-5">
+                            <div class="section-header mb-4">
+                                <h5 class="fw-bold text-success mb-1"><i class="fas fa-cogs me-2"></i>Detalles Técnicos</h5>
+                                <div class="divider"></div>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    {% include 'partials/form_field.html' with field=form.marca %}
+                                </div>
+                                <div class="col-md-4">
+                                    {% include 'partials/form_field.html' with field=form.modelo %}
+                                </div>
+                                <div class="col-md-4">
+                                    {% include 'partials/form_field.html' with field=form.serie %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Descripción y Observaciones -->
+                        <div class="form-section mb-5">
+                            <div class="section-header mb-4">
+                                <h5 class="fw-bold text-success mb-1"><i class="fas fa-file-alt me-2"></i>Descripción y Observaciones</h5>
+                                <div class="divider"></div>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    {% include 'partials/form_field.html' with field=form.descripcion %}
+                                </div>
+                                <div class="col-md-6">
+                                    {% include 'partials/form_field.html' with field=form.observaciones %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nota de campos obligatorios -->
+                        <div class="text-muted mb-4 small border-top pt-3">
+                            <i class="fas fa-asterisk text-danger me-1" style="font-size: 0.6rem;"></i>
+                            <span class="text-danger fw-semibold">*</span> Campos obligatorios
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex gap-3 justify-content-end flex-wrap">
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="fas fa-save me-2"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Reutilizo los estilos de los formularios de reserva para mantener la consistencia #}
+<style>
+/* Breadcrumb personalizado */
+.breadcrumb-item + .breadcrumb-item::before { color: rgba(255, 255, 255, 0.5); }
+
+/* Sección Header */
+.section-header h5 { position: relative; display: inline-block; }
+.divider { height: 3px; width: 60px; background: linear-gradient(90deg, #28a745 0%, transparent 100%); border-radius: 2px; margin-top: 8px; }
+
+/* Estilos del Formulario */
+.form-label { color: #2c3e50; margin-bottom: 0.625rem; font-size: 0.95rem; }
+.form-control, .form-select { border: 2px solid #e9ecef; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 0.95rem; transition: all 0.3s ease; background-color: #f8f9fa; }
+.form-control:focus, .form-select:focus { border-color: #28a745; box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15); background-color: #fff; outline: none; }
+.form-control:hover, .form-select:hover { border-color: #28a745; background-color: #fff; }
+
+/* Input Group Moderno */
+.input-group-modern { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border-radius: 0.75rem; overflow: hidden; }
+.input-group-modern .input-group-text { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 0.75rem 1rem; min-width: 50px; display: flex; align-items: center; justify-content: center; }
+.input-group-modern .form-control, .input-group-modern .form-select { border: none; border-radius: 0; border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem; }
+
+/* Textarea */
+textarea.form-control { min-height: 120px; resize: vertical; }
+
+/* Botones */
+.btn { padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 0.75rem; transition: all 0.3s ease; text-transform: uppercase; font-size: 0.875rem; letter-spacing: 0.5px; }
+.btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3); }
+.btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4); background: linear-gradient(135deg, #218838 0%, #1fa589 100%); }
+.btn-outline-secondary { border: 2px solid #6c757d; color: #6c757d; background: transparent; }
+.btn-outline-secondary:hover { background: #6c757d; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3); }
+.btn-outline-light { border: 2px solid white; color: white; }
+.btn-outline-light:hover { background: white; color: #28a745; transform: translateY(-2px); }
+
+/* Tarjeta */
+.card { transition: all 0.3s ease; }
+.rounded-4 { border-radius: 1rem !important; }
+
+/* Feedback de Validación */
+.invalid-feedback { color: #dc3545; font-size: 0.875rem; display: flex; align-items: center; margin-top: 0.5rem; }
+.form-control.is-invalid, .form-select.is-invalid { border-color: #dc3545; background-color: #fff5f5; }
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .display-6 { font-size: 1.75rem; }
+    .btn-lg { padding: 0.625rem 1.25rem; font-size: 0.875rem; }
+    .card-body { padding: 1.5rem !important; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('equipoForm');
+    
+    // Aplica clases de Bootstrap a los campos del formulario que no las tengan
+    const formControls = form.querySelectorAll('input, select, textarea');
+    formControls.forEach(control => {
+        if (control.type !== 'hidden' && !control.classList.contains('form-check-input')) {
+            if (control.tagName === 'SELECT') {
+                control.classList.add('form-select');
+            } else {
+                control.classList.add('form-control');
+            }
+        }
+    });
+
+    // Añade clases de error de Bootstrap si Django las detecta
+    const errorFields = form.querySelectorAll('.is-invalid');
+    errorFields.forEach(field => {
+        field.classList.add('is-invalid');
+    });
+});
+</script>
+{% endblock %}

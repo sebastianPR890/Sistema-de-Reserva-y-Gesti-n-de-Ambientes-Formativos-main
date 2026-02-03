@@ -1,0 +1,98 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Sistema de Reservas SENA{% endblock %}
+
+{% block extrastyle %}
+<style>
+    :root {
+        --primary: #39a900;
+        --secondary: #20c997;
+        --accent: #155724;
+        --primary-fg: #fff;
+    }
+
+    /* Header */
+    #header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: var(--primary-fg);
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    }
+
+    #header a:link, #header a:visited {
+        color: var(--primary-fg);
+    }
+
+    /* Sidebar */
+    .module h2, .module caption {
+        background: var(--primary);
+        color: var(--primary-fg);
+    }
+
+    div.breadcrumbs {
+        background: var(--accent);
+    }
+
+    /* Links y botones */
+    a:link, a:visited {
+        color: var(--primary);
+    }
+
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: var(--primary);
+    }
+
+    .button:hover, input[type=submit]:hover, input[type=button]:hover {
+        background: var(--secondary);
+    }
+
+    .button.default, input[type=submit].default {
+        background: var(--accent);
+    }
+
+    /* Lists */
+    #changelist-filter h2 {
+        background: var(--primary);
+    }
+
+    #changelist .actions {
+        background: #f8fff8;
+    }
+
+    /* Forms */
+    .selector-chosen h2 {
+        background: var(--primary) !important;
+    }
+
+    .calendar td.selected a {
+        background: var(--primary);
+    }
+
+    .calendar td a:hover {
+        background: var(--secondary);
+    }
+
+    /* Dashboard */
+    .dashboard .module table th {
+        background: #f8fff8;
+    }
+
+    .dashboard .module table tr:hover {
+        background: #e8f5e9;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <img src="https://www.soydebuenaventura.com/media/transparent/20230802_logosena.png" 
+             alt="SENA Logo" 
+             height="40" 
+             style="margin-right: 10px; vertical-align: middle;">
+        Administración SENA
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

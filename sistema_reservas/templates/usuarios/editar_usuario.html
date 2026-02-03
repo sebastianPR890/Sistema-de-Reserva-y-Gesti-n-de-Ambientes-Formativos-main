@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .page-title {
+        color: #fff;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        margin-left: 2rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    .edit-card {
+        background-color: #ffffff;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin: 1rem 2rem 2rem 2rem;
+    }
+    .form-check {
+        padding-left: 1.5em; /* Ajustar el padding para los checkboxes */
+        margin-bottom: 0.5rem;
+    }
+    .form-check-input {
+        margin-right: 0.5rem;
+    }
+    .text-muted.fw-bold {
+        color: #495057 !important;
+    }
+</style>
+
+<h1 class="page-title">
+    <i class="fas fa-user-edit me-2"></i>
+    Editar Usuario: {{ usuario.nombre_completo }}
+</h1>
+
+<div class="edit-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <h4 class="mb-3 text-success"><i class="fas fa-id-card me-2"></i>Información Básica</h4>
+                
+                {% for field in form %}
+                    {% if field.name in "documento,nombres,apellidos,email,telefono,rol" %}
+                        <div class="mb-3">
+                            <label class="form-label text-muted fw-bold">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors }}</div>{% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if request.user.is_superuser %}
+            <div class="col-md-6">
+                <h4 class="mb-3 text-success"><i class="fas fa-user-shield me-2"></i>Permisos y Estado</h4>
+                
+                <div class="border p-3 rounded bg-light">
+                    {% for field in form %}
+                        {% if field.name in "activo,is_staff,is_superuser" %}
+                            <div class="form-check mb-2">
+                                {{ field }}
+                                <label class="form-check-label" for="{{ field.id_for_label }}">
+                                    <span class="fw-bold">{{ field.label }}</span>
+                                    <small class="text-muted d-block ps-4">
+                                        {% if field.name == 'activo' %}Controla si el usuario puede acceder al sistema.
+                                        {% elif field.name == 'is_staff' %}Permite acceso al panel de administración (Admins y Coordinadores).
+                                        {% elif field.name == 'is_superuser' %}Otorga todos los permisos sin restricción.
+                                        {% endif %}
+                                    </small>
+                                </label>
+                            </div>
+                            {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors }}</div>{% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <hr class="my-4">
+        
+        <div class="d-flex justify-content-start gap-3">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-save me-2"></i>Guardar Cambios
+            </button>
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times me-2"></i>Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

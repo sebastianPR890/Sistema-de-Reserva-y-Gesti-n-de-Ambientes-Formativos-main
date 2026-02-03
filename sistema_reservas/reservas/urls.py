@@ -1,0 +1,19 @@
+from django.urls import path
+from . import views
+
+app_name = 'reservas'
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('reservas/', views.lista_reservas, name='lista_reservas'),
+    path('crear/', views.crear_reserva, name='crear_reserva'),
+    path('<int:pk>/editar/', views.editar_reserva, name='editar_reserva'),
+    path('<int:pk>/eliminar/', views.eliminar_reserva, name='eliminar_reserva'),
+    path('manual/', views.manual_usuario, name='manual_usuario'),
+    path('manual/descargar/', views.descargar_manual_pdf, name='descargar_manual_pdf'),
+    path('reporte/pdf/', views.descargar_reporte_pdf, name='descargar_reporte_pdf'),
+    path('reserva/<int:pk>/aprobar/', views.aprobar_reserva, name='aprobar_reserva'),
+    path('reserva/<int:pk>/cancelar/', views.cancelar_reserva, name='cancelar_reserva'),
+    path('calendario/api/reservas/', views.obtener_reservas_calendario, name='api_reservas_calendario'),
+    path('calendario/crear/', views.crear_reserva_calendario, name='crear_reserva_calendario'),
+]

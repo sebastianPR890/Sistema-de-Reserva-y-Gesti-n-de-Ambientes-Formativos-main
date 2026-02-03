@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    {% include 'messages.html' %} {# Para mostrar mensajes de éxito/error #}
+
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h2 class="mb-0">Confirmar Eliminación de Equipo</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">¿Estás seguro de que deseas eliminar el equipo "<strong>{{ object.nombre }}</strong>" con código <strong>{{ object.codigo }}</strong>?</p>
+            <p class="text-danger fw-bold">Esta acción no se puede deshacer y el equipo será eliminado permanentemente.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger me-2">
+                    <i class="fas fa-trash"></i> Eliminar Equipo
+                </button>
+                <a href="{% url 'ambientes:detalle' object.ambiente.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times-circle"></i> Cancelar
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,771 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
+    <div class="px-4 py-4">
+        <!-- Header Section -->
+        <div class="page-header mb-4 animate__animated animate__fadeInDown">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h1 class="mb-2 text-white fw-bold">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Gestión de Reservas
+                    </h1>
+                    <p class="text-white-50 mb-0">Administra y controla todas las reservas de ambientes</p>
+                </div>
+                <div>
+                    <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-light btn-lg shadow-lg">
+                        <i class="fas fa-plus-circle me-2"></i>Nueva Reserva
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card border-0 shadow-lg h-100 animate__animated animate__fadeInUp">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-2 small fw-semibold text-uppercase">Total Reservas</p>
+                                <h2 class="mb-0 fw-bold" style="color: #2c3e50;">{{ total_reservas }}</h2>
+                            </div>
+                            <div class="stat-icon stat-icon-primary">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                        </div>
+                        <div class="progress mt-3" style="height: 4px;">
+                            <div class="progress-bar bg-primary" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card border-0 shadow-lg h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-2 small fw-semibold text-uppercase">Pendientes</p>
+                                <h2 class="mb-0 fw-bold text-warning">{{ reservas_pendientes }}</h2>
+                            </div>
+                            <div class="stat-icon stat-icon-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="progress mt-3" style="height: 4px;">
+                            <div class="progress-bar bg-warning" style="width: {% widthratio reservas_pendientes total_reservas 100 %}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card border-0 shadow-lg h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-2 small fw-semibold text-uppercase">Aprobadas</p>
+                                <h2 class="mb-0 fw-bold text-success">{{ reservas_aprobadas }}</h2>
+                            </div>
+                            <div class="stat-icon stat-icon-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="progress mt-3" style="height: 4px;">
+                            <div class="progress-bar bg-success" style="width: {% widthratio reservas_aprobadas total_reservas 100 %}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card border-0 shadow-lg h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-2 small fw-semibold text-uppercase">Canceladas</p>
+                                <h2 class="mb-0 fw-bold text-danger">{{ reservas_canceladas }}</h2>
+                            </div>
+                            <div class="stat-icon stat-icon-danger">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                        </div>
+                        <div class="progress mt-3" style="height: 4px;">
+                            <div class="progress-bar bg-danger" style="width: {% widthratio reservas_canceladas total_reservas 100 %}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+            <div class="card-header bg-white border-bottom-0 py-4 rounded-top-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-list me-2 text-success"></i>
+                        {% if user_type == 'admin' %}
+                            Todas las Reservas
+                        {% else %}
+                            Mis Reservas
+                        {% endif %}
+                    </h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <div class="input-group" style="max-width: 300px;">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-search text-success"></i>
+                            </span>
+                            <input type="text" id="searchInput" class="form-control border-start-0 search-input" placeholder="Buscar reserva...">
+                        </div>
+                        {% if user.is_staff %}
+                        <a href="{% url 'reservas:descargar_reporte_pdf' %}" class="btn btn-danger">
+                            <i class="fa fa-download"></i> DESCARGAR REPORTE PDF
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="reservasTable">
+                        <thead class="table-light">
+                            <tr>
+                                {% if user_type == 'admin' %}
+                                <th class="py-3 border-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user me-2 text-success"></i>
+                                        <span class="fw-bold">Usuario</span>
+                                    </div>
+                                </th>
+                                {% endif %}
+                                <th class="px-4 py-3 border-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-door-open me-2 text-success"></i>
+                                        <span class="fw-bold">Ambiente</span>
+                                    </div>
+                                </th>
+                                <th class="py-3 border-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-calendar-day me-2 text-success"></i>
+                                        <span class="fw-bold">Fecha Inicio</span>
+                                    </div>
+                                </th>
+                                <th class="py-3 border-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-calendar-times me-2 text-success"></i>
+                                        <span class="fw-bold">Fecha Fin</span>
+                                    </div>
+                                </th>
+                                <th class="py-3 border-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-info-circle me-2 text-success"></i>
+                                        <span class="fw-bold">Estado</span>
+                                    </div>
+                                </th>
+                                <th class="text-center py-3 border-0" style="width: 180px;">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-cog me-2 text-success"></i>
+                                        <span class="fw-bold">Acciones</span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reserva in reservas %}
+                            <tr class="table-row">
+                                {% if user_type == 'admin' %}
+                                <td class="py-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-icon-modern me-3">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">{{ reserva.usuario.get_full_name }}</div>
+                                            <small class="text-muted">{{ reserva.usuario.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                {% endif %}
+                                <td class="px-4 py-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-icon-modern me-3">
+                                            <i class="fas fa-door-open"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">{{ reserva.ambiente }}</div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-users me-1"></i>
+                                                Capacidad: {{ reserva.ambiente.capacidad|default:"N/A" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3">
+                                    <div class="mb-1">
+                                        <i class="far fa-calendar text-success me-2"></i>
+                                        <span class="fw-medium text-dark">{{ reserva.fecha_inicio|date:"d/m/Y" }}</span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="far fa-clock me-1"></i>{{ reserva.fecha_inicio|date:"h:i A" }}
+                                    </small>
+                                </td>
+                                <td class="py-3">
+                                    <div class="mb-1">
+                                        <i class="far fa-calendar text-success me-2"></i>
+                                        <span class="fw-medium text-dark">{{ reserva.fecha_fin|date:"d/m/Y" }}</span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="far fa-clock me-1"></i>{{ reserva.fecha_fin|date:"h:i A" }}
+                                    </small>
+                                </td>
+                                <td class="py-3">
+                                    <span class="badge-modern badge-warning">
+                                        <i class="fas fa-circle me-1"></i>
+                                        {{ reserva.get_estado_display }}
+                                    </span>
+                                </td>
+                                <td class="text-center py-3">
+                                    <div class="btn-group-modern" role="group">
+                                        {% if user.is_staff and reserva.estado == 'pendiente' %}
+                                            <a href="{% url 'reservas:aprobar_reserva' reserva.pk %}" 
+                                                class="btn-action btn-action-approve" 
+                                                data-bs-toggle="tooltip" 
+                                                onclick="return confirm('¿Está seguro de aprobar esta reserva?')"
+                                                title="Aprobar reserva">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                            <a href="{% url 'reservas:cancelar_reserva' reserva.pk %}" 
+                                                class="btn-action btn-action-cancel" 
+                                                data-bs-toggle="tooltip"
+                                                onclick="return confirm('¿Está seguro de cancelar esta reserva?')"
+                                                title="Cancelar reserva">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        {% endif %}
+                                        <a href="{% url 'reservas:editar_reserva' reserva.pk %}" 
+                                            class="btn-action btn-action-edit" 
+                                            data-bs-toggle="tooltip" 
+                                            title="Editar reserva">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'reservas:eliminar_reserva' reserva.pk %}" 
+                                            class="btn-action btn-action-delete" 
+                                            data-bs-toggle="tooltip" 
+                                            title="Eliminar reserva"
+                                            onclick="return confirm('¿Está seguro de eliminar esta reserva?')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <div class="empty-icon mb-4">
+                                            <i class="fas fa-calendar-times"></i>
+                                        </div>
+                                        <h4 class="text-muted fw-bold mb-2">No hay reservas registradas</h4>
+                                        <p class="text-muted mb-4">Comienza creando tu primera reserva de ambiente</p>
+                                        <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-success btn-lg">
+                                            <i class="fas fa-plus-circle me-2"></i>Crear Primera Reserva
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% if reservas %}
+            <div class="card-footer bg-white border-top py-3 rounded-bottom-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <small class="text-muted fw-semibold">
+                        <i class="fas fa-database me-1"></i>
+                        Mostrando <span class="text-success fw-bold">{{ reservas|length }}</span> reserva(s)
+                    </small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Info Card -->
+        <div class="card border-0 bg-white bg-opacity-90 shadow-sm rounded-4 mt-4 animate__animated animate__fadeInUp" style="animation-delay: 0.6s">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start">
+                    <div class="info-icon me-3">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-2 fw-bold text-success">Consejos útiles</h6>
+                        <ul class="mb-0 small text-muted ps-3">
+                            <li>Usa el buscador para encontrar reservas rápidamente</li>
+                            <li>Los colores de las tarjetas indican el estado de tus reservas</li>
+                            <li>Puedes editar o eliminar reservas desde la columna de acciones</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Global Styles */
+.page-header h1 {
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+.rounded-top-4 {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+}
+
+.rounded-bottom-4 {
+    border-bottom-left-radius: 1rem !important;
+    border-bottom-right-radius: 1rem !important;
+}
+
+/* Stat Cards */
+.stat-card {
+    transition: all 0.3s ease;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 1rem 3rem rgba(0,0,0,0.175) !important;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    font-size: 1.75rem;
+}
+
+.stat-icon-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.stat-icon-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.stat-icon-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.stat-icon-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Search Input */
+.search-input {
+    border-left: none !important;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    box-shadow: none;
+    border-color: #28a745 !important;
+}
+
+.input-group:focus-within .input-group-text {
+    border-color: #28a745;
+}
+
+/* Table Styles */
+.table {
+    font-size: 0.95rem;
+}
+
+.table thead th {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(32, 201, 151, 0.05) 100%);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.table-row {
+    transition: all 0.3s ease;
+}
+
+.table-row:hover {
+    background: linear-gradient(90deg, rgba(40, 167, 69, 0.03) 0%, transparent 100%);
+    transform: translateX(5px);
+}
+
+/* Avatar Icon Modern */
+.avatar-icon-modern {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-radius: 0.75rem;
+    color: white;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+/* Badge Modern */
+.badge-modern {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%);
+    color: #ff9800;
+    border: 2px solid rgba(255, 193, 7, 0.3);
+}
+
+.badge-modern i {
+    font-size: 0.5rem;
+}
+
+/* Button Actions Modern */
+.btn-group-modern {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+}
+
+.btn-action-edit {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.1) 0%, rgba(0, 86, 179, 0.1) 100%);
+    color: #007bff;
+}
+
+.btn-action-edit:hover {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-action-view {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    color: #28a745;
+}
+
+.btn-action-view:hover {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-action-delete {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(200, 35, 51, 0.1) 100%);
+    color: #dc3545;
+}
+
+.btn-action-delete:hover {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-action-approve {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    color: #28a745;
+}
+
+.btn-action-approve:hover {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-action-cancel {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(200, 35, 51, 0.1) 100%);
+    color: #dc3545;
+}
+
+.btn-action-cancel:hover {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+.btn-light {
+    background: white;
+    color: #28a745;
+    border: none;
+}
+
+.btn-light:hover {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #218838 0%, #1fa589 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.btn-outline-success {
+    border: 2px solid #28a745;
+    color: #28a745;
+}
+
+.btn-outline-success:hover {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-color: #28a745;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Empty State */
+.empty-state {
+    padding: 3rem 1rem;
+}
+
+.empty-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-icon i {
+    font-size: 4rem;
+    color: #28a745;
+    opacity: 0.5;
+}
+
+/* Info Icon */
+.info-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info-icon i {
+    color: white;
+    font-size: 1.75rem;
+}
+
+/* Pagination */
+.pagination {
+    gap: 0.25rem;
+}
+
+.page-link {
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+    color: #28a745;
+    font-weight: 600;
+}
+
+.page-link:hover {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-color: #28a745;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white !important;
+    }
+    .btn, .page-header button, .btn-group-modern {
+        display: none !important;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .btn-group-modern {
+        flex-direction: column;
+    }
+    
+    .table {
+        font-size: 0.875rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const tableRows = document.querySelectorAll('#reservasTable tbody tr:not(.empty-state)');
+            
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Smooth scroll for new reservation button
+    const buttons = document.querySelectorAll('a[href^="#"]');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href !== '#') {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    });
+
+    // Add animation to table rows on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate__fadeIn');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.table-row').forEach(row => {
+        observer.observe(row);
+    });
+});
+
+</script>
+{% endblock %}

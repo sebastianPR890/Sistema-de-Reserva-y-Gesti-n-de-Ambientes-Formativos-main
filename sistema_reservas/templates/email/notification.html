@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }}</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center">
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td align="center" style="padding: 20px; background-color: #007bff; color: #ffffff;">
+                            <h1 style="margin: 0;">Notificación del Sistema de Reservas</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px;">
+                            <h2 style="color: #333333;">{{ titulo }}</h2>
+                            <p style="color: #555555; line-height: 1.6;">
+                                {{ mensaje|linebreaksbr }}
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding: 20px; background-color: #f4f4f4; color: #888888; font-size: 12px;">
+                            <p style="margin: 0;">Este es un correo electrónico generado automáticamente. Por favor, no respondas a este mensaje.</p>
+                            <p style="margin: 5px 0 0;">Sistema de Reserva y Gestión de Ambientes Formativos</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

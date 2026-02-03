@@ -1,0 +1,661 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <!-- Header -->
+            <div class="mb-4 animate__animated animate__fadeInDown">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-transparent">
+                        <li class="breadcrumb-item">
+                            <a href="/" class="text-white text-decoration-none">
+                                <i class="fas fa-home me-1"></i>Inicio
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'reservas:lista_reservas' %}" class="text-white text-decoration-none">Reservas</a>
+                        </li>
+                        <li class="breadcrumb-item active text-white-50">Editar Reserva</li>
+                    </ol>
+                </nav>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h1 class="display-6 fw-bold text-white mb-2">
+                            <i class="fas fa-edit me-2"></i>
+                            Editar Reserva
+                        </h1>
+                        <p class="text-white-50 mb-0">Modifica la información de la reserva seleccionada</p>
+                    </div>
+                    <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                </div>
+            </div>
+
+            <!-- Alert Info -->
+            <div class="alert alert-warning-custom border-0 mb-4 animate__animated animate__fadeIn">
+                <div class="d-flex align-items-start">
+                    <div class="alert-icon-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="alert-heading fw-bold mb-1">Editando reserva existente</h6>
+                        <small>Los cambios afectarán la reserva actual. Verifica la información antes de guardar.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
+                <div class="card-header bg-gradient-success text-white py-3 rounded-top-4">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-pen-to-square me-2"></i>
+                        Actualizar Información
+                    </h5>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" id="editarReservaForm">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger-custom border-0 mb-4">
+                            <div class="d-flex align-items-start">
+                                <div class="alert-icon-danger">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="alert-heading fw-bold mb-2">Por favor, corrige los siguientes errores:</h6>
+                                    <ul class="mb-0 ps-3 small">
+                                        {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Datos de la Reserva -->
+                        <div class="form-section mb-5">
+                            <div class="section-header mb-4">
+                                <h5 class="fw-bold text-success mb-1">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Datos de la Reserva
+                                </h5>
+                                <div class="divider"></div>
+                            </div>
+                            
+                            <div class="row g-4">
+                                {% for field in form %}
+                                    {% if field.name != 'observaciones' %}
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">
+                                                {% if field.field.required %}
+                                                <span class="text-danger me-1">*</span>
+                                                {% endif %}
+                                                {{ field.label }}
+                                            </label>
+                                            
+                                            <div class="input-wrapper">
+                                                {% if field.name == 'ambiente' %}
+                                                <div class="input-group input-group-modern">
+                                                    <span class="input-group-text">
+                                                        <i class="fas fa-door-open text-success"></i>
+                                                    </span>
+                                                    {{ field }}
+                                                </div>
+                                                {% elif field.name == 'fecha_inicio' or field.name == 'fecha_fin' %}
+                                                <div class="input-group input-group-modern">
+                                                    <span class="input-group-text">
+                                                        <i class="fas fa-calendar text-success"></i>
+                                                    </span>
+                                                    {{ field }}
+                                                </div>
+                                                {% elif field.name == 'estado' %}
+                                                <div class="input-group input-group-modern">
+                                                    <span class="input-group-text">
+                                                        <i class="fas fa-flag text-success"></i>
+                                                    </span>
+                                                    {{ field }}
+                                                </div>
+                                                {% else %}
+                                                {{ field }}
+                                                {% endif %}
+                                                
+                                                {% if field.help_text %}
+                                                <small class="form-text text-muted d-block mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>{{ field.help_text }}
+                                                </small>
+                                                {% endif %}
+                                                
+                                                {% if field.errors %}
+                                                <div class="invalid-feedback d-block mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                                    {{ field.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Observaciones -->
+                        {% for field in form %}
+                            {% if field.name == 'observaciones' %}
+                            <div class="form-section mb-5">
+                                <div class="section-header mb-4">
+                                    <h5 class="fw-bold text-success mb-1">
+                                        <i class="fas fa-comment-alt me-2"></i>
+                                        Observaciones
+                                    </h5>
+                                    <div class="divider"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">
+                                        {% if field.field.required %}
+                                        <span class="text-danger me-1">*</span>
+                                        {% endif %}
+                                        {{ field.label }}
+                                    </label>
+                                    
+                                    <div class="input-group input-group-modern">
+                                        <span class="input-group-text align-items-start pt-3">
+                                            <i class="fas fa-pen text-success"></i>
+                                        </span>
+                                        {{ field }}
+                                    </div>
+                                    
+                                    {% if field.help_text %}
+                                    <small class="form-text text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>{{ field.help_text }}
+                                    </small>
+                                    {% endif %}
+                                    
+                                    {% if field.errors %}
+                                    <div class="invalid-feedback d-block mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ field.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Info Alert -->
+                        <div class="alert alert-info-custom border-0 mb-4">
+                            <div class="d-flex align-items-start">
+                                <div class="alert-icon-info">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="alert-heading fw-bold mb-2">Recuerda</h6>
+                                    <ul class="mb-0 ps-3 small">
+                                        <li>Verifica que las fechas no generen conflictos con otras reservas</li>
+                                        <li>Asegúrate de que el ambiente esté disponible</li>
+                                        <li>Los cambios se guardarán inmediatamente</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Required Fields Note -->
+                        <div class="text-muted mb-4 small border-top pt-3">
+                            <i class="fas fa-asterisk text-danger me-1" style="font-size: 0.6rem;"></i>
+                            <span class="text-danger fw-semibold">*</span> Campos obligatorios
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3 justify-content-end flex-wrap">
+                            <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="fas fa-save me-2"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Card -->
+            <div class="card border-0 bg-white bg-opacity-90 shadow-sm rounded-4 mt-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="help-icon me-3">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bold text-success">¿Necesitas ayuda?</h6>
+                            <small class="text-muted">
+                                Si tienes dudas sobre cómo editar la reserva, contacta al administrador del sistema
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Breadcrumb */
+.breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Section Header */
+.section-header h5 {
+    position: relative;
+    display: inline-block;
+}
+
+.divider {
+    height: 3px;
+    width: 60px;
+    background: linear-gradient(90deg, #28a745 0%, transparent 100%);
+    border-radius: 2px;
+    margin-top: 8px;
+}
+
+/* Gradients */
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+.rounded-top-4 {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+}
+
+/* Form Styling */
+.form-label {
+    color: #2c3e50;
+    margin-bottom: 0.625rem;
+    font-size: 0.95rem;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15);
+    background-color: #fff;
+    outline: none;
+}
+
+.form-control:hover, .form-select:hover {
+    border-color: #28a745;
+    background-color: #fff;
+}
+
+/* Input Group Modern */
+.input-group-modern {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.input-group-modern .input-group-text {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 1rem;
+    min-width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-group-modern .form-control,
+.input-group-modern .form-select {
+    border: none;
+    border-radius: 0;
+    border-top-right-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+}
+
+/* Textarea */
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Alert Warning Custom */
+.alert-warning-custom {
+    background: white;
+    border-left: 4px solid #ffc107;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.alert-icon-warning {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+.alert-icon-warning i {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.alert-warning-custom .alert-heading {
+    color: #856404;
+    font-weight: 700;
+}
+
+.alert-warning-custom small {
+    color: #856404;
+    font-weight: 500;
+}
+
+/* Alert Danger Custom */
+.alert-danger-custom {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(200, 35, 51, 0.1) 100%);
+    border-left: 4px solid #dc3545;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+}
+
+.alert-icon-danger {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.alert-icon-danger i {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.alert-danger-custom .alert-heading {
+    color: #721c24;
+}
+
+.alert-danger-custom ul li {
+    color: #721c24;
+    margin-bottom: 0.25rem;
+}
+
+/* Alert Info Custom */
+.alert-info-custom {
+    background: linear-gradient(135deg, rgba(13, 202, 240, 0.1) 0%, rgba(0, 123, 255, 0.1) 100%);
+    border-left: 4px solid #0dcaf0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+}
+
+.alert-icon-info {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #0dcaf0 0%, #007bff 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.alert-icon-info i {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.alert-info-custom .alert-heading {
+    color: #055160;
+}
+
+.alert-info-custom ul li {
+    color: #055160;
+    margin-bottom: 0.25rem;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #218838 0%, #1fa589 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    background: transparent;
+}
+
+.btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.btn-outline-light {
+    border: 2px solid white;
+    color: white;
+}
+
+.btn-outline-light:hover {
+    background: white;
+    color: #28a745;
+    transform: translateY(-2px);
+}
+
+/* Help Card */
+.help-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.help-icon i {
+    color: white;
+    font-size: 1.75rem;
+}
+
+/* Animations */
+.form-section {
+    animation: slideInUp 0.6s ease;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Invalid feedback */
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .display-6 {
+        font-size: 1.75rem;
+    }
+    
+    .btn-lg {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editarReservaForm');
+    
+    // Add Bootstrap classes to form fields
+    const formControls = form.querySelectorAll('input, select, textarea');
+    formControls.forEach(control => {
+        if (!control.classList.contains('form-control') && !control.classList.contains('form-select')) {
+            if (control.tagName === 'SELECT') {
+                control.classList.add('form-select');
+            } else {
+                control.classList.add('form-control');
+            }
+        }
+    });
+
+    // Form validation on submit
+    form.addEventListener('submit', function(e) {
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+        let firstInvalidField = null;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('is-invalid');
+                if (!firstInvalidField) {
+                    firstInvalidField = field;
+                }
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            
+            // Scroll to first invalid field
+            if (firstInvalidField) {
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalidField.focus();
+            }
+            
+            // Show alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.style.maxWidth = '500px';
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Error:</strong> Por favor, complete todos los campos obligatorios
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    });
+
+    // Real-time validation on blur
+    const requiredFields = form.querySelectorAll('[required]');
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+        
+        field.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid') && this.value.trim()) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+
+    // Smooth animations on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.form-section').forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        section.style.transition = 'all 0.6s ease';
+        observer.observe(section);
+    });
+});
+</script>
+{% endblock %}

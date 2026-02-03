@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Solicitar Cambio de Rol - Sistema de Reservas{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-arrow-up-right"></i> Solicitar Cambio de Rol
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Información importante:</strong> Al solicitar un cambio de rol, un administrador revisará tu solicitud y te notificará sobre su decisión.
+                    </div>
+
+                    <form method="POST" action="{% url 'usuarios:solicitar_cambio_rol' %}">
+                        {% csrf_token %}
+
+                        <!-- Información del usuario actual -->
+                        <div class="mb-4 p-3 bg-light rounded">
+                            <p class="mb-2">
+                                <strong>Usuario:</strong> {{ user.nombre_completo }}
+                            </p>
+                            <p class="mb-0">
+                                <strong>Rol actual:</strong> 
+                                <span class="badge bg-secondary">{{ user.get_rol_display }}</span>
+                            </p>
+                        </div>
+
+                        <!-- Seleccionar rol -->
+                        <div class="mb-4">
+                            <label for="rol_solicitado" class="form-label fw-bold">
+                                <i class="fas fa-user-tie"></i> Rol que deseas solicitar
+                            </label>
+                            <select id="rol_solicitado" name="rol_solicitado" class="form-select form-select-lg" required>
+                                <option value="">-- Selecciona un rol --</option>
+                                {% for rol_value, rol_nombre in roles_disponibles %}
+                                    <option value="{{ rol_value }}">
+                                        {{ rol_nombre }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-lightbulb"></i> Selecciona el rol para el cual quieres solicitar acceso.
+                            </small>
+                        </div>
+
+                        <!-- Descripción de roles -->
+                        <div class="mb-4 p-3 bg-light rounded">
+                            <p class="fw-bold mb-3">Descripción de roles:</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <strong>👨‍🏫 Instructor:</strong> Acceso a ambientes y equipos, puede crear y gestionar reservas.
+                                </li>
+                                <li class="mb-2">
+                                    <strong>🏢 Administrativo:</strong> Acceso a gestión de ambientes y equipos.
+                                </li>
+                                <li>
+                                    <strong>📋 Coordinador:</strong> Acceso completo, puede aprobar reservas.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Razón de solicitud (opcional) -->
+                        <div class="mb-4">
+                            <label for="razon" class="form-label fw-bold">
+                                <i class="fas fa-pen"></i> Razón de tu solicitud (opcional)
+                            </label>
+                            <textarea id="razon" name="razon" class="form-control" rows="4" placeholder="Cuéntanos por qué necesitas este cambio de rol..."></textarea>
+                            <small class="text-muted d-block mt-2">Esto ayudará a los administradores a tomar una mejor decisión.</small>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                            </button>
+                            <a href="{% url 'usuarios:perfil' %}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="mt-4 p-3 bg-light rounded text-center">
+                <p class="text-muted mb-1">
+                    <i class="fas fa-clock"></i> <strong>Tiempo de respuesta:</strong> Generalmente dentro de 24-48 horas.
+                </p>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-envelope"></i> Recibirás una notificación cuando tu solicitud sea procesada.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 12px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .badge {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+</style>
+{% endblock %}

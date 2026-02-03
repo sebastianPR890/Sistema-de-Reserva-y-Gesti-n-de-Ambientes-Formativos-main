@@ -1,0 +1,543 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Animaciones */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Contenedor principal */
+    .edit-profile-container {
+        padding: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Header de la página */
+    .page-header {
+        margin-bottom: 2rem;
+        animation: slideInLeft 0.6s ease-out;
+    }
+
+    .page-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-title i {
+        font-size: 2.2rem;
+    }
+
+    .page-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1rem;
+        margin-left: 3rem;
+    }
+
+    /* Tarjeta del formulario */
+    .edit-card {
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 40px rgba(57, 169, 0, 0.12);
+        overflow: hidden;
+        animation: fadeInUp 0.6s ease-out;
+        animation-delay: 0.2s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+    }
+
+    /* Header de la tarjeta con avatar */
+    .edit-card-header {
+        background: linear-gradient(135deg, #39a900 0%, #2ecc71 100%);
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .edit-card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg width="50" height="50" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="25" r="2" fill="white" opacity="0.1"/></svg>');
+        background-size: 50px 50px;
+    }
+
+    .avatar-upload-section {
+        position: relative;
+        z-index: 1;
+    }
+
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 3rem;
+        font-weight: 700;
+        color: #39a900;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        position: relative;
+    }
+
+    .avatar-upload-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #39a900 0%, #4ece00 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .avatar-upload-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .avatar-upload-btn input[type="file"] {
+        display: none;
+    }
+
+    .current-username {
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Cuerpo del formulario */
+    .edit-card-body {
+        padding: 2.5rem;
+    }
+
+    /* Grupo de formulario */
+    .form-group {
+        margin-bottom: 1.8rem;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.8rem;
+        font-size: 0.95rem;
+    }
+
+    .form-label i {
+        color: #39a900;
+        font-size: 1.1rem;
+    }
+
+    .form-label .required {
+        color: #e74c3c;
+        margin-left: 0.2rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        border: 2px solid #e8f5e9;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: #f8fff8;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #39a900;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(57, 169, 0, 0.1);
+    }
+
+    .form-control:hover {
+        border-color: #4ece00;
+    }
+
+    /* Grid para nombre y apellido */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    /* Mensajes de ayuda */
+    .form-help {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .form-help i {
+        font-size: 0.8rem;
+    }
+
+    /* Mensajes de error */
+    .form-error {
+        font-size: 0.85rem;
+        color: #e74c3c;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .form-error i {
+        font-size: 0.9rem;
+    }
+
+    /* Mensajes de éxito */
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border: 2px solid #b1dfbb;
+        color: #155724;
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .alert-success i {
+        font-size: 1.3rem;
+    }
+
+    /* Botones de acción */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e8f5e9;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        text-decoration: none;
+        justify-content: center;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #39a900 0%, #4ece00 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(57, 169, 0, 0.3);
+        flex: 1;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(57, 169, 0, 0.4);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #666;
+        border: 2px solid #e0e0e0;
+        flex: 1;
+    }
+
+    .btn-secondary:hover {
+        background: #f8f9fa;
+        border-color: #ccc;
+        transform: translateY(-2px);
+    }
+
+    /* Sección de información adicional */
+    .info-section {
+        background: linear-gradient(135deg, #e8f5e9 0%, #f0f9f0 100%);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #39a900;
+    }
+
+    .info-section-title {
+        font-weight: 700;
+        color: #1e8449;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-section-content {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .edit-profile-container {
+            padding: 1rem;
+        }
+
+        .edit-card-body {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+        }
+    }
+</style>
+
+<div class="edit-profile-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-user-edit"></i>
+            Editar Perfil
+        </h1>
+        <p class="page-subtitle">Actualiza tu información personal</p>
+    </div>
+
+    <!-- Tarjeta del formulario -->
+    <div class="edit-card">
+        <!-- Header con avatar -->
+        <div class="edit-card-header">
+            <div class="avatar-upload-section">
+                <div class="avatar-preview">
+                    {% if user.nombres %}
+                        {{ user.nombres.0|upper }}
+                    {% else %}
+                        {{ user.documento.0|upper }}
+                    {% endif %}
+                </div>
+                <label class="avatar-upload-btn" title="Cambiar foto de perfil">
+                    <i class="fas fa-camera"></i>
+                    <input type="file" accept="image/*">
+                </label>
+            </div>
+            <div class="current-username">{{ user.documento }}</div>
+        </div>
+
+        <!-- Cuerpo del formulario -->
+        <div class="edit-card-body">
+            <!-- Mensaje de éxito (mostrar si hay éxito) -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Información adicional -->
+            <div class="info-section">
+                <div class="info-section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Información importante
+                </div>
+                <div class="info-section-content">
+                    Mantén tu información actualizada para recibir notificaciones y confirmaciones de tus reservas.
+                </div>
+            </div>
+
+            <!-- Formulario -->
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Nombre y Apellido -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-user"></i>
+                            Nombre
+                            <span class="required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="nombres"
+                            class="form-control"
+                            value="{{ user.nombres }}"
+                            placeholder="Ingresa tu nombre"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-user"></i>
+                            Apellido
+                            <span class="required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="apellidos"
+                            class="form-control"
+                            value="{{ user.apellidos }}"
+                            placeholder="Ingresa tu apellido"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-envelope"></i>
+                        Correo Electrónico
+                        <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        class="form-control" 
+                        value="{{ user.email }}" 
+                        placeholder="ejemplo@correo.com"
+                        required
+                    >
+                    <div class="form-help">
+                        <i class="fas fa-info-circle"></i>
+                        Asegúrate de usar un correo válido para recibir notificaciones
+                    </div>
+                </div>
+
+                <!-- Documento (solo lectura) -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-id-card"></i>
+                        Documento
+                    </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="{{ user.documento }}"
+                        disabled
+                    >
+                    <div class="form-help">
+                        <i class="fas fa-lock"></i>
+                        El documento no se puede modificar
+                    </div>
+                </div>
+
+                <!-- Teléfono (si tienes este campo en tu modelo) -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-phone"></i>
+                        Teléfono
+                    </label>
+                    <input 
+                        type="tel" 
+                        name="telefono" 
+                        class="form-control" 
+                        value="{{ user.telefono|default:'' }}" 
+                        placeholder="3001234567"
+                    >
+                    <div class="form-help">
+                        <i class="fas fa-info-circle"></i>
+                        Opcional: Número de contacto
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Guardar Cambios
+                    </button>
+                    <a href="{% url 'usuarios:perfil' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Preview de imagen de avatar
+    document.querySelector('.avatar-upload-btn input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatar = document.querySelector('.avatar-preview');
+                avatar.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Animación de focus en inputs
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'translateX(3px)';
+        });
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'translateX(0)';
+        });
+    });
+</script>
+
+{% endblock %}

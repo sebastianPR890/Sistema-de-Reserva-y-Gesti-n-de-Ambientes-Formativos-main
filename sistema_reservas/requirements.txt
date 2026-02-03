@@ -1,0 +1,13 @@
+Django
+django-crispy-forms
+crispy-bootstrap4
+Pillow
+python-dotenv
+django-extensions
+django-import-export
+pytz
+mysqlclient
+reportlab
+
+#pip install -r requirements.txt
+#python version 3.13.5

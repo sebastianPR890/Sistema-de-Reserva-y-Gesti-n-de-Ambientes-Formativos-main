@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sistema de Backups{% endblock title %}
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Mensajes -->
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Header -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white py-3">
+            <h1 class="h3 mb-0"><i class="fas fa-database me-2"></i>Sistema de Backups de Base de Datos</h1>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4">Gestiona los backups de tu base de datos MySQL de forma simple y segura</p>
+            
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h3 class="text-primary">{{ total_backups }}</h3>
+                            <p class="mb-0">Backups Disponibles</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Acciones -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-white py-3">
+            <h2 class="h5 mb-0">Acciones Rápidas</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'backups:create_backup' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Crear Nuevo Backup
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Lista de Backups -->
+    <div class="card shadow">
+        <div class="card-header bg-white py-3">
+            <h2 class="h5 mb-0">Backups Disponibles</h2>
+        </div>
+        <div class="card-body">
+            {% if backups %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre del Archivo</th>
+                            <th>Fecha y Hora</th>
+                            <th>Tamaño</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for backup in backups %}
+                        <tr>
+                            <td><strong>{{ backup.filename }}</strong></td>
+                            <td>{{ backup.date|date:"d/m/Y H:i:s" }}</td>
+                            <td>{{ backup.size }} MB</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'backups:download_backup' backup.filename %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-download me-1"></i>Descargar
+                                    </a>
+                                    <button onclick="showRestoreModal('{{ backup.filename }}')" class="btn btn-sm btn-success">
+                                        <i class="fas fa-redo me-1"></i>Restaurar
+                                    </button>
+                                    <button onclick="showDeleteModal('{{ backup.filename }}')" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash me-1"></i>Eliminar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-database fa-4x text-muted mb-3"></i>
+                <h3 class="text-muted">No hay backups disponibles</h3>
+                <p class="text-muted">Crea tu primer backup usando el botón de arriba</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Restauración -->
+<div class="modal fade" id="restoreModal" tabindex="-1" aria-labelledby="restoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="restoreModalLabel"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Restauración</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>ADVERTENCIA:</strong> Esta acción reemplazará completamente la base de datos actual con el backup seleccionado. Todos los datos actuales se perderán.</p>
+                <p>¿Estás seguro de que deseas continuar?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="restoreForm" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="confirm" value="yes">
+                    <button type="submit" class="btn btn-success">Sí, Restaurar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel"><i class="fas fa-trash me-2"></i>Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este backup? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showRestoreModal(filename) {
+        const form = document.getElementById('restoreForm');
+        form.action = "{% url 'backups:restore_backup' 'PLACEHOLDER' %}".replace('PLACEHOLDER', filename);
+        const modal = new bootstrap.Modal(document.getElementById('restoreModal'));
+        modal.show();
+    }
+    
+    function showDeleteModal(filename) {
+        const form = document.getElementById('deleteForm');
+        form.action = "{% url 'backups:delete_backup' 'PLACEHOLDER' %}".replace('PLACEHOLDER', filename);
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+</script>
+{% endblock %}
