@@ -94,7 +94,7 @@ class EquipoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
         messages.success(self.request, "Equipo actualizado exitosamente.")
         return super().form_valid(form)
 
-class EquipoDetailView(DetailView):
+class EquipoDetailView(LoginRequiredMixin, DetailView):
     """
     Vista genérica para mostrar los detalles de un equipo.
     """

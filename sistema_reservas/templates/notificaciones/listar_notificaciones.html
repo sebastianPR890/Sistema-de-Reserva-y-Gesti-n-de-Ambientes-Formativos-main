@@ -1,559 +1,513 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Mis Notificaciones - SENA{% endblock %}
+
 {% block content %}
-
-<style>
-    /* Variables CSS tema SENA */
-    :root {
-        --sena-green: #39a900;
-        --sena-green-dark: #2d8700;
-        --sena-green-light: #4bc211;
-        --sena-teal: #00c8b3;
-        --sena-teal-dark: #00a894;
-        --text-dark: #1f2937;
-        --text-muted: #6b7280;
-        --background-light: #f8fafc;
-    }
-
-    /* Contenedor principal */
-    .notifications-container {
-        padding: 0;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    }
-
-    /* Encabezado estilo banner simple */
-    .page-header {
-        background: var(--sena-green);
-        color: white;
-        padding: 2rem 3rem;
-        margin: 0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        animation: slideDown 0.6s ease-out;
-    }
-
-    .header-content {
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-
-    .page-header h1 {
-        margin: 0 0 0.5rem 0;
-        font-size: 2rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        animation: slideDown 0.8s ease-out;
-    }
-
-    .page-header h1 i {
-        font-size: 1.75rem;
-    }
-
-    .page-subtitle {
-        margin: 0 0 1.5rem 0;
-        font-size: 1rem;
-        opacity: 0.95;
-        font-weight: 400;
-    }
-
-    /* Barra de filtros y acciones */
-    .header-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-        animation: slideDown 1s ease-out;
-    }
-
-    /* Grupo de botones de filtro */
-    .filter-buttons {
-        display: flex;
-        gap: 0.5rem;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 0.375rem;
-        border-radius: 0.75rem;
-        backdrop-filter: blur(10px);
-    }
-
-    .filter-btn {
-        padding: 0.625rem 1.5rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        border: none;
-        background: transparent;
-        color: white;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        font-size: 0.9375rem;
-    }
-
-    .filter-btn:hover {
-        background: rgba(255, 255, 255, 0.15);
-        color: white;
-    }
-
-    .filter-btn.active {
-        background: white;
-        color: var(--sena-green);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    /* Botón marcar todas */
-    .btn-mark-all {
-        background: white;
-        color: var(--sena-green);
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        font-weight: 700;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        font-size: 0.9375rem;
-        animation: slideDown 1.2s ease-out;
-    }
-
-    .btn-mark-all:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-        background: #f8f9fa;
-    }
-
-    /* Contenido de notificaciones */
-    .notifications-content {
-        padding: 2rem 3rem;
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-
-    /* Lista de notificaciones */
-    .notifications-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    /* Tarjeta de notificación */
-    .notification-card {
-        background: white;
-        border-radius: 1rem;
-        padding: 1.75rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        border-left: 5px solid;
-        position: relative;
-        animation: slideUp 0.6s ease-out both;
-    }
-
-    .notification-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(57, 169, 0, 0.15);
-    }
-
-    /* Notificación NO leída */
-    .notification-unread {
-        border-left-color: var(--sena-green);
-        background: linear-gradient(90deg, rgba(57, 169, 0, 0.03), white);
-    }
-
-    .notification-unread::before {
-        content: '';
-        position: absolute;
-        top: 1.75rem;
-        left: -8px;
-        width: 12px;
-        height: 12px;
-        background: var(--sena-green);
-        border-radius: 50%;
-        box-shadow: 0 0 0 3px white, 0 0 0 5px rgba(57, 169, 0, 0.2);
-        animation: pulse 2s ease-in-out infinite;
-    }
-
-    /* Notificación LEÍDA */
-    .notification-read {
-        border-left-color: #d1d5db;
-        opacity: 0.7;
-    }
-
-    .notification-read:hover {
-        opacity: 0.9;
-    }
-
-    /* Header de la notificación */
-    .notification-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 0.75rem;
-        gap: 1rem;
-    }
-
-    .notification-title {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .notification-unread .notification-title {
-        color: var(--sena-green-dark);
-    }
-
-    .notification-time {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        white-space: nowrap;
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-    }
-
-    .notification-time i {
-        font-size: 0.75rem;
-    }
-
-    /* Mensaje de notificación */
-    .notification-message {
-        color: var(--text-dark);
-        line-height: 1.6;
-        margin-bottom: 1rem;
-        font-size: 0.9375rem;
-    }
-
-    /* Footer de la notificación */
-    .notification-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 1rem;
-        border-top: 1px solid #f3f4f6;
-        gap: 1rem;
-    }
-
-    .notification-type {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.8125rem;
-        color: var(--text-muted);
-        font-weight: 600;
-        padding: 0.375rem 0.75rem;
-        background: var(--background-light);
-        border-radius: 0.5rem;
-    }
-
-    .notification-type i {
-        color: var(--sena-teal);
-    }
-
-    /* Botón marcar como leída */
-    .btn-mark-read {
-        padding: 0.5rem 1.25rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        font-size: 0.875rem;
-        border: 2px solid var(--sena-green);
-        background: white;
-        color: var(--sena-green);
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-    }
-
-    .btn-mark-read:hover {
-        background: var(--sena-green);
-        color: white;
-        transform: translateY(-1px);
-    }
-
-    /* Estado vacío */
-    .empty-state {
-        background: white;
-        border-radius: 1.5rem;
-        padding: 4rem 2rem;
-        text-align: center;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        animation: fadeIn 0.8s ease-out;
-    }
-
-    .empty-state i {
-        font-size: 5rem;
-        margin-bottom: 1.5rem;
-        background: linear-gradient(135deg, var(--sena-green), var(--sena-teal));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        opacity: 0.3;
-    }
-
-    .empty-state h4 {
-        color: var(--text-muted);
-        font-size: 1.25rem;
-        margin: 0;
-    }
-
-    /* Paginación */
-    .pagination-wrapper {
-        margin-top: 2rem;
-        display: flex;
-        justify-content: center;
-        animation: fadeIn 1s ease-out;
-    }
-
-    .pagination {
-        background: white;
-        padding: 0.75rem;
-        border-radius: 0.75rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .page-item .page-link {
-        color: var(--sena-green);
-        border: none;
-        padding: 0.5rem 1rem;
-        margin: 0 0.25rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-    .page-item .page-link:hover {
-        background: rgba(57, 169, 0, 0.1);
-        color: var(--sena-green-dark);
-    }
-
-    .page-item.active .page-link {
-        background: linear-gradient(135deg, var(--sena-green), var(--sena-green-light));
-        color: white;
-        box-shadow: 0 2px 8px rgba(57, 169, 0, 0.3);
-    }
-
-    /* Animaciones */
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes pulse {
-        0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-        50% {
-            opacity: 0.7;
-            transform: scale(1.1);
-        }
-    }
-
-    /* Delays para animación escalonada */
-    .notification-card:nth-child(1) { animation-delay: 0.1s; }
-    .notification-card:nth-child(2) { animation-delay: 0.2s; }
-    .notification-card:nth-child(3) { animation-delay: 0.3s; }
-    .notification-card:nth-child(4) { animation-delay: 0.4s; }
-    .notification-card:nth-child(5) { animation-delay: 0.5s; }
-    .notification-card:nth-child(n+6) { animation-delay: 0.6s; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .page-header {
-            padding: 2rem 1.5rem;
-        }
-
-        .page-header h1 {
-            font-size: 1.75rem;
-        }
-
-        .header-actions {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .filter-buttons {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .btn-mark-all {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .notifications-content {
-            padding: 1.5rem;
-        }
-
-        .notification-card {
-            padding: 1.25rem;
-        }
-
-        .notification-header {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .notification-footer {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .btn-mark-read {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-</style>
-
-<div class="notifications-container">
-    <div class="page-header">
-        <div class="header-content">
-            <h1>
-                <i class="fas fa-bell"></i>
-                Mis Notificaciones
-            </h1>
-            
-            <div class="header-actions">
-                <div class="filter-buttons">
-                    <a href="?estado=todas" class="filter-btn {% if estado_filtro == 'todas' %}active{% endif %}">
-                        <i class="fas fa-list"></i> Todas
-                    </a>
-                    <a href="?estado=no_leidas" class="filter-btn {% if estado_filtro == 'no_leidas' %}active{% endif %}">
-                        <i class="fas fa-envelope"></i> No Leídas
-                    </a>
-                    <a href="?estado=leidas" class="filter-btn {% if estado_filtro == 'leidas' %}active{% endif %}">
-                        <i class="fas fa-envelope-open"></i> Leídas
-                    </a>
+<div class="container-fluid py-4" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <!-- Header -->
+            <div class="mb-4 animate__animated animate__fadeInDown">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-transparent">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'reservas:index' %}" class="text-white text-decoration-none">
+                                <i class="fas fa-home me-1"></i>Inicio
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active text-white-50">Notificaciones</li>
+                    </ol>
+                </nav>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h1 class="display-6 fw-bold text-white mb-2">
+                            <i class="fas fa-bell me-2"></i>
+                            Mis Notificaciones
+                        </h1>
+                        <p class="text-white-50 mb-0">Gestiona tus notificaciones del sistema de reservas</p>
+                    </div>
+                    {% if notificaciones and no_leidas > 0 %}
+                    <button id="marcarTodasLeidas" class="btn btn-outline-light">
+                        <i class="fas fa-check-double me-2"></i>Marcar Todas como Leídas
+                    </button>
+                    {% endif %}
                 </div>
-                
-                {% if notificaciones and no_leidas > 0 %}
-                <button id="marcarTodasLeidas" class="btn-mark-all">
-                    <i class="fas fa-check-double"></i>
-                    Marcar Todas como Leídas
-                </button>
-                {% endif %}
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="row g-3 mb-4 animate__animated animate__fadeInUp">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-warning-subtle">
+                            <i class="fas fa-envelope text-warning"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ no_leidas|default:0 }}</h3>
+                            <p>Sin leer</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-success-subtle">
+                            <i class="fas fa-envelope-open text-success"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ leidas|default:0 }}</h3>
+                            <p>Leídas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-primary-subtle">
+                            <i class="fas fa-inbox text-primary"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ total_notificaciones|default:0 }}</h3>
+                            <p>Total</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 animate__animated animate__fadeInUp">
+                <div class="card-body py-3">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="fw-semibold text-muted me-2"><i class="fas fa-filter me-1"></i>Filtrar:</span>
+                        <a href="?estado=todas" class="btn btn-filter {% if estado_filtro == 'todas' or not estado_filtro %}active{% endif %}">
+                            <i class="fas fa-list me-1"></i> Todas
+                        </a>
+                        <a href="?estado=no_leidas" class="btn btn-filter {% if estado_filtro == 'no_leidas' %}active{% endif %}">
+                            <i class="fas fa-envelope me-1"></i> No Leídas
+                        </a>
+                        <a href="?estado=leidas" class="btn btn-filter {% if estado_filtro == 'leidas' %}active{% endif %}">
+                            <i class="fas fa-envelope-open me-1"></i> Leídas
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Notificaciones -->
+            <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
+                <div class="card-header bg-gradient-success text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-bell me-2"></i>Notificaciones
+                        {% if no_leidas > 0 %}
+                        <span class="badge bg-warning text-dark ms-2">{{ no_leidas }} nuevas</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if notificaciones %}
+                        <div class="notifications-list">
+                            {% for notificacion in notificaciones %}
+                            <div class="notification-card {% if not notificacion.leida %}notification-unread{% else %}notification-read{% endif %}"
+                                 id="notificacion-{{ notificacion.id }}">
+
+                                <div class="notification-header">
+                                    <h6 class="notification-title">
+                                        {% if not notificacion.leida %}
+                                        <span class="unread-indicator"></span>
+                                        {% endif %}
+                                        {{ notificacion.titulo }}
+                                    </h6>
+                                    <span class="notification-time">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ notificacion.fecha_de_creacion|timesince }}
+                                    </span>
+                                </div>
+
+                                <p class="notification-message">{{ notificacion.mensaje }}</p>
+
+                                <div class="notification-footer">
+                                    <span class="notification-type">
+                                        <i class="fas fa-tag me-1"></i>
+                                        {{ notificacion.get_tipo_display }}
+                                    </span>
+
+                                    {% if not notificacion.leida %}
+                                    <button class="btn btn-sm btn-outline-success marcar-leida" data-id="{{ notificacion.id }}">
+                                        <i class="fas fa-check me-1"></i>
+                                        Marcar como Leída
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Paginación -->
+                        {% if is_paginated %}
+                        <nav class="mt-4">
+                            <ul class="pagination justify-content-center mb-0">
+                                {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1&estado={{ estado_filtro }}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&estado={{ estado_filtro }}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                    </span>
+                                </li>
+
+                                {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&estado={{ estado_filtro }}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&estado={{ estado_filtro }}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="empty-state text-center py-5">
+                            <div class="empty-icon mb-3">
+                                <i class="fas fa-bell-slash"></i>
+                            </div>
+                            <h5 class="text-muted fw-bold">No hay notificaciones</h5>
+                            <p class="text-muted mb-0">
+                                No tienes notificaciones
+                                {% if estado_filtro == 'no_leidas' %}sin leer{% elif estado_filtro == 'leidas' %}leídas{% endif %}
+                                en este momento.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Help Card -->
+            <div class="card border-0 bg-white bg-opacity-90 shadow-sm rounded-4 mt-4 animate__animated animate__fadeInUp">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="help-icon me-3">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bold text-success">¿Necesitas ayuda?</h6>
+                            <small class="text-muted">
+                                Las notificaciones te informan sobre el estado de tus reservas, aprobaciones y cambios importantes en el sistema.
+                            </small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="notifications-content">
-        {% if notificaciones %}
-            <div class="notifications-list">
-                {% for notificacion in notificaciones %}
-                <div class="notification-card {% if not notificacion.leida %}notification-unread{% else %}notification-read{% endif %}" 
-                     id="notificacion-{{ notificacion.id }}">
-                    
-                    <div class="notification-header">
-                        <h3 class="notification-title">
-                            {% if not notificacion.leida %}
-                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
-                            {% endif %}
-                            {{ notificacion.titulo }}
-                        </h3>
-                        <span class="notification-time">
-                            <i class="fas fa-clock"></i>
-                            {{ notificacion.fecha_de_creacion|timesince }}
-                        </span>
-                    </div>
-                    
-                    <p class="notification-message">{{ notificacion.mensaje }}</p>
-                    
-                    <div class="notification-footer">
-                        <span class="notification-type">
-                            <i class="fas fa-tag"></i>
-                            {{ notificacion.get_tipo_display }}
-                        </span>
-                        
-                        {% if not notificacion.leida %}
-                        <button class="btn-mark-read marcar-leida" data-id="{{ notificacion.id }}">
-                            <i class="fas fa-check"></i>
-                            Marcar como Leída
-                        </button>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- Paginación -->
-            {% if is_paginated %}
-            <div class="pagination-wrapper">
-                <nav>
-                    <ul class="pagination">
-                        {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1&estado={{ estado_filtro }}">
-                                <i class="fas fa-angle-double-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&estado={{ estado_filtro }}">
-                                <i class="fas fa-angle-left"></i> Anterior
-                            </a>
-                        </li>
-                        {% endif %}
-
-                        <li class="page-item active">
-                            <span class="page-link">
-                                {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                            </span>
-                        </li>
-
-                        {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&estado={{ estado_filtro }}">
-                                Siguiente <i class="fas fa-angle-right"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&estado={{ estado_filtro }}">
-                                <i class="fas fa-angle-double-right"></i>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            </div>
-            {% endif %}
-        {% else %}
-            <div class="empty-state">
-                <i class="fas fa-bell-slash"></i>
-                <h4>No hay notificaciones para mostrar</h4>
-            </div>
-        {% endif %}
-    </div>
 </div>
+
+<style>
+/* Breadcrumb */
+.breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Card Styling */
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+}
+
+/* Stat Cards */
+.stat-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-3px);
+}
+
+.stat-icon {
+    width: 55px;
+    height: 55px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-info h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    color: white;
+}
+
+.stat-info p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+/* Filter Buttons */
+.btn-filter {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-filter:hover {
+    color: #28a745;
+    background: #e8f5e9;
+    border-color: #28a745;
+}
+
+.btn-filter.active {
+    color: white;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-color: transparent;
+}
+
+/* Notification Cards */
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notification-card {
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    border-left: 4px solid #dee2e6;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.notification-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.notification-unread {
+    border-left-color: #28a745;
+    background: linear-gradient(90deg, rgba(40, 167, 69, 0.08), #f8f9fa);
+}
+
+.notification-read {
+    opacity: 0.75;
+}
+
+.notification-read:hover {
+    opacity: 1;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    gap: 1rem;
+}
+
+.notification-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #212529;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.notification-unread .notification-title {
+    color: #155724;
+}
+
+.unread-indicator {
+    width: 8px;
+    height: 8px;
+    background: #28a745;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+.notification-time {
+    font-size: 0.8rem;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.notification-message {
+    color: #495057;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.notification-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e9ecef;
+    gap: 1rem;
+}
+
+.notification-type {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    background: #e9ecef;
+    border-radius: 0.375rem;
+}
+
+/* Empty State */
+.empty-state .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.empty-icon i {
+    font-size: 2.5rem;
+    color: #adb5bd;
+}
+
+/* Help Card */
+.help-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.help-icon i {
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: #28a745;
+    border: none;
+    padding: 0.5rem 0.875rem;
+    margin: 0 0.125rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.pagination .page-link:hover {
+    background: rgba(40, 167, 69, 0.1);
+    color: #155724;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+/* Buttons */
+.btn-outline-light {
+    border: 2px solid white;
+    color: white;
+}
+
+.btn-outline-light:hover {
+    background: white;
+    color: #28a745;
+    transform: translateY(-2px);
+}
+
+.btn-outline-success {
+    border: 2px solid #28a745;
+    color: #28a745;
+    font-weight: 600;
+}
+
+.btn-outline-success:hover {
+    background: #28a745;
+    color: white;
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.2);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .display-6 {
+        font-size: 1.5rem;
+    }
+
+    .notification-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .notification-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .notification-footer .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-info h3 {
+        font-size: 1.5rem;
+    }
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -579,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             const card = document.getElementById(`notificacion-${id}`);
-            
+
             fetch(`/notificaciones/${id}/marcar_leida/`, {
                 method: 'POST',
                 headers: {
@@ -591,17 +545,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Cambiar clase de no leída a leída
                     card.classList.remove('notification-unread');
                     card.classList.add('notification-read');
-                    
-                    // Remover el punto indicador del título
-                    const titleIcon = card.querySelector('.notification-title i');
-                    if (titleIcon) titleIcon.remove();
-                    
-                    // Remover botón con animación
+
+                    const indicator = card.querySelector('.unread-indicator');
+                    if (indicator) indicator.remove();
+
                     this.style.opacity = '0';
                     setTimeout(() => this.remove(), 300);
+
+                    updateStats(-1);
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -628,32 +581,51 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Cambiar todas las tarjetas no leídas a leídas
                     document.querySelectorAll('.notification-unread').forEach(card => {
                         card.classList.remove('notification-unread');
                         card.classList.add('notification-read');
-                        
-                        // Remover puntos indicadores
-                        const titleIcon = card.querySelector('.notification-title i');
-                        if (titleIcon) titleIcon.remove();
+
+                        const indicator = card.querySelector('.unread-indicator');
+                        if (indicator) indicator.remove();
                     });
-                    
-                    // Remover todos los botones de marcar como leída
+
                     document.querySelectorAll('.marcar-leida').forEach(btn => {
                         btn.style.opacity = '0';
                         setTimeout(() => btn.remove(), 300);
                     });
-                    
-                    // Ocultar botón "Marcar todas" con animación
+
                     this.style.opacity = '0';
-                    this.style.transform = 'translateY(-10px)';
                     setTimeout(() => this.style.display = 'none', 300);
+
+                    // Actualizar badge
+                    const badge = document.querySelector('.card-header .badge');
+                    if (badge) badge.remove();
+
+                    updateStats(0, true);
                 }
             })
             .catch(error => console.error('Error:', error));
         });
     }
+
+    function updateStats(change, markAllRead = false) {
+        const statCards = document.querySelectorAll('.stat-info h3');
+        if (statCards.length >= 3) {
+            let noLeidas = parseInt(statCards[0].textContent) || 0;
+            let leidas = parseInt(statCards[1].textContent) || 0;
+
+            if (markAllRead) {
+                leidas += noLeidas;
+                noLeidas = 0;
+            } else {
+                noLeidas = Math.max(0, noLeidas + change);
+                leidas = Math.max(0, leidas - change);
+            }
+
+            statCards[0].textContent = noLeidas;
+            statCards[1].textContent = leidas;
+        }
+    }
 });
 </script>
-
 {% endblock %}

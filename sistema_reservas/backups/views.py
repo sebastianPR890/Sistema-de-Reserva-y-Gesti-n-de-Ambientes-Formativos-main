@@ -81,12 +81,31 @@ def delete_backup_view(request, filename):
 @user_passes_test(is_admin)
 def download_backup_view(request, filename):
     """Descarga un archivo de backup"""
+    from pathlib import Path
+
+    # Validar que el filename no contenga path traversal
+    if '..' in filename or '/' in filename or '\\' in filename:
+        raise Http404("Nombre de archivo inválido")
+
+    # Validar que solo sea un archivo .sql
+    if not filename.endswith('.sql'):
+        raise Http404("Tipo de archivo no permitido")
+
     filepath = os.path.join(settings.BACKUP_DIR, filename)
-    
+
+    # Verificar que el archivo esté dentro del directorio de backups
+    backup_dir_resolved = Path(settings.BACKUP_DIR).resolve()
+    filepath_resolved = Path(filepath).resolve()
+
+    if not str(filepath_resolved).startswith(str(backup_dir_resolved)):
+        raise Http404("Acceso no permitido")
+
     if not os.path.exists(filepath):
         raise Http404("Backup no encontrado")
-    
-    response = FileResponse(open(filepath, 'rb'), content_type='application/sql')
+
+    # Usar context manager para asegurar que el archivo se cierre
+    file_handle = open(filepath, 'rb')
+    response = FileResponse(file_handle, content_type='application/sql')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
-    
+
     return response

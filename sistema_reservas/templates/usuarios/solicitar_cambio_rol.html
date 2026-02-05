@@ -1,131 +1,241 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Solicitar Cambio de Rol - Sistema de Reservas{% endblock %}
+{% block title %}Solicitar Cambio de Rol - SENA{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container-fluid py-4" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
     <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-primary text-white py-4">
-                    <h3 class="mb-0">
-                        <i class="fas fa-arrow-up-right"></i> Solicitar Cambio de Rol
-                    </h3>
+        <div class="col-lg-8 col-xl-6">
+            <!-- Header -->
+            <div class="mb-4 animate__animated animate__fadeInDown">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-transparent">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'reservas:index' %}" class="text-white text-decoration-none">
+                                <i class="fas fa-home me-1"></i>Inicio
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'usuarios:perfil' %}" class="text-white text-decoration-none">Mi Perfil</a>
+                        </li>
+                        <li class="breadcrumb-item active text-white-50">Solicitar Cambio de Rol</li>
+                    </ol>
+                </nav>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h1 class="display-6 fw-bold text-white mb-2">
+                            <i class="fas fa-user-tag me-2"></i>
+                            Solicitar Cambio de Rol
+                        </h1>
+                        <p class="text-white-50 mb-0">Solicita un cambio de rol a un administrador</p>
+                    </div>
+                    <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                </div>
+            </div>
+
+            {% if solicitud_pendiente %}
+            <!-- Solicitud Pendiente -->
+            <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
+                <div class="card-header bg-warning text-dark py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-clock me-2"></i>Solicitud Pendiente
+                    </h5>
                 </div>
                 <div class="card-body p-4">
-                    <div class="alert alert-info mb-4">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Información importante:</strong> Al solicitar un cambio de rol, un administrador revisará tu solicitud y te notificará sobre su decisión.
+                    <div class="alert alert-warning border-0 mb-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-info-circle me-3 mt-1 fs-4"></i>
+                            <div>
+                                <h6 class="fw-bold mb-2">Ya tienes una solicitud en proceso</h6>
+                                <p class="mb-0">Debes esperar a que un administrador revise tu solicitud actual antes de poder enviar una nueva.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-light rounded-3">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-white rounded-3 text-center">
+                                    <small class="text-muted d-block">Rol Solicitado</small>
+                                    <span class="badge bg-primary fs-6 mt-1">{{ solicitud_pendiente.get_rol_solicitado_display }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-white rounded-3 text-center">
+                                    <small class="text-muted d-block">Fecha de Solicitud</small>
+                                    <span class="fw-semibold mt-1 d-block">{{ solicitud_pendiente.fecha_solicitud|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if solicitud_pendiente.razon %}
+                        <div class="mt-3 p-3 bg-white rounded-3">
+                            <small class="text-muted d-block mb-1"><strong>Tu razón:</strong></small>
+                            <p class="mb-0">{{ solicitud_pendiente.razon }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'usuarios:perfil' %}" class="btn btn-secondary btn-lg px-5">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a Mi Perfil
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Formulario de Solicitud -->
+            <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
+                <div class="card-header bg-gradient-success text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-paper-plane me-2"></i>Nueva Solicitud
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Alert informativo -->
+                    <div class="alert alert-info border-0 mb-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-info-circle me-3 mt-1"></i>
+                            <div>
+                                <strong>Información importante:</strong>
+                                <p class="mb-0 mt-1">Al solicitar un cambio de rol, un administrador revisará tu solicitud y te notificará sobre su decisión.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info del usuario actual -->
+                    <div class="p-4 bg-light rounded-3 mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle-lg me-3">
+                                {{ user.nombres|slice:":1" }}{{ user.apellidos|slice:":1" }}
+                            </div>
+                            <div>
+                                <h5 class="mb-1 fw-bold">{{ user.nombre_completo }}</h5>
+                                <span class="badge bg-secondary fs-6">{{ user.get_rol_display }}</span>
+                            </div>
+                        </div>
                     </div>
 
                     <form method="POST" action="{% url 'usuarios:solicitar_cambio_rol' %}">
                         {% csrf_token %}
 
-                        <!-- Información del usuario actual -->
-                        <div class="mb-4 p-3 bg-light rounded">
-                            <p class="mb-2">
-                                <strong>Usuario:</strong> {{ user.nombre_completo }}
-                            </p>
-                            <p class="mb-0">
-                                <strong>Rol actual:</strong> 
-                                <span class="badge bg-secondary">{{ user.get_rol_display }}</span>
-                            </p>
-                        </div>
-
-                        <!-- Seleccionar rol -->
+                        <!-- Selección de rol -->
                         <div class="mb-4">
-                            <label for="rol_solicitado" class="form-label fw-bold">
-                                <i class="fas fa-user-tie"></i> Rol que deseas solicitar
+                            <label for="rol_solicitado" class="form-label fw-semibold">
+                                <i class="fas fa-user-tie me-1"></i> Rol que deseas solicitar
                             </label>
                             <select id="rol_solicitado" name="rol_solicitado" class="form-select form-select-lg" required>
                                 <option value="">-- Selecciona un rol --</option>
                                 {% for rol_value, rol_nombre in roles_disponibles %}
-                                    <option value="{{ rol_value }}">
-                                        {{ rol_nombre }}
-                                    </option>
+                                <option value="{{ rol_value }}">{{ rol_nombre }}</option>
                                 {% endfor %}
                             </select>
-                            <small class="text-muted d-block mt-2">
-                                <i class="fas fa-lightbulb"></i> Selecciona el rol para el cual quieres solicitar acceso.
-                            </small>
                         </div>
 
                         <!-- Descripción de roles -->
-                        <div class="mb-4 p-3 bg-light rounded">
-                            <p class="fw-bold mb-3">Descripción de roles:</p>
-                            <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <strong>👨‍🏫 Instructor:</strong> Acceso a ambientes y equipos, puede crear y gestionar reservas.
-                                </li>
-                                <li class="mb-2">
-                                    <strong>🏢 Administrativo:</strong> Acceso a gestión de ambientes y equipos.
-                                </li>
-                                <li>
-                                    <strong>📋 Coordinador:</strong> Acceso completo, puede aprobar reservas.
-                                </li>
-                            </ul>
+                        <div class="roles-info p-4 bg-light rounded-3 mb-4">
+                            <p class="fw-bold mb-3"><i class="fas fa-info-circle me-1"></i> Descripción de roles:</p>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="role-card p-3 bg-white rounded-3 h-100">
+                                        <div class="role-icon mb-2">
+                                            <i class="fas fa-chalkboard-teacher text-primary"></i>
+                                        </div>
+                                        <h6 class="fw-bold">Instructor</h6>
+                                        <small class="text-muted">Acceso a ambientes y equipos, puede crear y gestionar reservas.</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="role-card p-3 bg-white rounded-3 h-100">
+                                        <div class="role-icon mb-2">
+                                            <i class="fas fa-building text-success"></i>
+                                        </div>
+                                        <h6 class="fw-bold">Administrativo</h6>
+                                        <small class="text-muted">Acceso a gestión de ambientes y equipos del sistema.</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="role-card p-3 bg-white rounded-3 h-100">
+                                        <div class="role-icon mb-2">
+                                            <i class="fas fa-user-shield text-warning"></i>
+                                        </div>
+                                        <h6 class="fw-bold">Coordinador</h6>
+                                        <small class="text-muted">Acceso completo, puede aprobar y gestionar reservas.</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Razón de solicitud (opcional) -->
+                        <!-- Razón -->
                         <div class="mb-4">
-                            <label for="razon" class="form-label fw-bold">
-                                <i class="fas fa-pen"></i> Razón de tu solicitud (opcional)
+                            <label for="razon" class="form-label fw-semibold">
+                                <i class="fas fa-pen me-1"></i> Razón de tu solicitud (opcional)
                             </label>
-                            <textarea id="razon" name="razon" class="form-control" rows="4" placeholder="Cuéntanos por qué necesitas este cambio de rol..."></textarea>
-                            <small class="text-muted d-block mt-2">Esto ayudará a los administradores a tomar una mejor decisión.</small>
+                            <textarea id="razon" name="razon" class="form-control" rows="4"
+                                      placeholder="Cuéntanos por qué necesitas este cambio de rol..."></textarea>
+                            <small class="text-muted">Esto ayudará a los administradores a tomar una mejor decisión.</small>
                         </div>
 
                         <!-- Botones -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane"></i> Enviar Solicitud
-                            </button>
-                            <a href="{% url 'usuarios:perfil' %}" class="btn btn-secondary btn-lg">
-                                <i class="fas fa-arrow-left"></i> Cancelar
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="fas fa-times me-2"></i>Cancelar
                             </a>
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Solicitud
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
+            {% endif %}
 
-            <!-- Información adicional -->
-            <div class="mt-4 p-3 bg-light rounded text-center">
-                <p class="text-muted mb-1">
-                    <i class="fas fa-clock"></i> <strong>Tiempo de respuesta:</strong> Generalmente dentro de 24-48 horas.
-                </p>
-                <p class="text-muted mb-0">
-                    <i class="fas fa-envelope"></i> Recibirás una notificación cuando tu solicitud sea procesada.
-                </p>
+            <!-- Help Card -->
+            <div class="card border-0 bg-white bg-opacity-90 shadow-sm rounded-4 mt-4 animate__animated animate__fadeInUp">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="help-icon me-3">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bold text-success">¿Necesitas ayuda?</h6>
+                            <small class="text-muted">
+                                El tiempo de respuesta es generalmente de 24-48 horas. Recibirás una notificación cuando tu solicitud sea procesada.
+                            </small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .card {
-        border-radius: 12px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+.breadcrumb-item + .breadcrumb-item::before { color: rgba(255, 255, 255, 0.5); }
+.rounded-4 { border-radius: 1rem !important; }
+.bg-gradient-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important; }
 
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
-    }
+.avatar-circle-lg { width: 60px; height: 60px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.25rem; }
 
-    .card-header {
-        border-radius: 12px 12px 0 0;
-    }
+.role-card { transition: all 0.3s ease; border: 2px solid transparent; }
+.role-card:hover { border-color: #28a745; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.role-icon { width: 40px; height: 40px; border-radius: 10px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
 
-    .form-select:focus,
-    .form-control:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
+.form-control, .form-select { border: 2px solid #e9ecef; border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.3s ease; }
+.form-control:focus, .form-select:focus { border-color: #28a745; box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15); }
 
-    .badge {
-        font-size: 12px;
-        padding: 6px 12px;
-    }
+.btn { padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 0.75rem; transition: all 0.3s ease; }
+.btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3); }
+.btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4); }
+.btn-outline-secondary { border: 2px solid #6c757d; color: #6c757d; }
+.btn-outline-secondary:hover { background: #6c757d; color: white; transform: translateY(-2px); }
+.btn-outline-light { border: 2px solid white; color: white; }
+.btn-outline-light:hover { background: white; color: #28a745; transform: translateY(-2px); }
+
+.help-icon { width: 56px; height: 56px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.help-icon i { color: white; font-size: 1.5rem; }
 </style>
 {% endblock %}

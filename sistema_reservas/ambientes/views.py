@@ -98,7 +98,7 @@ class AmbienteUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
         messages.success(self.request, "Ambiente actualizado exitosamente.")
         return super().form_valid(form)
 
-class AmbienteDetailView( DetailView):
+class AmbienteDetailView(LoginRequiredMixin, DetailView):
     """Vista para mostrar los detalles de un ambiente."""
     model = Ambiente
     template_name = 'ambientes/ambiente_detalle.html'

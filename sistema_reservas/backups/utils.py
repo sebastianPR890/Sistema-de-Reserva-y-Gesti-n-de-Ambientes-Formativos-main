@@ -24,25 +24,29 @@ def create_backup():
         filename = f'backup_{db_name}_{timestamp}.sql'
         filepath = os.path.join(settings.BACKUP_DIR, filename)
         
-        # Comando mysqldump
+        # Comando mysqldump (sin contraseña en argumentos por seguridad)
         dump_command = [
             'mysqldump',
             f'--host={db_host}',
             f'--port={db_port}',
             f'--user={db_user}',
-            f'--password={db_password}',
             '--single-transaction',
             '--quick',
             '--lock-tables=false',
             db_name
         ]
-        
+
+        # Usar variable de entorno para la contraseña (más seguro)
+        env = os.environ.copy()
+        env['MYSQL_PWD'] = db_password
+
         # Ejecutar el backup
         with open(filepath, 'w') as backup_file:
             process = subprocess.Popen(
                 dump_command,
                 stdout=backup_file,
-                stderr=subprocess.PIPE
+                stderr=subprocess.PIPE,
+                env=env
             )
             _, error = process.communicate()
             
@@ -84,22 +88,26 @@ def restore_backup(filename):
         db_host = db_config.get('HOST', 'localhost')
         db_port = db_config.get('PORT', '3306')
         
-        # Comando mysql
+        # Comando mysql (sin contraseña en argumentos por seguridad)
         restore_command = [
             'mysql',
             f'--host={db_host}',
             f'--port={db_port}',
             f'--user={db_user}',
-            f'--password={db_password}',
             db_name
         ]
-        
+
+        # Usar variable de entorno para la contraseña (más seguro)
+        env = os.environ.copy()
+        env['MYSQL_PWD'] = db_password
+
         # Ejecutar la restauración
         with open(filepath, 'r') as backup_file:
             process = subprocess.Popen(
                 restore_command,
                 stdin=backup_file,
-                stderr=subprocess.PIPE
+                stderr=subprocess.PIPE,
+                env=env
             )
             _, error = process.communicate()
             

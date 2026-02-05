@@ -95,3 +95,74 @@ class Usuario(AbstractUser):
     
     def __str__(self):
         return f"{self.documento} - {self.nombre_completo()}"
+
+
+class SolicitudCambioRol(models.Model):
+    """Modelo para gestionar solicitudes de cambio de rol."""
+
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('aprobada', 'Aprobada'),
+        ('rechazada', 'Rechazada'),
+    ]
+
+    usuario = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE,
+        related_name='solicitudes_rol'
+    )
+    rol_actual = models.CharField(max_length=20, choices=Usuario.ROLES)
+    rol_solicitado = models.CharField(max_length=20, choices=Usuario.ROLES)
+    razon = models.TextField(blank=True, verbose_name='Razón de la solicitud')
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
+    fecha_solicitud = models.DateTimeField(auto_now_add=True)
+    fecha_respuesta = models.DateTimeField(null=True, blank=True)
+    respondido_por = models.ForeignKey(
+        Usuario,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='solicitudes_respondidas'
+    )
+    comentario_admin = models.TextField(blank=True, verbose_name='Comentario del administrador')
+
+    class Meta:
+        verbose_name = 'Solicitud de Cambio de Rol'
+        verbose_name_plural = 'Solicitudes de Cambio de Rol'
+        db_table = 'solicitudes_cambio_rol'
+        ordering = ['-fecha_solicitud']
+
+    def aprobar(self, admin, comentario=''):
+        """Aprueba la solicitud y actualiza el rol del usuario."""
+        self.estado = 'aprobada'
+        self.fecha_respuesta = timezone.now()
+        self.respondido_por = admin
+        self.comentario_admin = comentario
+        self.save()
+
+        # Actualizar el rol del usuario
+        self.usuario.rol = self.rol_solicitado
+        self.usuario.save()
+
+    def rechazar(self, admin, comentario=''):
+        """Rechaza la solicitud."""
+        self.estado = 'rechazada'
+        self.fecha_respuesta = timezone.now()
+        self.respondido_por = admin
+        self.comentario_admin = comentario
+        self.save()
+
+    def get_rol_actual_display(self):
+        for valor, nombre in Usuario.ROLES:
+            if valor == self.rol_actual:
+                return nombre
+        return self.rol_actual
+
+    def get_rol_solicitado_display(self):
+        for valor, nombre in Usuario.ROLES:
+            if valor == self.rol_solicitado:
+                return nombre
+        return self.rol_solicitado
+
+    def __str__(self):
+        return f"{self.usuario.nombre_completo()} - {self.rol_solicitado} ({self.estado})"

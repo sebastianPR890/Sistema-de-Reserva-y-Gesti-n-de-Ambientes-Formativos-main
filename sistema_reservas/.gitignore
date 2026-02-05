@@ -1,0 +1,54 @@
+# Archivos de entorno (NUNCA subir al repositorio)
+.env
+*.env
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Entorno virtual
+venv/
+ENV/
+env/
+.venv/
+
+# Base de datos local
+*.sqlite3
+db.sqlite3
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Archivos estáticos recolectados
+staticfiles/
+
+# Archivos de media subidos
+media/
+
+# Backups de base de datos
+backups/backups_created/*.sql
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Pytest
+.pytest_cache/
+
+# MyPy
+.mypy_cache/

@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.utils import timezone
 
 from .forms import BusquedaUsuarioForm, UsuarioEditForm
-from .models import Usuario
+from .models import Usuario, SolicitudCambioRol
 from django.db.models import Q
 
 def es_admin(user):
@@ -65,7 +66,7 @@ def editar_usuario(request, pk):
             usuario = form.save(commit=False)
             usuario.is_active = usuario.activo
             usuario.save()
-            messages.success(request, f'Usuario {usuario.nombre_completo} actualizado exitosamente.')
+            messages.success(request, f'Usuario {usuario.nombre_completo()} actualizado exitosamente.')
             return redirect('usuarios:lista_usuarios') 
         else:
             messages.error(request, '❌ Error al guardar los cambios. Revisa los campos.')
@@ -110,63 +111,160 @@ def editar_perfil(request):
 @login_required
 def solicitar_cambio_rol(request):
     """Permite a usuarios normales solicitar cambio de rol."""
+    # Verificar si ya tiene una solicitud pendiente
+    solicitud_pendiente = SolicitudCambioRol.objects.filter(
+        usuario=request.user,
+        estado='pendiente'
+    ).first()
+
     if request.method == 'POST':
         rol_solicitado = request.POST.get('rol_solicitado')
         razon = request.POST.get('razon', '')
-        
+
         # Validar que el rol solicitado sea válido
         roles_permitidos = ['instructor', 'administrativo', 'coordinador']
-        
+
         if rol_solicitado not in roles_permitidos:
             messages.error(request, 'Rol inválido.')
             return redirect('usuarios:solicitar_cambio_rol')
-        
-        # Aquí puedes guardar la solicitud en la BD si lo deseas
-        # Por ahora solo notificamos al administrador por mensaje
+
+        # Verificar si ya tiene una solicitud pendiente
+        if solicitud_pendiente:
+            messages.warning(request, 'Ya tienes una solicitud de cambio de rol pendiente.')
+            return redirect('usuarios:perfil')
+
+        # Crear la solicitud en la base de datos
         usuario = request.user
+        solicitud = SolicitudCambioRol.objects.create(
+            usuario=usuario,
+            rol_actual=usuario.rol,
+            rol_solicitado=rol_solicitado,
+            razon=razon
+        )
+
         messages.success(
-            request, 
-            f'✅ Solicitud de cambio de rol enviada correctamente.\n'
-            f'Has solicitado el rol de "{rol_solicitado}".\n'
+            request,
+            f'Solicitud de cambio de rol enviada correctamente. '
+            f'Has solicitado el rol de "{solicitud.get_rol_solicitado_display()}". '
             f'Un administrador revisará tu solicitud pronto.'
         )
-        
-        # Enviar notificación a administradores
-        from django.core.mail import send_mail
-        from django.conf import settings
-        
-        admins = Usuario.objects.filter(is_staff=True)
-        admin_emails = [admin.email for admin in admins if admin.email]
-        
-        if admin_emails:
-            asunto = f'Nueva solicitud de cambio de rol - {usuario.nombre_completo()}'
-            mensaje = f"""
-            El usuario {usuario.nombre_completo()} (Documento: {usuario.documento})
-            ha solicitado cambiar su rol a: {rol_solicitado}
-            
-            Razón: {razon if razon else 'No especificada'}
-            
-            Por favor revisa esta solicitud en el panel de administración.
-            """
-            
-            try:
-                send_mail(
-                    asunto,
-                    mensaje,
-                    settings.DEFAULT_FROM_EMAIL,
-                    admin_emails,
-                    fail_silently=True,
+
+        # Crear notificación para administradores
+        try:
+            from notificaciones.models import Notificacion
+            admins = Usuario.objects.filter(is_staff=True)
+            for admin in admins:
+                Notificacion.objects.create(
+                    usuario=admin,
+                    titulo='Nueva solicitud de cambio de rol',
+                    mensaje=f'{usuario.nombre_completo()} ha solicitado cambiar su rol a {solicitud.get_rol_solicitado_display()}.',
+                    tipo='sistema'
                 )
-            except:
-                pass
-        
+        except Exception:
+            pass  # Si falla la notificación, no interrumpir el proceso
+
         return redirect('usuarios:perfil')
-    
+
     context = {
         'roles_disponibles': [
             ('instructor', 'Instructor'),
             ('administrativo', 'Administrativo'),
             ('coordinador', 'Coordinador'),
-        ]
+        ],
+        'solicitud_pendiente': solicitud_pendiente,
     }
     return render(request, 'usuarios/solicitar_cambio_rol.html', context)
+
+
+@login_required
+@user_passes_test(es_admin)
+def lista_solicitudes_rol(request):
+    """Muestra la lista de solicitudes de cambio de rol para administradores."""
+    estado_filtro = request.GET.get('estado', 'pendiente')
+
+    solicitudes = SolicitudCambioRol.objects.select_related('usuario', 'respondido_por')
+
+    if estado_filtro and estado_filtro != 'todas':
+        solicitudes = solicitudes.filter(estado=estado_filtro)
+
+    # Contadores
+    pendientes = SolicitudCambioRol.objects.filter(estado='pendiente').count()
+    aprobadas = SolicitudCambioRol.objects.filter(estado='aprobada').count()
+    rechazadas = SolicitudCambioRol.objects.filter(estado='rechazada').count()
+
+    paginator = Paginator(solicitudes, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'solicitudes': page_obj,
+        'page_obj': page_obj,
+        'estado_filtro': estado_filtro,
+        'pendientes': pendientes,
+        'aprobadas': aprobadas,
+        'rechazadas': rechazadas,
+    }
+    return render(request, 'usuarios/lista_solicitudes_rol.html', context)
+
+
+@login_required
+@user_passes_test(es_admin)
+def aprobar_solicitud_rol(request, pk):
+    """Aprueba una solicitud de cambio de rol."""
+    solicitud = get_object_or_404(SolicitudCambioRol, pk=pk, estado='pendiente')
+
+    if request.method == 'POST':
+        comentario = request.POST.get('comentario', '')
+        solicitud.aprobar(request.user, comentario)
+
+        # Notificar al usuario
+        try:
+            from notificaciones.models import Notificacion
+            Notificacion.objects.create(
+                usuario=solicitud.usuario,
+                titulo='Solicitud de rol aprobada',
+                mensaje=f'Tu solicitud para el rol de {solicitud.get_rol_solicitado_display()} ha sido aprobada. '
+                        f'{comentario if comentario else ""}',
+                tipo='sistema'
+            )
+        except Exception:
+            pass
+
+        messages.success(
+            request,
+            f'Solicitud aprobada. {solicitud.usuario.nombre_completo()} ahora tiene el rol de {solicitud.get_rol_solicitado_display()}.'
+        )
+        return redirect('usuarios:lista_solicitudes_rol')
+
+    context = {'solicitud': solicitud}
+    return render(request, 'usuarios/aprobar_solicitud_rol.html', context)
+
+
+@login_required
+@user_passes_test(es_admin)
+def rechazar_solicitud_rol(request, pk):
+    """Rechaza una solicitud de cambio de rol."""
+    solicitud = get_object_or_404(SolicitudCambioRol, pk=pk, estado='pendiente')
+
+    if request.method == 'POST':
+        comentario = request.POST.get('comentario', '')
+        solicitud.rechazar(request.user, comentario)
+
+        # Notificar al usuario
+        try:
+            from notificaciones.models import Notificacion
+            Notificacion.objects.create(
+                usuario=solicitud.usuario,
+                titulo='Solicitud de rol rechazada',
+                mensaje=f'Tu solicitud para el rol de {solicitud.get_rol_solicitado_display()} ha sido rechazada. '
+                        f'{comentario if comentario else ""}',
+                tipo='sistema'
+            )
+        except Exception:
+            pass
+
+        messages.success(request, f'Solicitud de {solicitud.usuario.nombre_completo()} rechazada.')
+        return redirect('usuarios:lista_solicitudes_rol')
+
+    context = {'solicitud': solicitud}
+    return render(request, 'usuarios/rechazar_solicitud_rol.html', context)
