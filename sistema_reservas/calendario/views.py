@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.shortcuts import render
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
 from reservas.models import Reserva
@@ -62,5 +63,4 @@ def get_reservas(request):
 @login_required
 def vista_calendario(request):
     """Vista que renderiza la página del calendario."""
-    from django.shortcuts import render
     return render(request, 'calendario/calendario.html')

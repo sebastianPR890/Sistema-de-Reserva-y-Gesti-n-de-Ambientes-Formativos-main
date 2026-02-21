@@ -1,332 +1,79 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Eliminar Reserva{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-7">
-            <!-- Header -->
-            <div class="mb-4 animate__animated animate__fadeInDown">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="/" class="text-decoration-none">
-                                <i class="fas fa-home me-1"></i>Inicio
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'reservas:lista_reservas' %}" class="text-decoration-none">Reservas</a>
-                        </li>
-                        <li class="breadcrumb-item active">Eliminar Reserva</li>
-                    </ol>
-                </nav>
-            </div>
+<div class="page-container d-flex align-items-center justify-content-center">
+    <div class="delete-card-std">
+        <div class="delete-header gradient-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h4>Confirmar Eliminacion de Reserva</h4>
+        </div>
+        <div class="delete-body">
+            <p>
+                Esta a punto de eliminar permanentemente esta reserva del sistema.
+                Esta accion es <strong>irreversible</strong> y eliminara todos los datos asociados.
+            </p>
 
-            <!-- Warning Card -->
-            <div class="card border-0 shadow-lg animate__animated animate__fadeInUp animate__slow">
-                <div class="card-header bg-gradient-danger text-white py-4 text-center">
-                    <div class="warning-icon mb-3">
-                        <i class="fas fa-exclamation-triangle fa-3x animate__animated animate__wobble animate__infinite animate__slow"></i>
-                    </div>
-                    <h3 class="mb-0 fw-bold">¡Advertencia!</h3>
-                    <p class="mb-0 mt-2 opacity-90">Esta acción no se puede deshacer</p>
-                </div>
-                
-                <div class="card-body p-4">
-                    <!-- Alert Message -->
-                    <div class="alert alert-danger border-danger border-2 mb-4">
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-shield-alt me-3 mt-1" style="font-size: 2rem;"></i>
-                            <div>
-                                <h5 class="alert-heading fw-bold mb-2">
-                                    <i class="fas fa-trash-alt me-2"></i>
-                                    Confirmar Eliminación de Reserva
-                                </h5>
-                                <p class="mb-2">
-                                    Está a punto de eliminar permanentemente esta reserva del sistema. 
-                                    Esta acción es <strong>irreversible</strong> y eliminará todos los datos asociados.
-                                </p>
-                                <hr class="my-2">
-                                <small class="text-danger fw-semibold">
-                                    <i class="fas fa-exclamation-circle me-1"></i>
-                                    Por favor, verifica la información antes de continuar
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Reservation Details -->
-                    <div class="card bg-light border-0 mb-4">
-                        <div class="card-header bg-white border-bottom">
-                            <h6 class="mb-0 fw-semibold text-dark">
-                                <i class="fas fa-info-circle me-2 text-danger"></i>
-                                Detalles de la Reserva a Eliminar
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="reservation-details">
-                                <div class="detail-row">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-calendar-alt text-danger"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <span class="detail-label">Información completa:</span>
-                                        <span class="detail-value fw-bold">{{ reserva }}</span>
-                                    </div>
-                                </div>
-                                
-                                {% if reserva.ambiente %}
-                                <div class="detail-row">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-door-open text-danger"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <span class="detail-label">Ambiente:</span>
-                                        <span class="detail-value">{{ reserva.ambiente }}</span>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                
-                                {% if reserva.fecha_inicio %}
-                                <div class="detail-row">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-calendar-day text-danger"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <span class="detail-label">Fecha de inicio:</span>
-                                        <span class="detail-value">{{ reserva.fecha_inicio|date:"d/m/Y h:i A" }}</span>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                
-                                {% if reserva.fecha_fin %}
-                                <div class="detail-row">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-calendar-times text-danger"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <span class="detail-label">Fecha de fin:</span>
-                                        <span class="detail-value">{{ reserva.fecha_fin|date:"d/m/Y h:i A" }}</span>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                
-                                {% if reserva.get_estado_display %}
-                                <div class="detail-row">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-flag text-danger"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <span class="detail-label">Estado:</span>
-                                        <span class="badge bg-danger">{{ reserva.get_estado_display }}</span>
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Confirmation Section -->
-                    <div class="confirmation-section mb-4 p-3 bg-danger bg-opacity-10 rounded border border-danger">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="confirmCheck" required>
-                            <label class="form-check-label fw-semibold" for="confirmCheck">
-                                Confirmo que he leído la advertencia y deseo eliminar esta reserva permanentemente
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <form method="post" id="deleteForm">
-                        {% csrf_token %}
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-danger btn-lg" id="deleteBtn" disabled>
-                                <i class="fas fa-trash-alt me-2"></i>
-                                Sí, Eliminar Reserva Permanentemente
-                            </button>
-                            <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-outline-secondary btn-lg">
-                                <i class="fas fa-arrow-left me-2"></i>
-                                No, Mantener Reserva y Volver
-                            </a>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Card Footer -->
-                <div class="card-footer bg-light border-top text-center py-3">
-                    <small class="text-muted">
-                        <i class="fas fa-lock me-1"></i>
-                        Esta acción requiere confirmación explícita por seguridad
-                    </small>
-                </div>
-            </div>
-
-            <!-- Help Info -->
-            <div class="alert alert-info border-0 mt-3 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-lightbulb me-3" style="font-size: 1.5rem;"></i>
+            <ul class="info-list-std mb-4">
+                <li class="info-item">
+                    <div class="info-icon"><i class="fas fa-calendar-alt"></i></div>
                     <div>
-                        <strong>Alternativa:</strong> Si solo necesitas cancelar la reserva temporalmente, 
-                        considera cambiar su estado en lugar de eliminarla.
+                        <div class="info-label">Informacion completa</div>
+                        <div class="info-value">{{ reserva }}</div>
                     </div>
+                </li>
+                {% if reserva.ambiente %}
+                <li class="info-item">
+                    <div class="info-icon"><i class="fas fa-door-open"></i></div>
+                    <div>
+                        <div class="info-label">Ambiente</div>
+                        <div class="info-value">{{ reserva.ambiente }}</div>
+                    </div>
+                </li>
+                {% endif %}
+                {% if reserva.fecha_inicio %}
+                <li class="info-item">
+                    <div class="info-icon"><i class="fas fa-calendar-day"></i></div>
+                    <div>
+                        <div class="info-label">Fecha de inicio</div>
+                        <div class="info-value">{{ reserva.fecha_inicio|date:"d/m/Y h:i A" }}</div>
+                    </div>
+                </li>
+                {% endif %}
+                {% if reserva.fecha_fin %}
+                <li class="info-item">
+                    <div class="info-icon"><i class="fas fa-calendar-times"></i></div>
+                    <div>
+                        <div class="info-label">Fecha de fin</div>
+                        <div class="info-value">{{ reserva.fecha_fin|date:"d/m/Y h:i A" }}</div>
+                    </div>
+                </li>
+                {% endif %}
+                {% if reserva.get_estado_display %}
+                <li class="info-item">
+                    <div class="info-icon"><i class="fas fa-flag"></i></div>
+                    <div>
+                        <div class="info-label">Estado</div>
+                        <div class="info-value">{{ reserva.get_estado_display }}</div>
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="delete-actions">
+                    <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-std btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-std btn-danger">
+                        <i class="fas fa-trash-alt"></i> Eliminar Reserva
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
-
-<style>
-.bg-gradient-danger {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-}
-
-.warning-icon {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.reservation-details {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.detail-row {
-    display: flex;
-    align-items: start;
-    padding: 0.75rem;
-    background: white;
-    border-radius: 0.5rem;
-    border-left: 3px solid #dc3545;
-    transition: all 0.2s ease;
-}
-
-.detail-row:hover {
-    box-shadow: 0 2px 8px rgba(220,53,69,0.1);
-    transform: translateX(5px);
-}
-
-.detail-icon {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(220,53,69,0.1);
-    border-radius: 50%;
-    margin-right: 1rem;
-    flex-shrink: 0;
-}
-
-.detail-icon i {
-    font-size: 1.2rem;
-}
-
-.detail-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.detail-label {
-    font-size: 0.875rem;
-    color: #6c757d;
-    margin-bottom: 0.25rem;
-}
-
-.detail-value {
-    font-size: 1rem;
-    color: #212529;
-}
-
-.confirmation-section {
-    animation: highlight 2s infinite;
-}
-
-@keyframes highlight {
-    0%, 100% { background-color: rgba(220,53,69,0.1); }
-    50% { background-color: rgba(220,53,69,0.15); }
-}
-
-.form-check-input:checked {
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-danger {
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    transition: all 0.3s ease;
-}
-
-.btn-danger:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(220,53,69,0.4);
-}
-
-.btn-danger:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-outline-secondary {
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.btn-outline-secondary:hover {
-    transform: translateY(-2px);
-}
-
-.alert-danger {
-    box-shadow: 0 0 20px rgba(220,53,69,0.2);
-}
-
-.card {
-    overflow: hidden;
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const confirmCheck = document.getElementById('confirmCheck');
-    const deleteBtn = document.getElementById('deleteBtn');
-    const deleteForm = document.getElementById('deleteForm');
-    
-    // Enable/disable delete button based on checkbox
-    confirmCheck.addEventListener('change', function() {
-        deleteBtn.disabled = !this.checked;
-        
-        if (this.checked) {
-            deleteBtn.classList.add('animate__animated', 'animate__pulse');
-            setTimeout(() => {
-                deleteBtn.classList.remove('animate__animated', 'animate__pulse');
-            }, 1000);
-        }
-    });
-    
-    // Final confirmation before submit
-    deleteForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const confirmed = confirm(
-            '⚠️ ÚLTIMA ADVERTENCIA ⚠️\n\n' +
-            '¿Está ABSOLUTAMENTE SEGURO de que desea eliminar esta reserva?\n\n' +
-            'Esta acción NO se puede deshacer.\n\n' +
-            'Presione OK para confirmar la eliminación.'
-        );
-        
-        if (confirmed) {
-            // Show loading state
-            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Eliminando...';
-            deleteBtn.disabled = true;
-            this.submit();
-        }
-    });
-});
-</script>
-{% endblock %}
+{% endblock content %}

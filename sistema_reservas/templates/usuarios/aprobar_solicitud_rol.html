@@ -4,45 +4,23 @@
 {% block title %}Aprobar Solicitud de Rol - SENA{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
+<div class="page-container">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-xl-6">
-            <!-- Header -->
-            <div class="mb-4 animate__animated animate__fadeInDown">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb bg-transparent">
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'reservas:index' %}" class="text-white text-decoration-none">
-                                <i class="fas fa-home me-1"></i>Inicio
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'usuarios:lista_solicitudes_rol' %}" class="text-white text-decoration-none">Solicitudes</a>
-                        </li>
-                        <li class="breadcrumb-item active text-white-50">Aprobar</li>
-                    </ol>
+            <div class="page-header-std">
+                <nav class="breadcrumb-nav" aria-label="breadcrumb">
+                    <a href="{% url 'usuarios:lista_solicitudes_rol' %}"><i class="fas fa-arrow-left me-1"></i> Volver a Solicitudes</a>
                 </nav>
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                    <div>
-                        <h1 class="display-6 fw-bold text-white mb-2">
-                            <i class="fas fa-check-circle me-2"></i>
-                            Aprobar Solicitud
-                        </h1>
-                        <p class="text-white-50 mb-0">Confirmar cambio de rol del usuario</p>
-                    </div>
-                </div>
+                <h2><i class="fas fa-check-circle"></i> Aprobar Solicitud</h2>
+                <p class="page-subtitle">Confirmar cambio de rol del usuario</p>
             </div>
 
-            <!-- Card Principal -->
-            <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
-                <div class="card-header bg-success text-white py-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-user-check me-2"></i>Confirmar Aprobación
-                    </h5>
+            <div class="card-std">
+                <div class="card-header-green py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-user-check me-2"></i>Confirmar Aprobacion</h5>
                 </div>
-                <div class="card-body p-4">
-                    <!-- Info del Usuario -->
-                    <div class="user-info-card mb-4 p-4 rounded-3 bg-light">
+                <div class="card-body p-4 form-std">
+                    <div class="p-4 rounded-3 bg-light mb-4">
                         <div class="d-flex align-items-center mb-3">
                             <div class="avatar-circle-lg me-3">
                                 {{ solicitud.usuario.nombres|slice:":1" }}{{ solicitud.usuario.apellidos|slice:":1" }}
@@ -70,7 +48,7 @@
 
                         {% if solicitud.razon %}
                         <div class="mt-3 p-3 bg-white rounded-3">
-                            <small class="text-muted d-block mb-1"><strong>Razón de la solicitud:</strong></small>
+                            <small class="text-muted d-block mb-1"><strong>Razon de la solicitud:</strong></small>
                             <p class="mb-0">{{ solicitud.razon }}</p>
                         </div>
                         {% endif %}
@@ -80,39 +58,37 @@
                         </div>
                     </div>
 
-                    <!-- Alert de confirmación -->
                     <div class="alert alert-success border-0 mb-4">
                         <div class="d-flex align-items-start">
                             <i class="fas fa-info-circle me-3 mt-1"></i>
                             <div>
                                 <strong>Al aprobar esta solicitud:</strong>
                                 <ul class="mb-0 mt-2">
-                                    <li>El usuario recibirá el rol de <strong>{{ solicitud.get_rol_solicitado_display }}</strong></li>
-                                    <li>Se le notificará por el sistema</li>
-                                    <li>Tendrá acceso a las funciones de su nuevo rol</li>
+                                    <li>El usuario recibira el rol de <strong>{{ solicitud.get_rol_solicitado_display }}</strong></li>
+                                    <li>Se le notificara por el sistema</li>
+                                    <li>Tendra acceso a las funciones de su nuevo rol</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Formulario -->
                     <form method="POST">
                         {% csrf_token %}
-                        <div class="mb-4">
+                        <div class="form-group mb-4">
                             <label for="comentario" class="form-label fw-semibold">
                                 <i class="fas fa-comment me-1"></i> Comentario (opcional)
                             </label>
                             <textarea class="form-control" id="comentario" name="comentario" rows="3"
                                       placeholder="Escribe un mensaje para el usuario..."></textarea>
-                            <small class="text-muted">Este comentario será visible para el usuario.</small>
+                            <small class="form-text text-muted">Este comentario sera visible para el usuario.</small>
                         </div>
 
                         <div class="d-flex gap-3 justify-content-end">
-                            <a href="{% url 'usuarios:lista_solicitudes_rol' %}" class="btn btn-outline-secondary btn-lg px-4">
-                                <i class="fas fa-times me-2"></i>Cancelar
+                            <a href="{% url 'usuarios:lista_solicitudes_rol' %}" class="btn btn-std btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancelar
                             </a>
-                            <button type="submit" class="btn btn-success btn-lg px-5">
-                                <i class="fas fa-check me-2"></i>Aprobar Solicitud
+                            <button type="submit" class="btn btn-std btn-success">
+                                <i class="fas fa-check"></i> Aprobar Solicitud
                             </button>
                         </div>
                     </form>
@@ -121,20 +97,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.breadcrumb-item + .breadcrumb-item::before { color: rgba(255, 255, 255, 0.5); }
-.rounded-4 { border-radius: 1rem !important; }
-
-.avatar-circle-lg { width: 60px; height: 60px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.25rem; }
-
-.form-control { border: 2px solid #e9ecef; border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.3s ease; }
-.form-control:focus { border-color: #28a745; box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15); }
-
-.btn { padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 0.75rem; transition: all 0.3s ease; }
-.btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3); }
-.btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4); }
-.btn-outline-secondary { border: 2px solid #6c757d; color: #6c757d; }
-.btn-outline-secondary:hover { background: #6c757d; color: white; transform: translateY(-2px); }
-</style>
 {% endblock %}

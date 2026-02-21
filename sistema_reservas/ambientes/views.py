@@ -3,11 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
-from django.urls import reverse_lazy, reverse
+from django.views.generic import UpdateView, DetailView, DeleteView
+from django.urls import reverse_lazy
 from django.http import JsonResponse
-from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .models import Ambiente
@@ -76,17 +75,6 @@ def lista_ambientes(request):
     }
     return render(request, 'ambientes/lista_ambientes.html', context)
 
-class AmbienteCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
-    """Vista para crear un nuevo ambiente."""
-    model = Ambiente
-    form_class = AmbienteForm
-    template_name = 'ambientes/ambiente_form.html'
-    success_url = reverse_lazy('ambientes:lista')
-
-    def form_valid(self, form):
-        messages.success(self.request, "Ambiente creado exitosamente.")
-        return super().form_valid(form)
-
 class AmbienteUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
     """Vista para editar un ambiente existente."""
     model = Ambiente
@@ -114,6 +102,7 @@ class AmbienteDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
         messages.success(self.request, "Ambiente eliminado exitosamente.")
         return super().form_valid(form)
     
+@login_required
 def verificar_disponibilidad(request):
     """Vista AJAX para verificar la disponibilidad de un ambiente."""
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':

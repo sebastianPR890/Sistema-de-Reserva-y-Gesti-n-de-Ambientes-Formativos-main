@@ -2,845 +2,308 @@
 {% load static %}
 
 {% block content %}
-<div class="container-fluid" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
-    <div class="px-4 py-4">
-        <!-- Header Section -->
-        <div class="page-header mb-4 animate__animated animate__fadeInDown">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div>
-                    <h1 class="mb-2 text-white fw-bold">
-                        <i class="fas fa-door-open me-2"></i>
-                        Ambientes Formativos
-                    </h1>
-                    <p class="text-white-50 mb-0">Explora y gestiona todos los espacios de formación</p>
-                </div>
-                {% if user.is_staff %}
-                <div>
-                    <a href="{% url 'ambientes:crear' %}" class="btn btn-light btn-lg shadow-lg">
-                        <i class="fas fa-plus-circle me-2"></i>Crear Ambiente
-                    </a>
-                </div>
-                {% endif %}
+<div class="page-container">
+    <!-- Header Section -->
+    <div class="page-header-std">
+        <div class="page-title-row">
+            <div>
+                <h2>
+                    <i class="fas fa-door-open"></i>
+                    Ambientes Formativos
+                </h2>
+                <p class="page-subtitle">Explora y gestiona todos los espacios de formación</p>
             </div>
+            {% if user.is_staff %}
+            <div>
+                <a href="{% url 'ambientes:crear' %}" class="btn-action">
+                    <i class="fas fa-plus-circle"></i>Crear Ambiente
+                </a>
+            </div>
+            {% endif %}
         </div>
+    </div>
 
-        <!-- Search and Filter Card MEJORADA -->
-        <div class="card border-0 shadow-lg rounded-4 mb-4 animate__animated animate__fadeInUp">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold text-dark mb-0">
-                        <i class="fas fa-search me-2 text-success"></i>
-                        Buscar y Filtrar Ambientes
-                    </h5>
-                    <button class="btn btn-sm btn-outline-success" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
-                        <i class="fas fa-sliders-h me-1"></i>
-                        Filtros Avanzados
+    <!-- Search and Filter Card -->
+    <div class="card-std mb-3">
+        <div class="card-body">
+            <div class="search-unified">
+                <div class="dropdown">
+                    <button type="button" class="search-unified-filter-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        <i class="fas fa-sliders-h"></i> Filtros <i class="fas fa-chevron-down"></i>
                     </button>
+                    <div class="dropdown-menu search-filter-dropdown">
+                        <!-- Filtro por Tipo -->
+                        <div class="filter-dropdown-label" style="padding: 12px 18px 4px;">
+                            <i class="fas fa-layer-group"></i> Tipo de Ambiente
+                        </div>
+                        <button type="button" class="filter-dropdown-item filter-tipo active" data-tipo="all">
+                            <i class="fas fa-list"></i> Todos los tipos
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-tipo" data-tipo="aula">
+                            <i class="fas fa-chalkboard"></i> Aula
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-tipo" data-tipo="laboratorio">
+                            <i class="fas fa-flask"></i> Laboratorio
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-tipo" data-tipo="taller">
+                            <i class="fas fa-tools"></i> Taller
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-tipo" data-tipo="auditorio">
+                            <i class="fas fa-microphone"></i> Auditorio
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-tipo" data-tipo="biblioteca">
+                            <i class="fas fa-book"></i> Biblioteca
+                        </button>
+
+                        <!-- Filtro por Estado -->
+                        <div class="filter-dropdown-label" style="padding: 12px 18px 4px; border-top: 1px solid var(--border-color); margin-top: 4px;">
+                            <i class="fas fa-toggle-on"></i> Estado
+                        </div>
+                        <button type="button" class="filter-dropdown-item filter-activo active" data-activo="all">
+                            <i class="fas fa-list"></i> Todos
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-activo" data-activo="true">
+                            <i class="fas fa-check-circle"></i> Solo activos
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-activo" data-activo="false">
+                            <i class="fas fa-times-circle"></i> Inactivos
+                        </button>
+                    </div>
                 </div>
 
-                <form method="get" id="searchForm">
-                    <!-- Búsqueda Principal -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-lg-6">
-                            <div class="search-input-wrapper">
-                                <div class="input-group input-group-modern">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-search"></i>
-                                    </span>
-                                    <input 
-                                        type="text" 
-                                        name="busqueda" 
-                                        class="form-control form-control-lg" 
-                                        placeholder="Buscar por nombre o código del ambiente..."
-                                        value="{{ request.GET.busqueda }}"
-                                        id="busquedaInput"
-                                    >
-                                    <button class="btn btn-success" type="submit">
-                                        <i class="fas fa-search me-1"></i>Buscar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-3 col-md-6">
-                            <div class="filter-select-wrapper">
-                                <label class="form-label text-muted fw-semibold mb-2">
-                                    <i class="fas fa-layer-group me-1 text-success"></i>Tipo de Ambiente
-                                </label>
-                                {{ form_busqueda.tipo }}
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-3 col-md-6">
-                            <div class="filter-select-wrapper">
-                                <label class="form-label text-muted fw-semibold mb-2">
-                                    <i class="fas fa-users me-1 text-success"></i>Capacidad Mínima
-                                </label>
-                                {{ form_busqueda.capacidad_min }}
-                            </div>
-                        </div>
-                    </div>
+                <div class="search-unified-input-wrapper">
+                    <input
+                        type="text"
+                        id="searchAmbientes"
+                        class="form-control"
+                        placeholder="Buscar por nombre o código del ambiente..."
+                    >
+                </div>
+                <button type="button" class="search-unified-btn" onclick="document.getElementById('searchAmbientes').dispatchEvent(new Event('input'))">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
 
-                    <!-- Filtros Avanzados (Colapsable) -->
-                    <div class="collapse" id="advancedFilters">
-                        <div class="advanced-filters-section p-4 rounded-3 mb-3">
-                            <h6 class="text-success fw-bold mb-3">
-                                <i class="fas fa-filter me-2"></i>
-                                Filtros Adicionales
-                            </h6>
-                            
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <div class="filter-group">
-                                        <h6 class="text-dark fw-semibold mb-3">Estado y Disponibilidad</h6>
-                                        <div class="form-check form-switch form-switch-lg mb-3">
-                                            {{ form_busqueda.solo_activos }}
-                                            <label class="form-check-label" for="{{ form_busqueda.solo_activos.id_for_label }}">
-                                                <i class="fas fa-check-circle me-1 text-success"></i>
-                                                {{ form_busqueda.solo_activos.label }}
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <div class="filter-group">
-                                        <h6 class="text-dark fw-semibold mb-3">Equipamiento</h6>
-                                        <div class="form-check form-switch form-switch-lg mb-3">
-                                            {{ form_busqueda.con_computadores }}
-                                            <label class="form-check-label" for="{{ form_busqueda.con_computadores.id_for_label }}">
-                                                <i class="fas fa-desktop me-1 text-primary"></i>
-                                                {{ form_busqueda.con_computadores.label }}
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botones de Acción -->
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <div class="filter-summary">
-                            <span class="text-muted small">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Mostrando <strong class="text-success">{{ ambientes|length }}</strong> resultados
-                            </span>
-                        </div>
-                        
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'ambientes:lista' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-redo me-1"></i>Limpiar
-                            </a>
-                            <button type="submit" class="btn btn-success px-4">
-                                <i class="fas fa-check me-1"></i>Aplicar Filtros
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Active Filters Tags -->
-                    <div id="activeFilters" class="active-filters mt-3"></div>
-                </form>
+            <div class="mt-2">
+                <span class="text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Mostrando <strong class="text-success" id="countAmbientes">{{ ambientes|length }}</strong> resultado(s)
+                </span>
             </div>
         </div>
+    </div>
 
-        <!-- Stats Summary -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card stat-card-small border-0 shadow-lg animate__animated animate__fadeInUp">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon-small stat-icon-primary me-3">
-                                <i class="fas fa-door-open"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 small text-muted fw-semibold">Total Ambientes</p>
-                                <h4 class="mb-0 fw-bold">{{ ambientes|length }}</h4>
-                            </div>
+    <!-- Stats Summary -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card-std">
+                <div class="stat-content">
+                    <div class="stat-icon-std bg-info">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <div>
+                        <div class="stat-label">Total Ambientes</div>
+                        <div class="stat-number">{{ ambientes|length }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card-std">
+                <div class="stat-content">
+                    <div class="stat-icon-std bg-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-label">Activos</div>
+                        <div class="stat-number text-success">{{ ambientes|length }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card-std">
+                <div class="stat-content">
+                    <div class="stat-icon-std bg-warning">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="stat-label">Capacidad Total</div>
+                        <div class="stat-number">
+                            {% widthratio ambientes|length 1 50 %}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card stat-card-small border-0 shadow-lg animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon-small stat-icon-success me-3">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 small text-muted fw-semibold">Disponibles</p>
-                                <h4 class="mb-0 fw-bold text-success">{{ ambientes|length }}</h4>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+    </div>
+
+    <!-- Grid de ambientes -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4" id="ambientesGrid">
+        {% for ambiente in ambientes %}
+        <div class="col ambiente-card"
+             data-tipo="{{ ambiente.tipo }}"
+             data-activo="{% if ambiente.activo %}true{% else %}false{% endif %}"
+             data-nombre="{{ ambiente.nombre|lower }}"
+             data-codigo="{{ ambiente.codigo|lower }}">
+            <div class="card-std h-100">
+                <div class="card-header card-header-green">
+                    <i class="fas fa-door-open fa-2x"></i>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card stat-card-small border-0 shadow-lg animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon-small stat-icon-warning me-3">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="fw-bold mb-1">{{ ambiente.nombre }}</h5>
+                        <span class="badge-std badge-success">
+                            {{ ambiente.codigo }}
+                        </span>
+                    </div>
+
+                    <ul class="info-list-std mb-3">
+                        <li class="info-item">
+                            <div class="info-icon">
                                 <i class="fas fa-users"></i>
                             </div>
                             <div>
-                                <p class="mb-0 small text-muted fw-semibold">Capacidad Total</p>
-                                <h4 class="mb-0 fw-bold text-dark">
-                                    {% widthratio ambientes|length 1 50 %}
-                                </h4>
+                                <div class="info-label">Capacidad</div>
+                                <div class="info-value">{{ ambiente.capacidad }}</div>
                             </div>
-                        </div>
+                        </li>
+                        <li class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div>
+                                <div class="info-label">Tipo</div>
+                                <div class="info-value">{{ ambiente.get_tipo_display }}</div>
+                            </div>
+                        </li>
+                        <li class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <div class="info-label">Ubicación</div>
+                                <div class="info-value">{{ ambiente.ubicacion }}</div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'ambientes:detalle' ambiente.pk %}" class="btn-std btn-success flex-grow-1">
+                            <i class="fas fa-info-circle me-2"></i>Ver Detalles
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="d-flex align-items-center text-muted small">
+                        {% if ambiente.activo %}
+                        <span class="badge-std badge-success">
+                            <i class="fas fa-check-circle me-1"></i>Activo
+                        </span>
+                        {% else %}
+                        <span class="badge-std badge-danger">
+                            <i class="fas fa-times-circle me-1"></i>Inactivo
+                        </span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Grid de ambientes -->
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
-            {% for ambiente in ambientes %}
-            <div class="col animate__animated animate__fadeInUp" style="animation-delay: {{ forloop.counter0|divisibleby:3|yesno:'0.1s,0.2s' }}">
-                <div class="card ambiente-card border-0 shadow-lg h-100">
-                    <div class="card-header-custom">
-                        <div class="ambiente-badge">
-                            <i class="fas fa-door-open"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="mb-3">
-                            <h5 class="card-title fw-bold mb-1">{{ ambiente.nombre }}</h5>
-                            <span class="badge bg-success bg-opacity-10 text-success border border-success">
-                                {{ ambiente.codigo }}
-                            </span>
-                        </div>
-                        
-                        <div class="ambiente-info mb-3">
-                            <div class="info-item">
-                                <i class="fas fa-users text-success me-2"></i>
-                                <span class="text-muted small">Capacidad:</span>
-                                <strong class="ms-1">{{ ambiente.capacidad }}</strong>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-layer-group text-success me-2"></i>
-                                <span class="text-muted small">Tipo:</span>
-                                <strong class="ms-1">{{ ambiente.get_tipo_display }}</strong>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-map-marker-alt text-success me-2"></i>
-                                <span class="text-muted small">Ubicación:</span>
-                                <strong class="ms-1">{{ ambiente.ubicacion }}</strong>
-                            </div>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'ambientes:detalle' ambiente.pk %}" class="btn btn-success flex-grow-1">
-                                <i class="fas fa-info-circle me-2"></i>Ver Detalles
-                            </a>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-transparent border-0 px-4 pb-4 pt-0">
-                        <div class="d-flex align-items-center text-muted small">
-                            <i class="fas fa-circle text-success me-2" style="font-size: 0.5rem;"></i>
-                            <span>{% if ambiente.activo %}Activo{% else %}Inactivo{% endif %}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12">
-                <div class="card border-0 shadow-lg rounded-4">
-                    <div class="card-body text-center py-5">
-                        <div class="empty-icon mb-4">
+        {% empty %}
+        <div class="col-12">
+            <div class="card-std">
+                <div class="card-body">
+                    <div class="empty-state-std">
+                        <div class="empty-icon">
                             <i class="fas fa-door-closed"></i>
                         </div>
-                        <h4 class="text-muted fw-bold mb-2">No se encontraron ambientes</h4>
-                        <p class="text-muted mb-4">No hay ambientes registrados o no coinciden con tu búsqueda</p>
+                        <h5>No se encontraron ambientes</h5>
+                        <p>No hay ambientes registrados en el sistema</p>
                         {% if user.is_staff %}
-                        <a href="{% url 'ambientes:crear' %}" class="btn btn-success btn-lg">
+                        <a href="{% url 'ambientes:crear' %}" class="btn-std btn-success">
                             <i class="fas fa-plus-circle me-2"></i>Crear Primer Ambiente
                         </a>
                         {% endif %}
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
+        {% endfor %}
+    </div>
 
-        <!-- Pagination -->
-        {% if is_paginated %}
-        <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
-            <div class="card-body p-4">
-                <nav aria-label="Paginación">
-                    <ul class="pagination justify-content-center mb-0">
-                        {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1">
-                                <i class="fas fa-angle-double-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
-                                <i class="fas fa-angle-left"></i>
-                            </a>
-                        </li>
-                        {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-angle-double-left"></i></span>
-                        </li>
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-angle-left"></i></span>
-                        </li>
-                        {% endif %}
-
-                        <li class="page-item active">
-                            <span class="page-link fw-bold">
-                                {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                            </span>
-                        </li>
-
-                        {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
-                                <i class="fas fa-angle-right"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
-                                <i class="fas fa-angle-double-right"></i>
-                            </a>
-                        </li>
-                        {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-angle-right"></i></span>
-                        </li>
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-angle-double-right"></i></span>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
+    <!-- Empty state cuando JS no encuentra resultados -->
+    <div id="emptyFilterState" style="display:none;">
+        <div class="card-std">
+            <div class="card-body">
+                <div class="empty-state-std">
+                    <div class="empty-icon"><i class="fas fa-search"></i></div>
+                    <h5>Sin resultados</h5>
+                    <p>No hay ambientes que coincidan con los filtros seleccionados</p>
+                </div>
             </div>
         </div>
-        {% endif %}
     </div>
+
 </div>
-
-<style>
-/* Global */
-.rounded-4 {
-    border-radius: 1rem !important;
-}
-
-/* Header */
-.page-header h1 {
-    font-size: 2rem;
-}
-
-/* ===== ESTILOS DE LA BARRA DE FILTROS MEJORADA ===== */
-/* Search Input Styling */
-.search-input-wrapper {
-    position: relative;
-}
-
-.input-group-modern {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-radius: 1rem;
-    overflow: hidden;
-}
-
-.input-group-modern .input-group-text {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border: none;
-    color: white;
-    padding: 0.75rem 1.25rem;
-}
-
-.input-group-modern .form-control {
-    border: 2px solid #e9ecef;
-    border-left: none;
-    border-right: none;
-    padding: 0.75rem 1.25rem;
-    font-size: 1rem;
-}
-
-.input-group-modern .form-control:focus {
-    border-color: #28a745;
-    box-shadow: none;
-}
-
-.input-group-modern .btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    padding: 0.75rem 1.5rem;
-}
-
-/* Filter Select Styling */
-.filter-select-wrapper .form-select,
-.filter-select-wrapper .form-control {
-    border: 2px solid #e9ecef;
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
-    background-color: #f8f9fa;
-}
-
-.filter-select-wrapper .form-select:focus,
-.filter-select-wrapper .form-control:focus {
-    border-color: #28a745;
-    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15);
-    background-color: white;
-}
-
-.filter-select-wrapper .form-select:hover,
-.filter-select-wrapper .form-control:hover {
-    border-color: #28a745;
-    background-color: white;
-}
-
-/* Advanced Filters Section */
-.advanced-filters-section {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.03) 0%, rgba(32, 201, 151, 0.03) 100%);
-    border: 2px dashed #28a745;
-}
-
-.filter-group {
-    background: white;
-    padding: 1.25rem;
-    border-radius: 0.75rem;
-    border: 1px solid #e9ecef;
-}
-
-/* Form Switch Styling */
-.form-switch-lg .form-check-input {
-    width: 3.5rem;
-    height: 1.75rem;
-    cursor: pointer;
-    border: 2px solid #dee2e6;
-}
-
-.form-switch-lg .form-check-input:checked {
-    background-color: #28a745;
-    border-color: #28a745;
-    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15);
-}
-
-.form-switch-lg .form-check-label {
-    margin-left: 0.75rem;
-    cursor: pointer;
-    user-select: none;
-}
-
-/* Active Filters Tags */
-.active-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid #e9ecef;
-}
-
-.filter-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    border-radius: 2rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    animation: slideInDown 0.3s ease;
-}
-
-.filter-tag .remove-filter {
-    cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-.filter-tag .remove-filter:hover {
-    opacity: 1;
-}
-
-@keyframes slideInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Filter Summary */
-.filter-summary {
-    padding: 0.5rem 0;
-}
-
-/* Loading Animation */
-.btn.loading {
-    pointer-events: none;
-    position: relative;
-}
-
-.btn.loading::after {
-    content: "";
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    top: 50%;
-    left: 50%;
-    margin-left: -8px;
-    margin-top: -8px;
-    border: 2px solid #ffffff;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* ===== FIN ESTILOS BARRA DE FILTROS ===== */
-
-/* Stat Cards Small */
-.stat-card-small {
-    transition: all 0.3s ease;
-    border-radius: 1rem;
-}
-
-.stat-card-small:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 1rem 3rem rgba(0,0,0,0.175) !important;
-}
-
-.stat-icon-small {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.75rem;
-    font-size: 1.25rem;
-}
-
-.stat-icon-primary {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
-.stat-icon-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-}
-
-.stat-icon-warning {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
-}
-
-/* Ambiente Cards */
-.ambiente-card {
-    border-radius: 1rem;
-    transition: all 0.3s ease;
-    overflow: hidden;
-}
-
-.ambiente-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 1.5rem 3rem rgba(0,0,0,0.2) !important;
-}
-
-.card-header-custom {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    padding: 1.5rem;
-    position: relative;
-}
-
-.ambiente-badge {
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border-radius: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.75rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.ambiente-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.info-item {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem;
-    background: rgba(40, 167, 69, 0.05);
-    border-radius: 0.5rem;
-}
-
-/* Buttons */
-.btn {
-    border-radius: 0.75rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    font-size: 0.875rem;
-    letter-spacing: 0.5px;
-    padding: 0.625rem 1.25rem;
-}
-
-.btn-light {
-    background: white;
-    color: #28a745;
-    border: none;
-}
-
-.btn-light:hover {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-}
-
-.btn-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border: none;
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-}
-
-.btn-success:hover {
-    background: linear-gradient(135deg, #218838 0%, #1fa589 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-}
-
-.btn-outline-secondary {
-    border: 2px solid #6c757d;
-    color: #6c757d;
-}
-
-.btn-outline-secondary:hover {
-    background: #6c757d;
-    color: white;
-    transform: translateY(-2px);
-}
-
-.btn-outline-success {
-    border: 2px solid #28a745;
-    color: #28a745;
-    font-weight: 600;
-}
-
-.btn-outline-success:hover {
-    background: #28a745;
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-}
-
-/* Empty State */
-.empty-icon {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto;
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.empty-icon i {
-    font-size: 4rem;
-    color: #28a745;
-    opacity: 0.5;
-}
-
-/* Pagination */
-.pagination {
-    gap: 0.25rem;
-}
-
-.page-link {
-    border-radius: 0.5rem;
-    border: 1px solid #dee2e6;
-    color: #28a745;
-    font-weight: 600;
-    padding: 0.5rem 0.875rem;
-}
-
-.page-link:hover {
-    background: #28a745;
-    border-color: #28a745;
-    color: white;
-}
-
-.page-item.active .page-link {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border-color: #28a745;
-}
-
-.page-item.disabled .page-link {
-    background: #f8f9fa;
-    border-color: #dee2e6;
-    color: #6c757d;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .page-header h1 {
-        font-size: 1.5rem;
-    }
-    
-    .ambiente-card {
-        margin-bottom: 1rem;
-    }
-    
-    .stat-icon-small {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
-    }
-    
-    .input-group-modern .btn {
-        width: 100%;
-        margin-top: 0.5rem;
-        border-radius: 0.75rem !important;
-    }
-    
-    .input-group-modern {
-        flex-direction: column;
-    }
-    
-    .input-group-modern .form-control {
-        border: 2px solid #e9ecef !important;
-        border-radius: 0 !important;
-    }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('searchForm');
-    const activeFiltersContainer = document.getElementById('activeFilters');
-    
-    // Add Bootstrap classes to form fields
-    const formControls = form.querySelectorAll('input:not([type="checkbox"]), select, textarea');
-    formControls.forEach(control => {
-        if (!control.classList.contains('form-control') && !control.classList.contains('form-select')) {
-            if (control.tagName === 'SELECT') {
-                control.classList.add('form-select', 'form-select-lg');
-            } else if (!control.classList.contains('form-check-input')) {
-                control.classList.add('form-control');
-            }
-        }
-    });
+    const cards = document.querySelectorAll('.ambiente-card');
+    const searchInput = document.getElementById('searchAmbientes');
+    const tipoButtons = document.querySelectorAll('.filter-tipo');
+    const activoButtons = document.querySelectorAll('.filter-activo');
+    const countEl = document.getElementById('countAmbientes');
+    const emptyState = document.getElementById('emptyFilterState');
 
-    // Add class to checkboxes
-    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.classList.add('form-check-input');
-    });
-    
-    // Auto-submit on filter change
-    const autoSubmitElements = form.querySelectorAll('select, input[type="checkbox"]');
-    autoSubmitElements.forEach(element => {
-        element.addEventListener('change', function() {
-            const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
-            setTimeout(() => form.submit(), 300);
-        });
-    });
-    
-    // Display active filters as tags
-    function displayActiveFilters() {
-        activeFiltersContainer.innerHTML = '';
-        const formData = new FormData(form);
-        const activeFilters = [];
-        
-        for (let [key, value] of formData.entries()) {
-            if (value && key !== 'csrfmiddlewaretoken' && key !== 'busqueda') {
-                const input = form.querySelector(`[name="${key}"]`);
-                let label = '';
-                
-                if (input?.type === 'checkbox') {
-                    label = input.nextElementSibling?.textContent || key;
-                } else {
-                    label = input?.previousElementSibling?.textContent || key;
-                }
-                
-                label = label.replace(/\*/g, '').trim().substring(0, 30);
-                activeFilters.push({ key, value, label });
+    let currentTipo = 'all';
+    let currentActivo = 'all';
+    let currentSearch = '';
+
+    function applyFilters() {
+        let visible = 0;
+
+        cards.forEach(card => {
+            const matchesTipo = currentTipo === 'all' || card.dataset.tipo === currentTipo;
+            const matchesActivo = currentActivo === 'all' || card.dataset.activo === currentActivo;
+            const searchText = (card.dataset.nombre + ' ' + card.dataset.codigo + ' ' + card.textContent).toLowerCase();
+            const matchesSearch = currentSearch === '' || searchText.includes(currentSearch);
+
+            if (matchesTipo && matchesActivo && matchesSearch) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
             }
-        }
-        
-        if (activeFilters.length > 0) {
-            activeFiltersContainer.style.display = 'flex';
-            activeFilters.forEach(filter => {
-                const tag = document.createElement('span');
-                tag.className = 'filter-tag';
-                tag.innerHTML = `
-                    <span>${filter.label}</span>
-                    <i class="fas fa-times remove-filter" data-filter="${filter.key}"></i>
-                `;
-                activeFiltersContainer.appendChild(tag);
-            });
-            
-            // Add event listeners to remove buttons
-            activeFiltersContainer.querySelectorAll('.remove-filter').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const filterName = this.getAttribute('data-filter');
-                    const input = form.querySelector(`[name="${filterName}"]`);
-                    if (input) {
-                        if (input.type === 'checkbox') {
-                            input.checked = false;
-                        } else {
-                            input.value = '';
-                        }
-                        form.submit();
-                    }
-                });
-            });
-        } else {
-            activeFiltersContainer.style.display = 'none';
-        }
+        });
+
+        if (countEl) countEl.textContent = visible;
+        if (emptyState) emptyState.style.display = visible === 0 && cards.length > 0 ? '' : 'none';
     }
-    
-    displayActiveFilters();
 
-    // Animate cards on scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
+    tipoButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            tipoButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentTipo = this.dataset.tipo;
+            applyFilters();
         });
-    }, observerOptions);
-
-    document.querySelectorAll('.ambiente-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'all 0.6s ease';
-        observer.observe(card);
     });
+
+    activoButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            activoButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentActivo = this.dataset.activo;
+            applyFilters();
+        });
+    });
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            currentSearch = this.value.toLowerCase();
+            applyFilters();
+        });
+    }
 });
 </script>
 {% endblock %}

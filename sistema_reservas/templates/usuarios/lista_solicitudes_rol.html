@@ -4,79 +4,79 @@
 {% block title %}Solicitudes de Cambio de Rol - SENA{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
+<div class="page-container">
     <div class="row justify-content-center">
         <div class="col-lg-11 col-xl-10">
             <!-- Header -->
-            <div class="mb-4 animate__animated animate__fadeInDown">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb bg-transparent">
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'reservas:index' %}" class="text-white text-decoration-none">
-                                <i class="fas fa-home me-1"></i>Inicio
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'usuarios:lista_usuarios' %}" class="text-white text-decoration-none">Usuarios</a>
-                        </li>
-                        <li class="breadcrumb-item active text-white-50">Solicitudes de Rol</li>
-                    </ol>
+            <div class="page-header-std">
+                <nav class="breadcrumb-nav" aria-label="breadcrumb">
+                    <a href="{% url 'reservas:index' %}"><i class="fas fa-home me-1"></i>Inicio</a>
+                    <span class="mx-2">/</span>
+                    <a href="{% url 'usuarios:lista_usuarios' %}">Usuarios</a>
+                    <span class="mx-2">/</span>
+                    <span>Solicitudes de Rol</span>
                 </nav>
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="page-title-row">
                     <div>
-                        <h1 class="display-6 fw-bold text-white mb-2">
-                            <i class="fas fa-user-tag me-2"></i>
+                        <h2>
+                            <i class="fas fa-user-tag"></i>
                             Solicitudes de Cambio de Rol
-                        </h1>
-                        <p class="text-white-50 mb-0">Gestiona las solicitudes de cambio de rol de los usuarios</p>
+                        </h2>
+                        <p class="page-subtitle">Gestiona las solicitudes de cambio de rol de los usuarios</p>
                     </div>
-                    <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-light">
-                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-action">
+                        <i class="fas fa-arrow-left"></i>Volver
                     </a>
                 </div>
             </div>
 
             <!-- Estadísticas -->
-            <div class="row g-3 mb-4 animate__animated animate__fadeInUp">
+            <div class="row g-3 mb-4">
                 <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-icon bg-warning-subtle">
-                            <i class="fas fa-clock text-warning"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>{{ pendientes }}</h3>
-                            <p>Pendientes</p>
+                    <div class="stat-card-std">
+                        <div class="stat-content">
+                            <div class="stat-icon-std bg-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div>
+                                <div class="stat-number">{{ pendientes }}</div>
+                                <div class="stat-label">Pendientes</div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-icon bg-success-subtle">
-                            <i class="fas fa-check-circle text-success"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>{{ aprobadas }}</h3>
-                            <p>Aprobadas</p>
+                    <div class="stat-card-std">
+                        <div class="stat-content">
+                            <div class="stat-icon-std bg-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div>
+                                <div class="stat-number">{{ aprobadas }}</div>
+                                <div class="stat-label">Aprobadas</div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-icon bg-danger-subtle">
-                            <i class="fas fa-times-circle text-danger"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>{{ rechazadas }}</h3>
-                            <p>Rechazadas</p>
+                    <div class="stat-card-std">
+                        <div class="stat-content">
+                            <div class="stat-icon-std bg-danger">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div>
+                                <div class="stat-number">{{ rechazadas }}</div>
+                                <div class="stat-label">Rechazadas</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Filtros -->
-            <div class="card border-0 shadow-sm rounded-4 mb-4 animate__animated animate__fadeInUp">
+            <div class="card-std mb-4">
                 <div class="card-body py-3">
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="filter-group-std">
                         <span class="fw-semibold text-muted me-2"><i class="fas fa-filter me-1"></i>Filtrar:</span>
                         <a href="?estado=pendiente" class="btn btn-filter {% if estado_filtro == 'pendiente' %}active{% endif %}">
                             <i class="fas fa-clock me-1"></i> Pendientes
@@ -95,20 +95,20 @@
             </div>
 
             <!-- Lista de Solicitudes -->
-            <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
-                <div class="card-header bg-gradient-success text-white py-3">
+            <div class="card-std">
+                <div class="card-header card-header-green">
                     <h5 class="mb-0 fw-bold">
                         <i class="fas fa-list me-2"></i>Solicitudes
                         {% if pendientes > 0 %}
-                        <span class="badge bg-warning text-dark ms-2">{{ pendientes }} pendientes</span>
+                        <span class="badge-std badge-warning ms-2">{{ pendientes }} pendientes</span>
                         {% endif %}
                     </h5>
                 </div>
                 <div class="card-body p-0">
                     {% if solicitudes %}
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                        <table class="table-std">
+                            <thead>
                                 <tr>
                                     <th class="ps-4">Usuario</th>
                                     <th>Rol Actual</th>
@@ -123,7 +123,7 @@
                                 <tr>
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-circle me-3">
+                                            <div class="avatar-circle-lg me-3">
                                                 {{ solicitud.usuario.nombres|slice:":1" }}{{ solicitud.usuario.apellidos|slice:":1" }}
                                             </div>
                                             <div>
@@ -134,33 +134,35 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-secondary">{{ solicitud.get_rol_actual_display }}</span>
+                                        <span class="badge-std badge-secondary">{{ solicitud.get_rol_actual_display }}</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-primary">{{ solicitud.get_rol_solicitado_display }}</span>
+                                        <span class="badge-std badge-primary">{{ solicitud.get_rol_solicitado_display }}</span>
                                     </td>
                                     <td>
                                         <small>{{ solicitud.fecha_solicitud|date:"d/m/Y H:i" }}</small>
                                     </td>
                                     <td>
                                         {% if solicitud.estado == 'pendiente' %}
-                                        <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Pendiente</span>
+                                        <span class="badge-std badge-warning"><i class="fas fa-clock me-1"></i>Pendiente</span>
                                         {% elif solicitud.estado == 'aprobada' %}
-                                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Aprobada</span>
+                                        <span class="badge-std badge-success"><i class="fas fa-check me-1"></i>Aprobada</span>
                                         {% else %}
-                                        <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Rechazada</span>
+                                        <span class="badge-std badge-danger"><i class="fas fa-times me-1"></i>Rechazada</span>
                                         {% endif %}
                                     </td>
                                     <td class="text-center pe-4">
                                         {% if solicitud.estado == 'pendiente' %}
-                                        <a href="{% url 'usuarios:aprobar_solicitud_rol' solicitud.pk %}"
-                                           class="btn btn-sm btn-success me-1" title="Aprobar">
-                                            <i class="fas fa-check"></i>
-                                        </a>
-                                        <a href="{% url 'usuarios:rechazar_solicitud_rol' solicitud.pk %}"
-                                           class="btn btn-sm btn-danger" title="Rechazar">
-                                            <i class="fas fa-times"></i>
-                                        </a>
+                                        <div class="btn-group-std justify-content-center">
+                                            <a href="{% url 'usuarios:aprobar_solicitud_rol' solicitud.pk %}"
+                                               class="btn-icon-std btn-approve" title="Aprobar">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                            <a href="{% url 'usuarios:rechazar_solicitud_rol' solicitud.pk %}"
+                                               class="btn-icon-std btn-reject" title="Rechazar">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        </div>
                                         {% else %}
                                         <small class="text-muted">
                                             {% if solicitud.respondido_por %}
@@ -173,7 +175,7 @@
                                 {% if solicitud.razon %}
                                 <tr class="bg-light">
                                     <td colspan="6" class="ps-4 py-2">
-                                        <small><strong>Razón:</strong> {{ solicitud.razon }}</small>
+                                        <small><strong>Razon:</strong> {{ solicitud.razon }}</small>
                                     </td>
                                 </tr>
                                 {% endif %}
@@ -182,9 +184,9 @@
                         </table>
                     </div>
 
-                    <!-- Paginación -->
+                    <!-- Paginacion -->
                     {% if page_obj.has_other_pages %}
-                    <div class="card-footer bg-white border-0 py-3">
+                    <div class="pagination-std">
                         <nav>
                             <ul class="pagination justify-content-center mb-0">
                                 {% if page_obj.has_previous %}
@@ -209,29 +211,29 @@
                     </div>
                     {% endif %}
                     {% else %}
-                    <div class="text-center py-5">
-                        <div class="empty-icon mb-3">
+                    <div class="empty-state-std">
+                        <div class="empty-icon">
                             <i class="fas fa-inbox"></i>
                         </div>
-                        <h5 class="text-muted fw-bold">No hay solicitudes</h5>
-                        <p class="text-muted mb-0">No se encontraron solicitudes con el filtro seleccionado.</p>
+                        <h5>No hay solicitudes</h5>
+                        <p>No se encontraron solicitudes con el filtro seleccionado.</p>
                     </div>
                     {% endif %}
                 </div>
             </div>
 
             <!-- Help Card -->
-            <div class="card border-0 bg-white bg-opacity-90 shadow-sm rounded-4 mt-4 animate__animated animate__fadeInUp">
+            <div class="card-std mt-4">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center">
                         <div class="help-icon me-3">
                             <i class="fas fa-question-circle"></i>
                         </div>
                         <div>
-                            <h6 class="mb-1 fw-bold text-success">Gestión de Solicitudes</h6>
+                            <h6 class="mb-1 fw-bold text-success">Gestion de Solicitudes</h6>
                             <small class="text-muted">
-                                Al aprobar una solicitud, el usuario recibirá automáticamente el nuevo rol.
-                                Puedes agregar un comentario que será visible para el usuario.
+                                Al aprobar una solicitud, el usuario recibira automaticamente el nuevo rol.
+                                Puedes agregar un comentario que sera visible para el usuario.
                             </small>
                         </div>
                     </div>
@@ -240,47 +242,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.breadcrumb-item + .breadcrumb-item::before { color: rgba(255, 255, 255, 0.5); }
-.rounded-4 { border-radius: 1rem !important; }
-.bg-gradient-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important; }
-
-.stat-card {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 1rem;
-    padding: 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: all 0.3s ease;
-}
-.stat-card:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-3px); }
-.stat-icon { width: 55px; height: 55px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-.stat-info h3 { font-size: 1.75rem; font-weight: 700; margin: 0; color: white; }
-.stat-info p { margin: 0; color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; }
-
-.btn-filter { padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; font-size: 0.875rem; color: #6c757d; background: #f8f9fa; border: 2px solid transparent; transition: all 0.3s ease; }
-.btn-filter:hover { color: #28a745; background: #e8f5e9; border-color: #28a745; }
-.btn-filter.active { color: white; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-color: transparent; }
-
-.avatar-circle { width: 40px; height: 40px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9rem; }
-
-.empty-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-.empty-icon i { font-size: 2.5rem; color: #adb5bd; }
-
-.help-icon { width: 56px; height: 56px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.help-icon i { color: white; font-size: 1.5rem; }
-
-.btn-outline-light { border: 2px solid white; color: white; }
-.btn-outline-light:hover { background: white; color: #28a745; transform: translateY(-2px); }
-
-.pagination .page-link { color: #28a745; border: none; padding: 0.5rem 0.875rem; margin: 0 0.125rem; border-radius: 0.5rem; font-weight: 600; }
-.pagination .page-link:hover { background: rgba(40, 167, 69, 0.1); color: #155724; }
-.pagination .page-item.active .page-link { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
-
-.table th { font-weight: 600; color: #495057; border-bottom: 2px solid #e9ecef; }
-.table td { vertical-align: middle; border-bottom: 1px solid #f1f3f4; }
-</style>
 {% endblock %}

@@ -1,0 +1,10 @@
+<div class="empty-state-std">
+    <div class="empty-icon"><i class="{{ icon|default:'fas fa-inbox' }}"></i></div>
+    <h5>{{ title|default:"No hay datos" }}</h5>
+    <p>{{ message|default:"No se encontraron registros." }}</p>
+    {% if action_url %}
+    <a href="{{ action_url }}" class="btn btn-success btn-std">
+        <i class="{{ action_icon|default:'fas fa-plus' }}"></i> {{ action_label }}
+    </a>
+    {% endif %}
+</div>

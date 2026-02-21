@@ -22,13 +22,11 @@ class CustomLoginForm(AuthenticationForm):
     )
 
     def clean_username(self):
-        """Valida que el documento exista en el sistema."""
+        """Valida el formato del documento sin revelar si existe."""
         documento = self.cleaned_data.get('username')
         if documento:
-            try:
-                Usuario.objects.get(documento=documento)
-            except Usuario.DoesNotExist:
-                raise forms.ValidationError('No existe un usuario con este documento')
+            if not documento.isdigit() or len(documento) != 10:
+                raise forms.ValidationError('El documento debe tener exactamente 10 dígitos numéricos.')
         return documento
 
 class CustomRegistroForm(UserCreationForm):

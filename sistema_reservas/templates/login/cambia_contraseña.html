@@ -6,570 +6,130 @@
 {% block body_class %}login-page{% endblock %}
 
 {% block content %}
-<style>
-    body.login-page {
-        background: linear-gradient(135deg, #39b54a 0%, #047857 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    body.login-page::before {
-        content: '';
-        position: absolute;
-        width: 600px;
-        height: 600px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 50%;
-        top: -300px;
-        right: -300px;
-        animation: float 8s ease-in-out infinite;
-    }
-    
-    body.login-page::after {
-        content: '';
-        position: absolute;
-        width: 500px;
-        height: 500px;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 50%;
-        bottom: -250px;
-        left: -250px;
-        animation: float 10s ease-in-out infinite reverse;
-    }
-    
-    @keyframes float {
-        0%, 100% { transform: translate(0, 0) rotate(0deg); }
-        50% { transform: translate(30px, 30px) rotate(5deg); }
-    }
-    
-    .change-container {
-        width: 100%;
-        max-width: 900px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    
-    .change-card {
-        background: white;
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        display: flex;
-        animation: slideUp 0.6s ease-out;
-    }
-    
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .change-left {
-        background: linear-gradient(135deg, #39b54a 0%, #047857 100%);
-        padding: 3rem 2.5rem;
-        flex: 0 0 40%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .change-left::before {
-        content: '';
-        position: absolute;
-        width: 300px;
-        height: 300px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        bottom: -150px;
-        left: -150px;
-    }
-    
-    .logo-container {
-        width: 125px;
-        height: 125px;
-        background: white;
-        border-radius: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        position: relative;
-        z-index: 1;
-        overflow: hidden; /* Prevents image from overflowing corners */
-    }
-    
-    .logo-container img {
-        width: 90%;
-        height: auto;
-    }
-    
-    .security-badge {
-        width: 80px;
-        height: 80px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        position: relative;
-        z-index: 1;
-    }
-    
-    .security-badge i {
-        font-size: 2.5rem;
-    }
-    
-    .welcome-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    
-    .welcome-text {
-        font-size: 1rem;
-        line-height: 1.6;
-        opacity: 0.95;
-        margin-bottom: 2rem;
-        position: relative;
-        z-index: 1;
-    }
-    
-    .security-tips {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: left;
-        position: relative;
-        z-index: 1;
-    }
-    
-    .security-tip {
-        display: flex;
-        align-items: start;
-        margin-bottom: 0.75rem;
-        font-size: 0.9rem;
-    }
-    
-    .security-tip:last-child {
-        margin-bottom: 0;
-    }
-    
-    .security-tip i {
-        margin-right: 0.75rem;
-        margin-top: 0.25rem;
-        color: #d1fae5;
-    }
-    
-    .change-right {
-        padding: 3rem 2.5rem;
-        flex: 1;
-    }
-    
-    .form-header {
-        margin-bottom: 2rem;
-    }
-    
-    .form-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 0.5rem;
-    }
-    
-    .form-subtitle {
-        color: #6b7280;
-        font-size: 0.95rem;
-        line-height: 1.5;
-    }
-    
-    .password-requirements {
-        background: #f0fdf4;
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-        border-left: 4px solid #39b54a;
-    }
-    
-    .requirements-title {
-        font-weight: 600;
-        color: #166534;
-        margin-bottom: 0.75rem;
-        font-size: 0.9rem;
-    }
-    
-    .requirement {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.5rem;
-        color: #6b7280;
-        font-size: 0.875rem;
-    }
-    
-    .requirement:last-child {
-        margin-bottom: 0;
-    }
-    
-    .requirement i {
-        margin-right: 0.5rem;
-        font-size: 0.75rem;
-        width: 16px;
-    }
-    
-    .requirement.met {
-        color: #166534;
-    }
-    
-    .requirement.met i {
-        color: #16a34a;
-    }
-    
-    .form-label {
-        display: block;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-    }
-    
-    .input-wrapper {
-        position: relative;
-        margin-bottom: 1.5rem;
-    }
-    
-    .input-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        font-size: 1.1rem;
-        z-index: 10;
-    }
-    
-    .form-input {
-        width: 100%;
-        padding: 0.875rem 3.5rem 0.875rem 3rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 12px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        font-family: 'Poppins', sans-serif;
-    }
-    
-    .form-input:focus {
-        outline: none;
-        border-color: #39b54a;
-        box-shadow: 0 0 0 4px rgba(57, 181, 74, 0.1);
-    }
-    
-    .toggle-password {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #9ca3af;
-        cursor: pointer;
-        padding: 0.5rem;
-        z-index: 10;
-        transition: color 0.3s ease;
-    }
-    
-    .toggle-password:hover {
-        color: #39b54a;
-    }
-    
-    .password-strength {
-        height: 4px;
-        background: #e5e7eb;
-        border-radius: 2px;
-        margin-top: 0.5rem;
-        overflow: hidden;
-    }
-    
-    .password-strength-bar {
-        height: 100%;
-        width: 0;
-        transition: all 0.3s ease;
-        border-radius: 2px;
-    }
-    
-    .btn-submit {
-        width: 100%;
-        padding: 1rem;
-        background: linear-gradient(135deg, #39b54a 0%, #047857 100%);
-        border: none;
-        border-radius: 12px;
-        color: white;
-        font-weight: 600;
-        font-size: 1.05rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(57, 181, 74, 0.3);
-        margin-top: 0.5rem;
-        font-family: 'Poppins', sans-serif;
-    }
-    
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(57, 181, 74, 0.4);
-    }
-    
-    .btn-submit:active {
-        transform: translateY(0);
-    }
-    
-    .btn-submit i {
-        margin-right: 0.5rem;
-    }
-    
-    .divider {
-        display: flex;
-        align-items: center;
-        margin: 1.5rem 0;
-    }
-    
-    .divider::before,
-    .divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e5e7eb;
-    }
-    
-    .divider span {
-        padding: 0 1rem;
-        color: #9ca3af;
-        font-size: 0.875rem;
-    }
-    
-    .back-link {
-        display: inline-flex;
-        align-items: center;
-        color: #39b54a;
-        text-decoration: none;
-        font-weight: 600;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .back-link:hover {
-        background: rgba(57, 181, 74, 0.1);
-        transform: translateX(-4px);
-    }
-    
-    .back-link i {
-        margin-right: 0.5rem;
-        transition: transform 0.3s ease;
-    }
-    
-    .back-link:hover i {
-        transform: translateX(-4px);
-    }
-    
-    .alert {
-        padding: 1rem;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        border: none;
-        animation: slideDown 0.4s ease-out;
-    }
-    
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .alert-success {
-        background: #d1fae5;
-        color: #065f46;
-        border-left: 4px solid #10b981;
-    }
-    
-    .alert-danger {
-        background: #fee2e2;
-        color: #991b1b;
-        border-left: 4px solid #ef4444;
-    }
-    
-    @media (max-width: 768px) {
-        .change-card {
-            flex-direction: column;
-        }
-        
-        .change-left {
-            padding: 2rem 1.5rem;
-        }
-        
-        .change-right {
-            padding: 2rem 1.5rem;
-        }
-        
-        .welcome-title {
-            font-size: 1.5rem;
-        }
-        
-        .form-title {
-            font-size: 1.5rem;
-        }
-        
-        .logo-container {
-            width: 100px;
-            height: 100px;
-        }
-    }
-</style>
+<div class="content-wrapper auth-page-layout">
+    <div class="auth-container auth-medium">
+        <div class="auth-card auth-split">
+            <!-- Left Panel -->
+            <div class="auth-sidebar">
+                <div class="auth-sidebar-logo">
+                    <img src="{% static 'logo_proyecto/logo_C.png' %}" alt="Logo SENA">
+                </div>
 
-<div class="change-container">
-    <div class="change-card">
-        <!-- Left Panel -->
-        <div class="change-left">
-            <div class="logo-container">
-                <img src="{% static 'logo_proyecto/logo_C.png' %}" alt="Logo SENA">
-            </div>
-            
-            <div class="security-badge">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            
-            <h2 class="welcome-title">Seguridad</h2>
-            
-            <p class="welcome-text">
-                Crea una contraseña fuerte para proteger tu cuenta y mantener tus datos seguros.
-            </p>
-            
-            <div class="security-tips">
-                <div class="security-tip">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Usa una combinación única de caracteres</span>
+                <div class="auth-security-badge">
+                    <i class="fas fa-shield-alt"></i>
                 </div>
-                <div class="security-tip">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Nunca compartas tu contraseña</span>
-                </div>
-                <div class="security-tip">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Cambia tu contraseña periódicamente</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Right Panel -->
-        <div class="change-right">
-            <div class="form-header">
-                <h1 class="form-title">Restablecer Contraseña</h1>
-                <p class="form-subtitle">
-                    Ingresa y confirma tu nueva contraseña para completar el proceso de recuperación.
+
+                <h2>Seguridad</h2>
+
+                <p>
+                    Crea una contraseña fuerte para proteger tu cuenta y mantener tus datos seguros.
                 </p>
-            </div>
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
+                <div class="auth-tips">
+                    <div class="auth-tip">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Usa una combinación única de caracteres</span>
                     </div>
-                {% endfor %}
-            {% endif %}
-
-            <div class="password-requirements">
-                <div class="requirements-title">Tu contraseña debe contener:</div>
-                <div class="requirement" id="req-length">
-                    <i class="fas fa-circle"></i>
-                    <span>Mínimo 12 caracteres</span>
-                </div>
-                <div class="requirement" id="req-uppercase">
-                    <i class="fas fa-circle"></i>
-                    <span>Al menos una letra mayúscula (A-Z)</span>
-                </div>
-                <div class="requirement" id="req-special">
-                    <i class="fas fa-circle"></i>
-                    <span>Un carácter especial (@!|./&)</span>
+                    <div class="auth-tip">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Nunca compartas tu contraseña</span>
+                    </div>
+                    <div class="auth-tip">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Cambia tu contraseña periódicamente</span>
+                    </div>
                 </div>
             </div>
 
-            <form method="POST" onsubmit="return validatePasswordChange()">
-                {% csrf_token %}
-                
-                <label for="new_password" class="form-label">Nueva Contraseña</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-key input-icon"></i>
-                    <input 
-                        type="password" 
-                        name="new_password" 
-                        id="new_password" 
-                        class="form-input"
-                        placeholder="Ingresa tu nueva contraseña" 
-                        required
-                        autocomplete="new-password"
-                    >
-                    <button type="button" class="toggle-password" onclick="togglePassword('new_password', this)">
-                        <i class="fas fa-eye"></i>
-                    </button>
+            <!-- Right Panel -->
+            <div class="auth-form-panel auth-form">
+                <div class="form-header">
+                    <h1>Restablecer Contraseña</h1>
+                    <p>
+                        Ingresa y confirma tu nueva contraseña para completar el proceso de recuperación.
+                    </p>
                 </div>
-                <div class="password-strength">
-                    <div class="password-strength-bar" id="strength-bar"></div>
-                </div>
-                
-                <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-check-circle input-icon"></i>
-                    <input 
-                        type="password" 
-                        name="confirm_password" 
-                        id="confirm_password" 
-                        class="form-input"
-                        placeholder="Confirma tu nueva contraseña" 
-                        required
-                        autocomplete="new-password"
-                    >
-                    <button type="button" class="toggle-password" onclick="togglePassword('confirm_password', this)">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-                
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-check-circle"></i>
-                    Cambiar Contraseña
-                </button>
-            </form>
-            
-            <div class="divider">
-                <span>o</span>
-            </div>
 
-            <div class="text-center">
-                <a href="{% url 'login:login' %}" class="back-link">
-                    <i class="fas fa-arrow-left"></i>
-                    Volver al inicio de sesión
-                </a>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-rounded">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="password-requirements">
+                    <div class="requirements-title">Tu contraseña debe contener:</div>
+                    <div class="requirement" id="req-length">
+                        <i class="fas fa-circle"></i>
+                        <span>Mínimo 12 caracteres</span>
+                    </div>
+                    <div class="requirement" id="req-uppercase">
+                        <i class="fas fa-circle"></i>
+                        <span>Al menos una letra mayúscula (A-Z)</span>
+                    </div>
+                    <div class="requirement" id="req-special">
+                        <i class="fas fa-circle"></i>
+                        <span>Un carácter especial (@!|./&)</span>
+                    </div>
+                </div>
+
+                <form method="POST" onsubmit="return validatePasswordChange()">
+                    {% csrf_token %}
+
+                    <label for="new_password" class="form-label">Nueva Contraseña</label>
+                    <div class="auth-input-wrapper">
+                        <i class="fas fa-key input-icon"></i>
+                        <input
+                            type="password"
+                            name="new_password"
+                            id="new_password"
+                            class="form-input"
+                            placeholder="Ingresa tu nueva contraseña"
+                            required
+                            autocomplete="new-password"
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('new_password', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="auth-strength-bar">
+                        <div class="auth-strength-bar-fill" id="strength-bar"></div>
+                    </div>
+
+                    <label for="confirm_password" class="form-label form-label-mt">Confirmar Contraseña</label>
+                    <div class="auth-input-wrapper">
+                        <i class="fas fa-check-circle input-icon"></i>
+                        <input
+                            type="password"
+                            name="confirm_password"
+                            id="confirm_password"
+                            class="form-input"
+                            placeholder="Confirma tu nueva contraseña"
+                            required
+                            autocomplete="new-password"
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('confirm_password', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <button type="submit" class="auth-btn auth-btn-change-password">
+                        <i class="fas fa-check-circle"></i>
+                        Cambiar Contraseña
+                    </button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>o</span>
+                </div>
+
+                <div class="text-center">
+                    <a href="{% url 'login:login' %}" class="auth-back-link">
+                        <i class="fas fa-arrow-left"></i>
+                        Volver al inicio de sesión
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -580,7 +140,7 @@
     function togglePassword(inputId, button) {
         const input = document.getElementById(inputId);
         const icon = button.querySelector('i');
-        
+
         if (input.type === 'password') {
             input.type = 'text';
             icon.classList.remove('fa-eye');
@@ -591,11 +151,11 @@
             icon.classList.add('fa-eye');
         }
     }
-    
+
     // Real-time password validation
     document.getElementById('new_password').addEventListener('input', function(e) {
         const password = e.target.value;
-        
+
         // Check length
         const lengthReq = document.getElementById('req-length');
         if (password.length >= 12) {
@@ -607,7 +167,7 @@
             lengthReq.querySelector('i').classList.remove('fa-check-circle');
             lengthReq.querySelector('i').classList.add('fa-circle');
         }
-        
+
         // Check uppercase
         const uppercaseReq = document.getElementById('req-uppercase');
         if (/[A-Z]/.test(password)) {
@@ -619,7 +179,7 @@
             uppercaseReq.querySelector('i').classList.remove('fa-check-circle');
             uppercaseReq.querySelector('i').classList.add('fa-circle');
         }
-        
+
         // Check special characters
         const specialReq = document.getElementById('req-special');
         if (/[@!|./&]/.test(password)) {
@@ -631,14 +191,14 @@
             specialReq.querySelector('i').classList.remove('fa-check-circle');
             specialReq.querySelector('i').classList.add('fa-circle');
         }
-        
+
         // Update strength bar
         const strengthBar = document.getElementById('strength-bar');
         let strength = 0;
         if (password.length >= 12) strength += 33;
         if (/[A-Z]/.test(password)) strength += 33;
         if (/[@!|./&]/.test(password)) strength += 34;
-        
+
         strengthBar.style.width = strength + '%';
         if (strength < 50) {
             strengthBar.style.background = '#ef4444';
@@ -648,24 +208,24 @@
             strengthBar.style.background = '#10b981';
         }
     });
-    
+
     // Form validation
     function validatePasswordChange() {
         const newPassword = document.getElementById('new_password').value;
         const confirmPassword = document.getElementById('confirm_password').value;
         const regex = /^(?=.*[A-Z])(?=.*[@!|./&]).{12,}$/;
-        
+
         if (!regex.test(newPassword)) {
-            alert("⚠️ La contraseña debe tener mínimo 12 caracteres, 1 letra mayúscula y un carácter especial (@!|./&).");
+            alert("La contraseña debe tener mínimo 12 caracteres, 1 letra mayúscula y un carácter especial (@!|./&).");
             return false;
         }
-        
+
         if (newPassword !== confirmPassword) {
-            alert("❌ Las contraseñas no coinciden.");
+            alert("Las contraseñas no coinciden.");
             return false;
         }
-        
-        return confirm("✅ ¿Estás seguro de cambiar tu contraseña?");
+
+        return confirm("¿Estás seguro de cambiar tu contraseña?");
     }
 </script>
 {% endblock content %}

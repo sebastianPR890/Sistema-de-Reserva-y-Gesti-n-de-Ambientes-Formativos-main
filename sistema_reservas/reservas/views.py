@@ -1,4 +1,3 @@
-from django.utils.timezone import localtime
 from django.utils import timezone
 import io
 import json
@@ -79,7 +78,7 @@ def editar_reserva(request, pk):
     """Permite editar una reserva existente."""
     reserva = get_object_or_404(Reserva, pk=pk)
 
-    if reserva.usuario != request.user and not request.user.is_superuser:
+    if reserva.usuario != request.user and not request.user.is_staff:
         return HttpResponseForbidden("No tienes permiso para editar esta reserva.")
 
     if not reserva.puede_ser_editada():
@@ -108,7 +107,7 @@ def eliminar_reserva(request, pk):
     """Permite eliminar una reserva."""
     reserva = get_object_or_404(Reserva, pk=pk)
 
-    if reserva.usuario != request.user and not request.user.is_superuser:
+    if reserva.usuario != request.user and not request.user.is_staff:
         return HttpResponseForbidden("No tienes permiso para eliminar esta reserva.")
 
     if request.method == 'POST':
@@ -190,51 +189,58 @@ def manual_usuario(request):
     """Muestra el manual de usuario en HTML."""
     return render(request, 'manual/manual_usuario.html')
 
-def descargar_manual_pdf(request):
-    """Retorna la vista HTML del manual de usuario."""
-    return render(request, 'manual/manual_usuario.html')
-
 @login_required
+@require_POST
 def aprobar_reserva(request, pk):
     """Aprueba una reserva específica."""
     if not request.user.is_staff:
         messages.error(request, "No tienes permisos para aprobar reservas.")
         return redirect('reservas:lista_reservas')
-    
+
     reserva = get_object_or_404(Reserva, pk=pk)
-    reserva.estado = 'aprobada'
-    reserva.aprobada_por = request.user
-    reserva.fecha_aprobacion = timezone.now()
-    reserva.save()
-    
+
+    if reserva.estado != 'pendiente':
+        messages.warning(request, "Solo se pueden aprobar reservas en estado pendiente.")
+        return redirect('reservas:lista_reservas')
+
+    if not reserva.aprobar(request.user):
+        messages.error(request, "No se pudo aprobar la reserva.")
+        return redirect('reservas:lista_reservas')
+
     Notificacion.crear(
         usuario=reserva.usuario,
         titulo='Reserva Aprobada',
         mensaje=f'Tu reserva para el {reserva.fecha_inicio.strftime("%d/%m/%Y")} ha sido aprobada.',
         tipo='reserva'
     )
-    
+
     messages.success(request, "Reserva aprobada exitosamente.")
     return redirect('reservas:lista_reservas')
 
 @login_required
+@require_POST
 def cancelar_reserva(request, pk):
     """Cancela una reserva específica."""
     if not request.user.is_staff:
         messages.error(request, "No tienes permisos para cancelar reservas.")
         return redirect('reservas:lista_reservas')
-    
+
     reserva = get_object_or_404(Reserva, pk=pk)
+
+    if not reserva.puede_ser_cancelada():
+        messages.warning(request, "Esta reserva no puede ser cancelada.")
+        return redirect('reservas:lista_reservas')
+
     reserva.estado = 'cancelada'
     reserva.save()
-    
+
     Notificacion.crear(
         usuario=reserva.usuario,
         titulo='Reserva Cancelada',
         mensaje=f'Tu reserva para el {reserva.fecha_inicio.strftime("%d/%m/%Y")} ha sido cancelada.',
         tipo='reserva'
     )
-    
+
     messages.success(request, "Reserva cancelada exitosamente.")
     return redirect('reservas:lista_reservas')
 
@@ -368,5 +374,5 @@ def crear_reserva_calendario(request):
             'mensaje': 'Reserva creada exitosamente'
         })
         
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Error interno del servidor.'}, status=500)

@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block content %}
-<div class="container-fluid" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh; padding: 2rem;">
+<div class="page-container">
     <div class="row">
         <div class="col-12">
-            <div class="card border-0 shadow-lg rounded-4">
-                <div class="card-header bg-white border-bottom-0 py-4 rounded-top-4">
+            <div class="card-std">
+                <div class="card-header bg-white border-bottom-0 py-4">
                     <h2 class="mb-0 fw-bold text-dark">
                         <i class="fas fa-calendar-alt me-2 text-success"></i>
                         Calendario de Todas las Reservas
@@ -41,14 +41,11 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         locale: 'es',
         events: function(info, successCallback, failureCallback) {
-            // Convertir fechas al formato ISO correcto
             const startDate = new Date(info.start);
             const endDate = new Date(info.end);
-            
-            // Crear strings ISO sin timezone info local
             const startISO = startDate.toISOString();
             const endISO = endDate.toISOString();
-            
+
             fetch(`{% url 'calendario:get_reservas' %}?start=${encodeURIComponent(startISO)}&end=${encodeURIComponent(endISO)}`)
                 .then(r => r.json())
                 .then(data => {
@@ -92,63 +89,4 @@ document.addEventListener('DOMContentLoaded', function() {
     calendar.render();
 });
 </script>
-
-<style>
-.fc {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.fc .fc-button-primary {
-    background-color: #28a745 !important;
-    border-color: #28a745 !important;
-}
-
-.fc .fc-button-primary:hover {
-    background-color: #218838 !important;
-}
-
-.fc .fc-button-primary.fc-button-active {
-    background-color: #1e7e34 !important;
-    border-color: #1e7e34 !important;
-}
-
-.fc .fc-daygrid-day.fc-day-today {
-    background-color: rgba(40, 167, 69, 0.1) !important;
-}
-
-.fc .fc-event {
-    border: none !important;
-    padding: 2px 4px;
-}
-
-.fc .fc-event-title {
-    font-weight: 600;
-    font-size: 0.8rem;
-}
-
-.fc .fc-col-header {
-    background: rgba(40, 167, 69, 0.1);
-}
-
-.fc .fc-daygrid-day-number {
-    padding: 8px 4px;
-    font-weight: 600;
-    color: #1e7e34;
-}
-
-.fc .fc-event.bg-success {
-    background-color: #28a745 !important;
-    color: white;
-}
-
-.fc .fc-event.bg-warning {
-    background-color: #ffc107 !important;
-    color: #333;
-}
-
-.fc .fc-event.bg-danger {
-    background-color: #dc3545 !important;
-    color: white;
-}
-</style>
 {% endblock %}

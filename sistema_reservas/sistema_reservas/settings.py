@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,12 +25,14 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    raise ImproperlyConfigured('La variable de entorno SECRET_KEY es obligatoria.')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h.strip()]
 
 
 # Application definition
@@ -49,6 +52,7 @@ INSTALLED_APPS = [
     "login",
     "backups",
     "calendario",
+    "accessibility",
 ]
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
@@ -82,12 +86,21 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "notificaciones.context_processors.notificaciones_no_leidas_count",
+                "accessibility.context_processors.admin_AIOA",
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = "sistema_reservas.wsgi.application"
+
+# Cache (requerido por django-ratelimit)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+RATELIMIT_VIEW = 'login.views.ratelimited_view'
 
 
 # Database
@@ -166,8 +179,8 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # MySQL paths for backups
-MYSQLDUMP_PATH = r'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe'
-MYSQL_PATH = r'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
+MYSQLDUMP_PATH = os.getenv('MYSQLDUMP_PATH', r'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe')
+MYSQL_PATH = os.getenv('MYSQL_PATH', r'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe')
 
 # Directorio donde se guardarán los backups
 BACKUP_DIR = os.path.join(BASE_DIR, 'backups/backups_created')
@@ -177,6 +190,10 @@ Path(BACKUP_DIR).mkdir(parents=True, exist_ok=True)
 
 # Número máximo de backups a mantener
 MAX_BACKUPS = 50
+
+# Sesiones
+SESSION_COOKIE_AGE = 3600  # 1 hora
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Seguridad adicional (habilitar en producción)
 if not DEBUG:
@@ -222,7 +239,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
             'propagate': False,
         },

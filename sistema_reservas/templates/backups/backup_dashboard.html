@@ -4,33 +4,25 @@
 {% block title %}Sistema de Backups - SENA{% endblock title %}
 
 {% block content %}
-<div class="container-fluid py-4" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
+<div class="page-container">
     <div class="row justify-content-center">
         <div class="col-lg-11 col-xl-10">
             <!-- Header -->
-            <div class="mb-4 animate__animated animate__fadeInDown">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb bg-transparent">
-                        <li class="breadcrumb-item">
-                            <a href="/" class="text-white text-decoration-none">
-                                <i class="fas fa-home me-1"></i>Inicio
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item active text-white-50">Backups</li>
-                    </ol>
+            <div class="page-header-std">
+                <nav class="breadcrumb-nav" aria-label="breadcrumb">
+                    <a href="/"><i class="fas fa-home me-1"></i>Inicio</a>
+                    <span class="mx-2">/</span>
+                    <span>Backups</span>
                 </nav>
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="page-title-row">
                     <div>
-                        <h1 class="display-6 fw-bold text-white mb-2">
-                            <i class="fas fa-database me-2"></i>
-                            Sistema de Backups
-                        </h1>
-                        <p class="text-white-50 mb-0">Gestiona los backups de tu base de datos MySQL de forma segura</p>
+                        <h2><i class="fas fa-database"></i> Sistema de Backups</h2>
+                        <p class="page-subtitle">Gestiona los backups de tu base de datos MySQL de forma segura</p>
                     </div>
                     <form method="POST" action="{% url 'backups:create_backup' %}" class="d-inline">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-light btn-lg">
-                            <i class="fas fa-plus me-2"></i>Crear Backup
+                        <button type="submit" class="btn-action">
+                            <i class="fas fa-plus"></i> Crear Backup
                         </button>
                     </form>
                 </div>
@@ -38,7 +30,7 @@
 
             <!-- Mensajes -->
             {% if messages %}
-            <div class="mb-4 animate__animated animate__fadeIn">
+            <div class="mb-4">
                 {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
                     {% if message.tags == 'success' %}
@@ -59,50 +51,56 @@
 
             <!-- Stats Cards -->
             <div class="row g-4 mb-4">
-                <div class="col-md-4 animate__animated animate__fadeInUp">
-                    <div class="stat-card">
-                        <div class="stat-icon bg-primary-gradient">
-                            <i class="fas fa-database"></i>
-                        </div>
+                <div class="col-md-4">
+                    <div class="stat-card-std">
                         <div class="stat-content">
-                            <h3 class="stat-number">{{ total_backups }}</h3>
-                            <p class="stat-label">Backups Disponibles</p>
+                            <div class="stat-icon-std bg-success">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div>
+                                <div class="stat-number">{{ total_backups }}</div>
+                                <div class="stat-label">Backups Disponibles</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
-                    <div class="stat-card">
-                        <div class="stat-icon bg-success-gradient">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
+                <div class="col-md-4">
+                    <div class="stat-card-std">
                         <div class="stat-content">
-                            <h3 class="stat-number">{% if backups %}{{ backups.0.date|date:"d/m/Y" }}{% else %}--{% endif %}</h3>
-                            <p class="stat-label">Último Backup</p>
+                            <div class="stat-icon-std bg-primary">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <div class="stat-number">{% if backups %}{{ backups.0.date|date:"d/m/Y" }}{% else %}--{% endif %}</div>
+                                <div class="stat-label">Ultimo Backup</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-                    <div class="stat-card">
-                        <div class="stat-icon bg-info-gradient">
-                            <i class="fas fa-hdd"></i>
-                        </div>
+                <div class="col-md-4">
+                    <div class="stat-card-std">
                         <div class="stat-content">
-                            <h3 class="stat-number">{% if backups %}{{ backups.0.size }} MB{% else %}0 MB{% endif %}</h3>
-                            <p class="stat-label">Tamaño Último Backup</p>
+                            <div class="stat-icon-std bg-info">
+                                <i class="fas fa-hdd"></i>
+                            </div>
+                            <div>
+                                <div class="stat-number">{% if backups %}{{ backups.0.size }} MB{% else %}0 MB{% endif %}</div>
+                                <div class="stat-label">Tamano Ultimo Backup</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Lista de Backups -->
-            <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
-                <div class="card-header bg-white py-3 rounded-top-4 border-0">
+            <div class="card-std">
+                <div class="card-header bg-white py-3 border-0">
                     <div class="d-flex align-items-center justify-content-between">
                         <h5 class="mb-0 fw-bold text-success">
                             <i class="fas fa-list me-2"></i>
                             Backups Disponibles
                         </h5>
-                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                        <span class="badge-std badge-success px-3 py-2">
                             {{ total_backups }} archivo{% if total_backups != 1 %}s{% endif %}
                         </span>
                     </div>
@@ -110,25 +108,25 @@
                 <div class="card-body p-0">
                     {% if backups %}
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+                        <table class="table-std">
+                            <thead>
                                 <tr>
-                                    <th class="ps-4 py-3">
+                                    <th class="ps-4">
                                         <i class="fas fa-file-alt text-success me-2"></i>Archivo
                                     </th>
-                                    <th class="py-3">
+                                    <th>
                                         <i class="fas fa-calendar text-success me-2"></i>Fecha
                                     </th>
-                                    <th class="py-3">
-                                        <i class="fas fa-weight text-success me-2"></i>Tamaño
+                                    <th>
+                                        <i class="fas fa-weight text-success me-2"></i>Tamano
                                     </th>
-                                    <th class="py-3 text-center">Acciones</th>
+                                    <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for backup in backups %}
-                                <tr class="backup-row">
-                                    <td class="ps-4 py-3">
+                                <tr>
+                                    <td class="ps-4">
                                         <div class="d-flex align-items-center">
                                             <div class="file-icon me-3">
                                                 <i class="fas fa-file-code"></i>
@@ -139,29 +137,29 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="py-3">
+                                    <td>
                                         <span class="text-dark">{{ backup.date|date:"d/m/Y" }}</span>
                                         <small class="d-block text-muted">{{ backup.date|date:"H:i:s" }}</small>
                                     </td>
-                                    <td class="py-3">
-                                        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                                    <td>
+                                        <span class="badge-std badge-secondary">
                                             <i class="fas fa-database me-1"></i>{{ backup.size }} MB
                                         </span>
                                     </td>
-                                    <td class="py-3 text-center">
-                                        <div class="btn-group" role="group">
+                                    <td class="text-center">
+                                        <div class="btn-group-std justify-content-center">
                                             <a href="{% url 'backups:download_backup' backup.filename %}"
-                                               class="btn btn-action btn-download"
+                                               class="btn-action-backup btn-download"
                                                title="Descargar">
                                                 <i class="fas fa-download"></i>
                                             </a>
                                             <button onclick="showRestoreModal('{{ backup.filename }}')"
-                                                    class="btn btn-action btn-restore"
+                                                    class="btn-action-backup btn-restore"
                                                     title="Restaurar">
                                                 <i class="fas fa-redo"></i>
                                             </button>
                                             <button onclick="showDeleteModal('{{ backup.filename }}')"
-                                                    class="btn btn-action btn-delete"
+                                                    class="btn-action-backup btn-delete"
                                                     title="Eliminar">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -173,27 +171,23 @@
                         </table>
                     </div>
                     {% else %}
-                    <div class="text-center py-5">
-                        <div class="empty-state">
-                            <div class="empty-icon">
-                                <i class="fas fa-database"></i>
-                            </div>
-                            <h4 class="text-dark mt-4 mb-2">No hay backups disponibles</h4>
-                            <p class="text-muted mb-4">Crea tu primer backup para proteger tus datos</p>
-                            <form method="POST" action="{% url 'backups:create_backup' %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success btn-lg px-4">
-                                    <i class="fas fa-plus me-2"></i>Crear Primer Backup
-                                </button>
-                            </form>
-                        </div>
+                    <div class="empty-state-std">
+                        <div class="empty-icon"><i class="fas fa-database"></i></div>
+                        <h5>No hay backups disponibles</h5>
+                        <p>Crea tu primer backup para proteger tus datos</p>
+                        <form method="POST" action="{% url 'backups:create_backup' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-std btn-success">
+                                <i class="fas fa-plus me-2"></i>Crear Primer Backup
+                            </button>
+                        </form>
                     </div>
                     {% endif %}
                 </div>
             </div>
 
             <!-- Info Card -->
-            <div class="card border-0 bg-white bg-opacity-90 shadow-sm rounded-4 mt-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+            <div class="card-std">
                 <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -202,17 +196,17 @@
                                     <i class="fas fa-info-circle"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-2 fw-bold text-success">Información sobre Backups</h6>
+                                    <h6 class="mb-2 fw-bold text-success">Informacion sobre Backups</h6>
                                     <ul class="mb-0 text-muted small">
                                         <li>Los backups se almacenan de forma segura en el servidor</li>
                                         <li>Se recomienda crear backups regularmente antes de cambios importantes</li>
-                                        <li>La restauración reemplazará todos los datos actuales</li>
+                                        <li>La restauracion reemplazara todos los datos actuales</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                            <span class="badge bg-success-subtle text-success px-3 py-2">
+                            <span class="badge-std badge-success px-3 py-2">
                                 <i class="fas fa-shield-alt me-1"></i>Sistema Protegido
                             </span>
                         </div>
@@ -223,13 +217,13 @@
     </div>
 </div>
 
-<!-- Modal de Restauración -->
+<!-- Modal de Restauracion -->
 <div class="modal fade" id="restoreModal" tabindex="-1" aria-labelledby="restoreModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 overflow-hidden">
             <div class="modal-header bg-warning-gradient text-white border-0 py-3">
                 <h5 class="modal-title fw-bold" id="restoreModalLabel">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Restauración
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Restauracion
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -241,19 +235,19 @@
                 </div>
                 <div class="alert alert-warning border-0 rounded-3">
                     <strong><i class="fas fa-exclamation-circle me-2"></i>ADVERTENCIA:</strong>
-                    <p class="mb-0 mt-2">Esta acción reemplazará completamente la base de datos actual con el backup seleccionado. <strong>Todos los datos actuales se perderán.</strong></p>
+                    <p class="mb-0 mt-2">Esta accion reemplazara completamente la base de datos actual con el backup seleccionado. <strong>Todos los datos actuales se perderan.</strong></p>
                 </div>
-                <p class="text-center text-muted">¿Estás seguro de que deseas continuar?</p>
+                <p class="text-center text-muted">¿Estas seguro de que deseas continuar?</p>
             </div>
             <div class="modal-footer border-0 pt-0 pb-4 px-4">
-                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-2"></i>Cancelar
+                <button type="button" class="btn btn-std btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
                 </button>
                 <form id="restoreForm" method="POST" class="d-inline">
                     {% csrf_token %}
                     <input type="hidden" name="confirm" value="yes">
-                    <button type="submit" class="btn btn-warning px-4">
-                        <i class="fas fa-redo me-2"></i>Sí, Restaurar
+                    <button type="submit" class="btn btn-std btn-warning">
+                        <i class="fas fa-redo"></i> Si, Restaurar
                     </button>
                 </form>
             </div>
@@ -261,13 +255,13 @@
     </div>
 </div>
 
-<!-- Modal de Eliminación -->
+<!-- Modal de Eliminacion -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 overflow-hidden">
             <div class="modal-header bg-danger-gradient text-white border-0 py-3">
                 <h5 class="modal-title fw-bold" id="deleteModalLabel">
-                    <i class="fas fa-trash me-2"></i>Confirmar Eliminación
+                    <i class="fas fa-trash me-2"></i>Confirmar Eliminacion
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -277,375 +271,26 @@
                         <i class="fas fa-trash-alt"></i>
                     </div>
                 </div>
-                <p class="text-center">¿Estás seguro de que deseas eliminar este backup?</p>
+                <p class="text-center">¿Estas seguro de que deseas eliminar este backup?</p>
                 <p class="text-center text-danger fw-bold">
                     <i class="fas fa-exclamation-triangle me-1"></i>
-                    Esta acción no se puede deshacer.
+                    Esta accion no se puede deshacer.
                 </p>
             </div>
             <div class="modal-footer border-0 pt-0 pb-4 px-4">
-                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-2"></i>Cancelar
+                <button type="button" class="btn btn-std btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
                 </button>
                 <form id="deleteForm" method="POST" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger px-4">
-                        <i class="fas fa-trash me-2"></i>Sí, Eliminar
+                    <button type="submit" class="btn btn-std btn-danger">
+                        <i class="fas fa-trash"></i> Si, Eliminar
                     </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-/* Breadcrumb */
-.breadcrumb-item + .breadcrumb-item::before {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-/* Card Styling */
-.rounded-4 {
-    border-radius: 1rem !important;
-}
-
-.rounded-top-4 {
-    border-top-left-radius: 1rem !important;
-    border-top-right-radius: 1rem !important;
-}
-
-/* Stat Cards */
-.stat-card {
-    background: white;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-}
-
-.stat-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.stat-icon i {
-    font-size: 1.75rem;
-    color: white;
-}
-
-.bg-primary-gradient {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-}
-
-.bg-success-gradient {
-    background: linear-gradient(135deg, #1e7e34 0%, #28a745 100%);
-}
-
-.bg-info-gradient {
-    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
-}
-
-.bg-warning-gradient {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-}
-
-.bg-danger-gradient {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-}
-
-.stat-content h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 0.25rem;
-}
-
-.stat-label {
-    color: #6c757d;
-    font-size: 0.875rem;
-    margin-bottom: 0;
-}
-
-/* Table Styling */
-.table {
-    margin-bottom: 0;
-}
-
-.table thead th {
-    border-bottom: 2px solid #e9ecef;
-    font-weight: 600;
-    color: #495057;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.backup-row {
-    transition: all 0.3s ease;
-}
-
-.backup-row:hover {
-    background-color: rgba(40, 167, 69, 0.05);
-}
-
-.file-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border-radius: 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.file-icon i {
-    color: white;
-    font-size: 1.25rem;
-}
-
-/* Action Buttons */
-.btn-action {
-    width: 40px;
-    height: 40px;
-    border-radius: 0.5rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    transition: all 0.3s ease;
-    margin: 0 2px;
-}
-
-.btn-download {
-    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
-    color: white;
-}
-
-.btn-download:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
-    color: white;
-}
-
-.btn-restore {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-}
-
-.btn-restore:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-    color: white;
-}
-
-.btn-delete {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    color: white;
-}
-
-.btn-delete:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
-    color: white;
-}
-
-/* Empty State */
-.empty-state {
-    padding: 2rem;
-}
-
-.empty-icon {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-}
-
-.empty-icon i {
-    font-size: 2.5rem;
-    color: #6c757d;
-}
-
-/* Help Icon */
-.help-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.help-icon i {
-    color: white;
-    font-size: 1.25rem;
-}
-
-/* Modal Icons */
-.warning-icon-large,
-.danger-icon-large {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-}
-
-.warning-icon-large {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 152, 0, 0.2) 100%);
-}
-
-.warning-icon-large i {
-    font-size: 2rem;
-    color: #ff9800;
-}
-
-.danger-icon-large {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2) 0%, rgba(200, 35, 51, 0.2) 100%);
-}
-
-.danger-icon-large i {
-    font-size: 2rem;
-    color: #dc3545;
-}
-
-/* Buttons */
-.btn {
-    font-weight: 600;
-    border-radius: 0.75rem;
-    transition: all 0.3s ease;
-}
-
-.btn-light {
-    background: white;
-    color: #28a745;
-    border: none;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-light:hover {
-    background: white;
-    color: #1e7e34;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-}
-
-.btn-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border: none;
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-}
-
-.btn-success:hover {
-    background: linear-gradient(135deg, #218838 0%, #1fa589 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-}
-
-.btn-warning {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-    border: none;
-    color: #212529;
-}
-
-.btn-warning:hover {
-    background: linear-gradient(135deg, #e0a800 0%, #e68900 100%);
-    transform: translateY(-2px);
-    color: #212529;
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    border: none;
-}
-
-.btn-danger:hover {
-    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
-    transform: translateY(-2px);
-}
-
-.btn-outline-secondary {
-    border: 2px solid #6c757d;
-    color: #6c757d;
-}
-
-.btn-outline-secondary:hover {
-    background: #6c757d;
-    color: white;
-}
-
-/* Badge */
-.bg-success-subtle {
-    background-color: rgba(40, 167, 69, 0.15) !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .display-6 {
-        font-size: 1.75rem;
-    }
-
-    .stat-card {
-        padding: 1rem;
-    }
-
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-    }
-
-    .stat-icon i {
-        font-size: 1.25rem;
-    }
-
-    .stat-content h3 {
-        font-size: 1.25rem;
-    }
-
-    .btn-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .btn-action {
-        width: 100%;
-    }
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-</style>
 
 <script>
     function showRestoreModal(filename) {

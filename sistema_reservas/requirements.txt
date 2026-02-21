@@ -8,6 +8,8 @@ django-import-export
 pytz
 mysqlclient
 reportlab
+django-ratelimit
+django-all-in-one-accessibility
 
 #pip install -r requirements.txt
 #python version 3.13.5

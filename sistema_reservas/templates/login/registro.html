@@ -4,690 +4,50 @@
 {% block title %}Registro - SENA APP{% endblock %}
 
 {% block content %}
-<style>
-    body {
-        background: 
-            radial-gradient(ellipse at top, rgba(255,255,255,0.1) 0%, transparent 50%),
-            radial-gradient(ellipse at bottom, rgba(0,0,0,0.1) 0%, transparent 50%),
-            linear-gradient(180deg, 
-                #0d4f1c 0%,
-                #1e7e34 20%,
-                #28a745 50%,
-                #20c997 80%,
-                #a8e6cf 100%
-            );
-        font-family: 'Poppins', sans-serif;
-        min-height: 100vh;
-    }
-
-    .content-wrapper {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem 1rem;
-    }
-
-    .register-container {
-        width: 100%;
-        max-width: 1100px;
-        animation: fadeIn 0.8s ease-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    .register-wrapper {
-        display: grid;
-        grid-template-columns: 400px 1fr;
-        background: white;
-        border-radius: 30px;
-        overflow: hidden;
-        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
-    }
-
-    /* Sidebar izquierdo */
-    .register-sidebar {
-        background: linear-gradient(180deg, #0d4f1c 0%, #1e7e34 50%, #28a745 100%);
-        padding: 3rem 2.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .register-sidebar::before {
-        content: '';
-        position: absolute;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        top: -200px;
-        right: -200px;
-        animation: float 6s ease-in-out infinite;
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translate(0, 0) rotate(0deg); }
-        50% { transform: translate(-20px, 20px) rotate(180deg); }
-    }
-
-    .sidebar-content {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-    }
-
-    .sidebar-logo {
-        width: 140px;
-        height: 140px;
-        background: white;
-        border-radius: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 2rem;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        transform: rotate(-5deg);
-        transition: transform 0.3s ease;
-    }
-
-    .sidebar-logo:hover {
-        transform: rotate(0deg) scale(1.05);
-    }
-
-    .sidebar-logo img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
-
-    .sidebar-title {
-        color: white;
-        font-size: 2rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .sidebar-subtitle {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1rem;
-        line-height: 1.6;
-        margin-bottom: 2rem;
-    }
-
-    .sidebar-features {
-        text-align: left;
-        margin-top: 2rem;
-    }
-
-    .feature-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        color: white;
-        margin-bottom: 1rem;
-        animation: slideInLeft 0.5s ease-out backwards;
-    }
-
-    .feature-item:nth-child(1) { animation-delay: 0.2s; }
-    .feature-item:nth-child(2) { animation-delay: 0.4s; }
-    .feature-item:nth-child(3) { animation-delay: 0.6s; }
-
-    @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    .feature-icon {
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .feature-icon i {
-        font-size: 1.2rem;
-    }
-
-    .feature-text {
-        font-size: 0.95rem;
-        line-height: 1.4;
-    }
-
-    /* Formulario derecho */
-    .register-form-section {
-        padding: 2rem 3rem;
-        overflow-y: auto;
-        max-height: 100vh;
-    }
-
-    .form-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-header h2 {
-        color: #2d3748;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 0.3rem;
-    }
-
-    .form-header p {
-        color: #718096;
-        font-size: 0.95rem;
-    }
-
-    .step-indicator {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .step {
-        flex: 1;
-        height: 4px;
-        background: #e2e8f0;
-        border-radius: 2px;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .step.active {
-        background: #28a745;
-    }
-
-    .step.active::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-        animation: shimmer 1.5s infinite;
-    }
-
-    @keyframes shimmer {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
-    }
-
-    .form-section {
-        margin-bottom: 1.5rem;
-    }
-
-    .section-title {
-        color: #2d3748;
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .section-title i {
-        color: #28a745;
-        font-size: 1.1rem;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .form-group {
-        position: relative;
-    }
-
-    .form-group.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .floating-label-group {
-        position: relative;
-    }
-
-    .floating-label-group input,
-    .floating-label-group select {
-        width: 100%;
-        padding: 0.85rem 1rem 0.4rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        background: #f8fafc;
-        transition: all 0.3s ease;
-        outline: none;
-    }
-
-    .floating-label-group label {
-        position: absolute;
-        left: 1rem;
-        top: 0.85rem;
-        color: #718096;
-        font-size: 0.95rem;
-        pointer-events: none;
-        transition: all 0.3s ease;
-    }
-
-    .floating-label-group input:focus,
-    .floating-label-group select:focus,
-    .floating-label-group input:not(:placeholder-shown),
-    .floating-label-group select:not([value=""]) {
-        border-color: #28a745;
-        background: white;
-        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.1);
-    }
-
-    .floating-label-group input:focus + label,
-    .floating-label-group input:not(:placeholder-shown) + label,
-    .floating-label-group select:focus + label,
-    .floating-label-group select:not([value=""]) + label {
-        top: 0.3rem;
-        font-size: 0.75rem;
-        color: #28a745;
-        font-weight: 600;
-    }
-
-    .floating-label-group.has-error input,
-    .floating-label-group.has-error select {
-        border-color: #f56565;
-        animation: shake 0.3s;
-    }
-
-    .floating-label-group.has-error label {
-        color: #f56565;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-8px); }
-        75% { transform: translateX(8px); }
-    }
-
-    .floating-label-group.is-valid input,
-    .floating-label-group.is-valid select {
-        border-color: #48bb78;
-        background: #f0fff4;
-    }
-
-    .input-icon {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #718096;
-    }
-
-    .input-icon.success {
-        color: #48bb78;
-        animation: scaleIn 0.3s ease;
-    }
-
-    @keyframes scaleIn {
-        from {
-            transform: translateY(-50%) scale(0);
-        }
-        to {
-            transform: translateY(-50%) scale(1);
-        }
-    }
-
-    .error-message {
-        color: #f56565;
-        font-size: 0.8rem;
-        margin-top: 0.4rem;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-        animation: slideDown 0.2s ease;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-5px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .password-toggle {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: #718096;
-        transition: color 0.3s ease;
-        z-index: 10;
-        padding: 0.5rem;
-    }
-
-    .password-toggle:hover {
-        color: #28a745;
-    }
-
-    .password-strength {
-        margin-top: 0.4rem;
-    }
-
-    .strength-bar {
-        height: 5px;
-        background: #e2e8f0;
-        border-radius: 3px;
-        overflow: hidden;
-        margin-bottom: 0.25rem;
-    }
-
-    .strength-fill {
-        height: 100%;
-        width: 0;
-        transition: all 0.3s ease;
-        border-radius: 3px;
-    }
-
-    .strength-fill.weak {
-        width: 33%;
-        background: linear-gradient(90deg, #f56565, #fc8181);
-    }
-
-    .strength-fill.medium {
-        width: 66%;
-        background: linear-gradient(90deg, #ed8936, #f6ad55);
-    }
-
-    .strength-fill.strong {
-        width: 100%;
-        background: linear-gradient(90deg, #48bb78, #68d391);
-    }
-
-    .strength-text {
-        font-size: 0.75rem;
-        color: #718096;
-        font-weight: 500;
-    }
-
-    .alert {
-        padding: 1rem 1.2rem;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        border: none;
-        animation: slideDown 0.3s ease;
-    }
-
-    .alert-danger {
-        background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
-        color: #c53030;
-        border-left: 4px solid #f56565;
-    }
-
-    .alert-success {
-        background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
-        color: #22543d;
-        border-left: 4px solid #48bb78;
-    }
-
-    .btn-register {
-        width: 100%;
-        background: linear-gradient(135deg, #0d4f1c 0%, #28a745 100%);
-        color: white;
-        padding: 1rem;
-        border: none;
-        border-radius: 14px;
-        font-size: 1.05rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        margin-top: 1rem;
-        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
-    }
-
-    .btn-register::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-    }
-
-    .btn-register:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(40, 167, 69, 0.4);
-    }
-
-    .btn-register:hover::before {
-        width: 400px;
-        height: 400px;
-    }
-
-    .btn-register:active {
-        transform: translateY(-1px);
-    }
-
-    .btn-register span {
-        position: relative;
-        z-index: 1;
-    }
-
-    .btn-register.loading {
-        pointer-events: none;
-        opacity: 0.8;
-    }
-
-    .btn-register.loading span {
-        opacity: 0;
-    }
-
-    .btn-register.loading::after {
-        content: '';
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        top: 50%;
-        left: 50%;
-        margin-left: -10px;
-        margin-top: -10px;
-        border: 3px solid white;
-        border-radius: 50%;
-        border-top-color: transparent;
-        animation: spin 0.6s linear infinite;
-    }
-
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-
-    .login-link {
-        text-align: center;
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 2px solid #e2e8f0;
-    }
-
-    .login-link p {
-        color: #4a5568;
-        font-size: 0.9rem;
-        margin: 0;
-    }
-
-    .login-link a {
-        color: #28a745;
-        font-weight: 700;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-
-    .login-link a::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        bottom: -2px;
-        left: 0;
-        background: #28a745;
-        transition: width 0.3s ease;
-    }
-
-    .login-link a:hover::after {
-        width: 100%;
-    }
-
-    @media (max-width: 992px) {
-        .register-wrapper {
-            grid-template-columns: 1fr;
-        }
-
-        .register-sidebar {
-            padding: 2rem;
-            min-height: auto;
-        }
-
-        .sidebar-features {
-            display: none;
-        }
-
-        .register-form-section {
-            padding: 2rem;
-            max-height: none;
-        }
-
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .register-form-section {
-            padding: 1.5rem;
-        }
-
-        .sidebar-logo {
-            width: 120px;
-            height: 120px;
-        }
-
-        .sidebar-logo img {
-            width: 100%;
-            height: 100%;
-        }
-
-        .sidebar-title {
-            font-size: 1.5rem;
-        }
-        
-        .form-header h2 {
-            font-size: 1.5rem;
-        }
-    }
-
-    /* Ocultar scrollbar pero mantener funcionalidad */
-    .register-form-section {
-        scrollbar-width: thin;
-        scrollbar-color: #28a745 #e2e8f0;
-    }
-
-    .register-form-section::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .register-form-section::-webkit-scrollbar-track {
-        background: #e2e8f0;
-        border-radius: 10px;
-    }
-
-    .register-form-section::-webkit-scrollbar-thumb {
-        background: #28a745;
-        border-radius: 10px;
-    }
-
-    .register-form-section::-webkit-scrollbar-thumb:hover {
-        background: #1e7e34;
-    }
-</style>
-
-<div class="content-wrapper">
-    <div class="register-container">
-        <div class="register-wrapper">
+<div class="content-wrapper auth-page-layout">
+    <div class="auth-container auth-wide">
+        <div class="auth-card auth-split">
             <!-- Sidebar izquierdo -->
-            <div class="register-sidebar">
-                <div class="sidebar-content">
-                    <div class="sidebar-logo">
-                        <img src="https://www.soydebuenaventura.com/media/transparent/20230802_logosena.png" alt="Logo SENA">
+            <div class="auth-sidebar">
+                <div class="auth-sidebar-logo">
+                    <img src="https://www.soydebuenaventura.com/media/transparent/20230802_logosena.png" alt="Logo SENA">
+                </div>
+                <h1>Bienvenido</h1>
+                <p>Únete al Sistema de Reservas del SENA y gestiona tus espacios de forma eficiente</p>
+
+                <div class="auth-features">
+                    <div class="auth-feature-item">
+                        <div class="auth-feature-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="auth-feature-text">
+                            <strong>Reserva fácil</strong><br>
+                            Gestiona ambientes en segundos
+                        </div>
                     </div>
-                    <h1 class="sidebar-title">Bienvenido</h1>
-                    <p class="sidebar-subtitle">Únete al Sistema de Reservas del SENA y gestiona tus espacios de forma eficiente</p>
-                    
-                    <div class="sidebar-features">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="feature-text">
-                                <strong>Reserva fácil</strong><br>
-                                Gestiona ambientes en segundos
-                            </div>
+                    <div class="auth-feature-item">
+                        <div class="auth-feature-icon">
+                            <i class="fas fa-clock"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="feature-text">
-                                <strong>Tiempo real</strong><br>
-                                Disponibilidad actualizada
-                            </div>
+                        <div class="auth-feature-text">
+                            <strong>Tiempo real</strong><br>
+                            Disponibilidad actualizada
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <div class="feature-text">
-                                <strong>Seguro</strong><br>
-                                Protección de tus datos
-                            </div>
+                    </div>
+                    <div class="auth-feature-item">
+                        <div class="auth-feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="auth-feature-text">
+                            <strong>Seguro</strong><br>
+                            Protección de tus datos
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Formulario derecho -->
-            <div class="register-form-section">
+            <div class="auth-form-panel auth-form">
                 <div class="form-header">
                     <h2>Crear cuenta</h2>
                     <p>Completa tus datos para registrarte</p>
@@ -714,20 +74,20 @@
 
                 <form method="post" id="registerForm" novalidate>
                     {% csrf_token %}
-                    
+
                     <!-- Información Personal -->
                     <div class="form-section" id="section1">
                         <div class="section-title">
                             <i class="fas fa-user"></i>
                             Información Personal
                         </div>
-                        <div class="form-grid">
+                        <div class="auth-form-grid">
                             {% for field in form %}
                                 {% if 'nombre' in field.name or 'name' in field.name or 'apellido' in field.name or 'last' in field.name %}
                                     <div class="form-group">
                                         <div class="floating-label-group {% if field.errors %}has-error{% endif %}">
                                             {{ field }}
-                                            <label>{{ field.label }} {% if field.field.required %}<span style="color: #e53e3e;">*</span>{% endif %}</label>
+                                            <label>{{ field.label }} {% if field.field.required %}<span class="required-asterisk">*</span>{% endif %}</label>
                                             <span class="input-icon"></span>
                                         </div>
                                         {% if field.errors %}
@@ -760,13 +120,13 @@
                             <i class="fas fa-envelope"></i>
                             Información de Contacto
                         </div>
-                        <div class="form-grid">
+                        <div class="auth-form-grid">
                             {% for field in form %}
                                 {% if 'email' in field.name or 'correo' in field.name %}
                                     <div class="form-group full-width">
                                         <div class="floating-label-group {% if field.errors %}has-error{% endif %}">
                                             {{ field }}
-                                            <label>{{ field.label }} {% if field.field.required %}<span style="color: #e53e3e;">*</span>{% endif %}</label>
+                                            <label>{{ field.label }} {% if field.field.required %}<span class="required-asterisk">*</span>{% endif %}</label>
                                             <span class="input-icon"></span>
                                         </div>
                                         {% if field.errors %}
@@ -801,7 +161,7 @@
                                         <option value="TI">Tarjeta de Identidad</option>
                                         <option value="PAS">Pasaporte</option>
                                     </select>
-                                    <label>Tipo de Documento <span style="color: #e53e3e;">*</span></label>
+                                    <label>Tipo de Documento <span class="required-asterisk">*</span></label>
                                     <span class="input-icon"></span>
                                 </div>
                             </div>
@@ -812,7 +172,7 @@
                                         <div class="form-group">
                                             <div class="floating-label-group {% if field.errors %}has-error{% endif %}">
                                                 {{ field }}
-                                                <label>{{ field.label }} {% if field.field.required %}<span style="color: #e53e3e;">*</span>{% endif %}</label>
+                                                <label>{{ field.label }} {% if field.field.required %}<span class="required-asterisk">*</span>{% endif %}</label>
                                                 <span class="input-icon"></span>
                                             </div>
                                             {% if field.errors %}
@@ -839,7 +199,7 @@
                                     <div class="form-group">
                                         <div class="floating-label-group {% if field.errors %}has-error{% endif %}">
                                             {{ field }}
-                                            <label>{{ field.label }} {% if field.field.required %}<span style="color: #e53e3e;">*</span>{% endif %}</label>
+                                            <label>{{ field.label }} {% if field.field.required %}<span class="required-asterisk">*</span>{% endif %}</label>
                                             <span class="input-icon"></span>
                                         </div>
                                         {% if field.errors %}
@@ -870,7 +230,7 @@
                                         <div class="form-group">
                                             <div class="floating-label-group {% if field.errors %}has-error{% endif %}">
                                                 {{ field }}
-                                                <label>{{ field.label }} {% if field.field.required %}<span style="color: #e53e3e;">*</span>{% endif %}</label>
+                                                <label>{{ field.label }} {% if field.field.required %}<span class="required-asterisk">*</span>{% endif %}</label>
                                                 <span class="input-icon"></span>
                                             </div>
                                             {% if field.errors %}
@@ -904,7 +264,7 @@
                             <i class="fas fa-lock"></i>
                             Seguridad
                         </div>
-                        <div class="form-grid">
+                        <div class="auth-form-grid">
                             {% for field in form %}
                                 {% if 'password' in field.name %}
                                     <div class="form-group">
@@ -916,7 +276,7 @@
                                                 {% else %}
                                                     Contraseña
                                                 {% endif %}
-                                                {% if field.field.required %}<span style="color: #e53e3e;">*</span>{% endif %}
+                                                {% if field.field.required %}<span class="required-asterisk">*</span>{% endif %}
                                             </label>
                                             <i class="fas fa-eye password-toggle" onclick="togglePassword(this)" data-field="{{ field.id_for_label }}"></i>
                                         </div>
@@ -952,12 +312,12 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-register" id="btnRegister">
+                    <button type="submit" class="auth-btn-register" id="btnRegister">
                         <span>Crear mi cuenta</span>
                     </button>
                 </form>
 
-                <div class="login-link">
+                <div class="auth-link">
                     <p>¿Ya tienes una cuenta? <a href="{% url 'login:login' %}">Inicia sesión</a></p>
                 </div>
             </div>
@@ -969,7 +329,7 @@
     function togglePassword(icon) {
         const fieldId = icon.getAttribute('data-field');
         const input = document.getElementById(fieldId);
-        
+
         if (input.type === 'password') {
             input.type = 'text';
             icon.classList.remove('fa-eye');
@@ -990,20 +350,20 @@
         // Sistema de progreso por secciones
         const sections = document.querySelectorAll('.form-section');
         const steps = document.querySelectorAll('.step');
-        
+
         // Función para actualizar el progreso
         function updateProgress() {
             sections.forEach((section, index) => {
                 const inputs = section.querySelectorAll('input, select');
                 let filledInputs = 0;
                 let totalInputs = inputs.length;
-                
+
                 inputs.forEach(input => {
                     if (input.value.trim() !== '') {
                         filledInputs++;
                     }
                 });
-                
+
                 // Si todos los campos de la sección están llenos, activar el step
                 if (filledInputs === totalInputs && totalInputs > 0) {
                     steps[index].classList.add('active');
@@ -1012,24 +372,24 @@
                 }
             });
         }
-        
+
         // Escuchar cambios en todos los inputs
         const allInputs = document.querySelectorAll('input, select');
         allInputs.forEach(input => {
             input.addEventListener('input', updateProgress);
             input.addEventListener('change', updateProgress);
         });
-        
+
         // Actualizar progreso inicial
         updateProgress();
-        
+
         const inputs = document.querySelectorAll('input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="tel"]');
         inputs.forEach(input => {
             input.setAttribute('placeholder', ' ');
-            
+
             const parent = input.closest('.floating-label-group');
             const icon = parent.querySelector('.input-icon');
-            
+
             input.addEventListener('blur', function() {
                 if (this.value.trim() !== '' && !parent.classList.contains('has-error')) {
                     parent.classList.add('is-valid');
@@ -1055,7 +415,7 @@
         selects.forEach(select => {
             const parent = select.closest('.floating-label-group');
             const icon = parent.querySelector('.input-icon');
-            
+
             select.addEventListener('change', function() {
                 if (this.value !== '' && !parent.classList.contains('has-error')) {
                     parent.classList.add('is-valid');
@@ -1069,18 +429,18 @@
 
         const passwordInputs = document.querySelectorAll('input[type="password"]');
         const firstPasswordInput = passwordInputs[0];
-        
+
         if (firstPasswordInput) {
             firstPasswordInput.addEventListener('input', function() {
                 const strength = checkPasswordStrength(this.value);
                 const strengthBar = document.getElementById('passwordStrength');
                 const strengthFill = document.getElementById('strengthFill');
                 const strengthText = document.getElementById('strengthText');
-                
+
                 if (this.value.length > 0) {
                     strengthBar.style.display = 'block';
                     strengthFill.className = 'strength-fill';
-                    
+
                     if (strength.level === 'weak') {
                         strengthFill.classList.add('weak');
                         strengthText.textContent = 'Contraseña débil';
@@ -1103,13 +463,13 @@
 
     function checkPasswordStrength(password) {
         let strength = 0;
-        
+
         if (password.length >= 8) strength++;
         if (password.match(/[a-z]/)) strength++;
         if (password.match(/[A-Z]/)) strength++;
         if (password.match(/[0-9]/)) strength++;
         if (password.match(/[^a-zA-Z0-9]/)) strength++;
-        
+
         if (strength <= 2) return { level: 'weak', score: strength };
         if (strength <= 4) return { level: 'medium', score: strength };
         return { level: 'strong', score: strength };

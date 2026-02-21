@@ -1,12 +1,16 @@
+import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.utils import timezone
-
-from .forms import BusquedaUsuarioForm, UsuarioEditForm
-from .models import Usuario, SolicitudCambioRol
 from django.db.models import Q
+
+from notificaciones.models import Notificacion
+from .forms import BusquedaUsuarioForm, UsuarioEditForm, PerfilEditForm
+from .models import Usuario, SolicitudCambioRol
+
+logger = logging.getLogger(__name__)
 
 def es_admin(user):
     """Verifica si un usuario tiene permisos de administrador."""
@@ -93,20 +97,17 @@ def perfil_usuario(request):
 def editar_perfil(request):
     """Permite al usuario editar su propio perfil."""
     if request.method == 'POST':
-        user = request.user
-        user.nombres = request.POST.get('nombres')
-        user.apellidos = request.POST.get('apellidos')
-        user.email = request.POST.get('email')
-        user.telefono = request.POST.get('telefono')
-        
-        try:
-            user.save()
+        form = PerfilEditForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
             messages.success(request, 'Perfil actualizado exitosamente.')
             return redirect('usuarios:perfil')
-        except Exception as e:
-            messages.error(request, f'Error al actualizar el perfil: {str(e)}')
-    
-    return render(request, 'usuarios/editar_perfil.html')
+        else:
+            messages.error(request, 'Error al actualizar el perfil. Revisa los campos.')
+    else:
+        form = PerfilEditForm(instance=request.user)
+
+    return render(request, 'usuarios/editar_perfil.html', {'form': form})
 
 @login_required
 def solicitar_cambio_rol(request):
@@ -151,17 +152,16 @@ def solicitar_cambio_rol(request):
 
         # Crear notificación para administradores
         try:
-            from notificaciones.models import Notificacion
             admins = Usuario.objects.filter(is_staff=True)
-            for admin in admins:
-                Notificacion.objects.create(
-                    usuario=admin,
+            for admin_user in admins:
+                Notificacion.crear(
+                    usuario=admin_user,
                     titulo='Nueva solicitud de cambio de rol',
                     mensaje=f'{usuario.nombre_completo()} ha solicitado cambiar su rol a {solicitud.get_rol_solicitado_display()}.',
                     tipo='sistema'
                 )
         except Exception:
-            pass  # Si falla la notificación, no interrumpir el proceso
+            logger.exception('Error al crear notificación de solicitud de cambio de rol')
 
         return redirect('usuarios:perfil')
 
@@ -219,8 +219,7 @@ def aprobar_solicitud_rol(request, pk):
 
         # Notificar al usuario
         try:
-            from notificaciones.models import Notificacion
-            Notificacion.objects.create(
+            Notificacion.crear(
                 usuario=solicitud.usuario,
                 titulo='Solicitud de rol aprobada',
                 mensaje=f'Tu solicitud para el rol de {solicitud.get_rol_solicitado_display()} ha sido aprobada. '
@@ -228,7 +227,7 @@ def aprobar_solicitud_rol(request, pk):
                 tipo='sistema'
             )
         except Exception:
-            pass
+            logger.exception('Error al crear notificación de aprobación de rol')
 
         messages.success(
             request,
@@ -252,8 +251,7 @@ def rechazar_solicitud_rol(request, pk):
 
         # Notificar al usuario
         try:
-            from notificaciones.models import Notificacion
-            Notificacion.objects.create(
+            Notificacion.crear(
                 usuario=solicitud.usuario,
                 titulo='Solicitud de rol rechazada',
                 mensaje=f'Tu solicitud para el rol de {solicitud.get_rol_solicitado_display()} ha sido rechazada. '
@@ -261,7 +259,7 @@ def rechazar_solicitud_rol(request, pk):
                 tipo='sistema'
             )
         except Exception:
-            pass
+            logger.exception('Error al crear notificación de rechazo de rol')
 
         messages.success(request, f'Solicitud de {solicitud.usuario.nombre_completo()} rechazada.')
         return redirect('usuarios:lista_solicitudes_rol')

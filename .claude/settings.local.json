@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(pip install:*)",
+      "Bash(python manage.py migrate:*)"
+    ]
+  }
+}

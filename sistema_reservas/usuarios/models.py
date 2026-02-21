@@ -84,7 +84,7 @@ class Usuario(AbstractUser):
     
     def puede_aprobar_reservas(self):
         """Verifica si el usuario puede aprobar reservas."""
-        return self.rol in ['coordinador', 'admin']
+        return self.is_staff or self.rol in ['coordinador', 'admin']
     
     def get_rol_display(self):
         """Retorna el nombre legible del rol."""

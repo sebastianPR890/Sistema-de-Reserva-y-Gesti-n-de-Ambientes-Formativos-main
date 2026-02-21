@@ -1,8 +1,34 @@
+import logging
 import os
 import subprocess
+import tempfile
 from datetime import datetime
 from django.conf import settings
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
+
+def _create_mysql_defaults_file(db_password):
+    """Crea un archivo temporal con las credenciales MySQL."""
+    tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.cnf', delete=False)
+    tmp.write(f'[client]\npassword={db_password}\n')
+    tmp.close()
+    return tmp.name
+
+
+def _validate_backup_filename(filename):
+    """Valida que el filename no contenga path traversal y sea un .sql."""
+    if '..' in filename or '/' in filename or '\\' in filename:
+        raise ValueError("Nombre de archivo inválido")
+    if not filename.endswith('.sql'):
+        raise ValueError("Tipo de archivo no permitido")
+    filepath = os.path.join(settings.BACKUP_DIR, filename)
+    backup_dir_resolved = Path(settings.BACKUP_DIR).resolve()
+    filepath_resolved = Path(filepath).resolve()
+    if not str(filepath_resolved).startswith(str(backup_dir_resolved)):
+        raise ValueError("Acceso no permitido")
+    return filepath
 
 
 def create_backup():
@@ -24,31 +50,32 @@ def create_backup():
         filename = f'backup_{db_name}_{timestamp}.sql'
         filepath = os.path.join(settings.BACKUP_DIR, filename)
         
-        # Comando mysqldump (sin contraseña en argumentos por seguridad)
-        dump_command = [
-            'mysqldump',
-            f'--host={db_host}',
-            f'--port={db_port}',
-            f'--user={db_user}',
-            '--single-transaction',
-            '--quick',
-            '--lock-tables=false',
-            db_name
-        ]
+        # Crear archivo temporal con credenciales
+        defaults_file = _create_mysql_defaults_file(db_password)
 
-        # Usar variable de entorno para la contraseña (más seguro)
-        env = os.environ.copy()
-        env['MYSQL_PWD'] = db_password
+        try:
+            dump_command = [
+                'mysqldump',
+                f'--defaults-extra-file={defaults_file}',
+                f'--host={db_host}',
+                f'--port={db_port}',
+                f'--user={db_user}',
+                '--single-transaction',
+                '--quick',
+                '--lock-tables=false',
+                db_name
+            ]
 
-        # Ejecutar el backup
-        with open(filepath, 'w') as backup_file:
-            process = subprocess.Popen(
-                dump_command,
-                stdout=backup_file,
-                stderr=subprocess.PIPE,
-                env=env
-            )
-            _, error = process.communicate()
+            # Ejecutar el backup
+            with open(filepath, 'w') as backup_file:
+                process = subprocess.Popen(
+                    dump_command,
+                    stdout=backup_file,
+                    stderr=subprocess.PIPE,
+                )
+                _, error = process.communicate()
+        finally:
+            os.unlink(defaults_file)
             
             if process.returncode != 0:
                 error_message = error.decode('utf-8')
@@ -75,8 +102,8 @@ def restore_backup(filename):
     Returns: tuple (success: bool, message: str)
     """
     try:
-        filepath = os.path.join(settings.BACKUP_DIR, filename)
-        
+        filepath = _validate_backup_filename(filename)
+
         if not os.path.exists(filepath):
             return False, 'El archivo de backup no existe'
         
@@ -88,28 +115,29 @@ def restore_backup(filename):
         db_host = db_config.get('HOST', 'localhost')
         db_port = db_config.get('PORT', '3306')
         
-        # Comando mysql (sin contraseña en argumentos por seguridad)
-        restore_command = [
-            'mysql',
-            f'--host={db_host}',
-            f'--port={db_port}',
-            f'--user={db_user}',
-            db_name
-        ]
+        # Crear archivo temporal con credenciales
+        defaults_file = _create_mysql_defaults_file(db_password)
 
-        # Usar variable de entorno para la contraseña (más seguro)
-        env = os.environ.copy()
-        env['MYSQL_PWD'] = db_password
+        try:
+            restore_command = [
+                'mysql',
+                f'--defaults-extra-file={defaults_file}',
+                f'--host={db_host}',
+                f'--port={db_port}',
+                f'--user={db_user}',
+                db_name
+            ]
 
-        # Ejecutar la restauración
-        with open(filepath, 'r') as backup_file:
-            process = subprocess.Popen(
-                restore_command,
-                stdin=backup_file,
-                stderr=subprocess.PIPE,
-                env=env
-            )
-            _, error = process.communicate()
+            # Ejecutar la restauración
+            with open(filepath, 'r') as backup_file:
+                process = subprocess.Popen(
+                    restore_command,
+                    stdin=backup_file,
+                    stderr=subprocess.PIPE,
+                )
+                _, error = process.communicate()
+        finally:
+            os.unlink(defaults_file)
             
             if process.returncode != 0:
                 error_message = error.decode('utf-8')
@@ -158,8 +186,8 @@ def delete_backup(filename):
     Returns: tuple (success: bool, message: str)
     """
     try:
-        filepath = os.path.join(settings.BACKUP_DIR, filename)
-        
+        filepath = _validate_backup_filename(filename)
+
         if not os.path.exists(filepath):
             return False, 'El archivo no existe'
         
@@ -183,5 +211,5 @@ def clean_old_backups():
             for backup in backups[max_backups:]:
                 os.remove(backup['path'])
                 
-    except Exception as e:
-        print(f'Error al limpiar backups antiguos: {str(e)}')
+    except Exception:
+        logger.exception('Error al limpiar backups antiguos')

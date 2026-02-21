@@ -27,6 +27,7 @@ class Notificacion(models.Model):
     @classmethod
     def crear(cls, usuario, titulo, mensaje, tipo='sistema'):
         """Crea una notificación y envía email HTML al usuario."""
+        import logging
         from django.core.mail import EmailMultiAlternatives
         from django.template.loader import render_to_string
         from django.utils.html import strip_tags
@@ -38,17 +39,20 @@ class Notificacion(models.Model):
             tipo=tipo
         )
 
-        html_content = render_to_string('email/notification.html', {'titulo': titulo, 'mensaje': mensaje})
-        text_content = strip_tags(html_content)
+        try:
+            html_content = render_to_string('email/notification.html', {'titulo': titulo, 'mensaje': mensaje})
+            text_content = strip_tags(html_content)
 
-        msg = EmailMultiAlternatives(
-            titulo,
-            text_content,
-            'noreply@sistemareservas.com',
-            [usuario.email]
-        )
-        msg.attach_alternative(html_content, "text/html")
-        msg.send(fail_silently=False)
+            msg = EmailMultiAlternatives(
+                titulo,
+                text_content,
+                settings.DEFAULT_FROM_EMAIL,
+                [usuario.email]
+            )
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+        except Exception:
+            logging.getLogger(__name__).exception('Error al enviar email de notificación')
 
         return notificacion
     

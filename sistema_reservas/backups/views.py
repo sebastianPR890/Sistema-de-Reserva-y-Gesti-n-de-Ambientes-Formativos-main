@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import FileResponse, Http404
+from django.views.decorators.http import require_POST
 import os
 from django.conf import settings
 from .utils import create_backup, restore_backup, get_backups_list, delete_backup
@@ -28,16 +29,16 @@ def backup_dashboard(request):
 
 @login_required
 @user_passes_test(is_admin)
+@require_POST
 def create_backup_view(request):
     """Crea un nuevo backup"""
-    if request.method == 'POST':
-        success, message, filename = create_backup()
-        
-        if success:
-            messages.success(request, message)
-        else:
-            messages.error(request, message)
-    
+    success, message, filename = create_backup()
+
+    if success:
+        messages.success(request, message)
+    else:
+        messages.error(request, message)
+
     return redirect('backups:backup_dashboard')
 
 
@@ -103,9 +104,5 @@ def download_backup_view(request, filename):
     if not os.path.exists(filepath):
         raise Http404("Backup no encontrado")
 
-    # Usar context manager para asegurar que el archivo se cierre
-    file_handle = open(filepath, 'rb')
-    response = FileResponse(file_handle, content_type='application/sql')
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
+    response = FileResponse(open(filepath, 'rb'), as_attachment=True, filename=filename, content_type='application/sql')
     return response

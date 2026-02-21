@@ -2,82 +2,119 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-4">
-    {% if user.is_staff %}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Lista de Equipos</h1>
-        <a href="{% url 'equipos:equipo_crear' %}" class="btn btn-primary">Crear Equipo</a>
-    </div>
-    {% endif %}
-
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">Buscar y Filtrar</h5>
-            <form method="get">
-                <div class="row">
-                    <div class="col-md-6">
-                        {{ form.busqueda }}
-                    </div>
-                    <div class="col-md-4">
-                        {{ form.estado }}
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-secondary">Buscar</button>
-                        <a href="{% url 'equipos:lista' %}" class="btn btn-outline-secondary">Limpiar</a>
-                    </div>
-                </div>
-            </form>
+<div class="page-container">
+    <div class="page-header-std">
+        <div class="page-title-row">
+            <h2><i class="fas fa-desktop"></i> Lista de Equipos</h2>
+            {% if user.is_staff %}
+            <a href="{% url 'equipos:equipo_crear' %}" class="btn-action">
+                <i class="fas fa-plus"></i> Crear Equipo
+            </a>
+            {% endif %}
         </div>
     </div>
 
-    <div class="card mt-4">
+    <div class="card-std mb-3">
         <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Ambiente</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for equipo in equipos %}
-                    <tr>
-                        <td>{{ equipo.codigo }}</td>
-                        <td>{{ equipo.nombre }}</td>
-                        <td>{{ equipo.ambiente.nombre|default:"Sin asignar" }}</td>
-                        <td>{{ equipo.get_estado_display }}</td>
-                        <td>
-                            <a href="{% url 'equipos:equipo_detalle' equipo.pk %}" class="btn btn-sm btn-info">Detalles</a>
-                            {% if user.is_staff %}
-                            <a href="{% url 'equipos:equipo_editar' equipo.pk %}" class="btn btn-sm btn-warning">Editar</a>
-                            <a href="{% url 'equipos:equipo_eliminar' equipo.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center">No hay equipos registrados.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="search-unified">
+                <div class="dropdown">
+                    <button type="button" class="search-unified-filter-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        <i class="fas fa-sliders-h"></i> Filtros <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu search-filter-dropdown">
+                        <div class="filter-dropdown-label" style="padding: 12px 18px 4px;">
+                            <i class="fas fa-toggle-on"></i> Estado
+                        </div>
+                        <button type="button" class="filter-dropdown-item filter-btn active" data-filter="all">
+                            <i class="fas fa-list"></i> Todos
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-btn" data-filter="disponible">
+                            <i class="fas fa-check-circle"></i> Disponible
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-btn" data-filter="en_uso">
+                            <i class="fas fa-spinner"></i> En uso
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-btn" data-filter="mantenimiento">
+                            <i class="fas fa-tools"></i> Mantenimiento
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-btn" data-filter="dañado">
+                            <i class="fas fa-times-circle"></i> Dañado
+                        </button>
+                    </div>
+                </div>
+                <div class="search-unified-input-wrapper">
+                    <input type="text" id="searchEquipos" class="form-control" placeholder="Buscar por código, nombre o serie...">
+                </div>
+                <button type="button" class="search-unified-btn" onclick="document.getElementById('searchEquipos').dispatchEvent(new Event('input'))">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-std">
+        <div class="card-body p-0">
+            {% if equipos %}
+            <div class="table-responsive">
+                <table class="table-std" id="equiposTable">
+                    <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Nombre</th>
+                            <th>Ambiente</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for equipo in equipos %}
+                        <tr data-estado="{{ equipo.estado }}">
+                            <td>{{ equipo.codigo }}</td>
+                            <td>{{ equipo.nombre }}</td>
+                            <td>{{ equipo.ambiente.nombre|default:"Sin asignar" }}</td>
+                            <td>
+                                <span class="badge-std {% if equipo.estado == 'disponible' %}badge-success{% elif equipo.estado == 'mantenimiento' %}badge-warning{% else %}badge-danger{% endif %}">
+                                    {{ equipo.get_estado_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group-std">
+                                    <a href="{% url 'equipos:equipo_detalle' equipo.pk %}" class="btn-icon-std btn-view" title="Detalles"><i class="fas fa-eye"></i></a>
+                                    {% if user.is_staff %}
+                                    <a href="{% url 'equipos:equipo_editar' equipo.pk %}" class="btn-icon-std btn-edit" title="Editar"><i class="fas fa-edit"></i></a>
+                                    <a href="{% url 'equipos:equipo_eliminar' equipo.pk %}" class="btn-icon-std btn-delete" title="Eliminar"><i class="fas fa-trash"></i></a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state-std">
+                <div class="empty-icon"><i class="fas fa-desktop"></i></div>
+                <h5>No hay equipos registrados</h5>
+                <p>No se encontraron equipos con los filtros seleccionados.</p>
+                {% if user.is_staff %}
+                <a href="{% url 'equipos:equipo_crear' %}" class="btn btn-std btn-success">
+                    <i class="fas fa-plus"></i> Crear Equipo
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
 
     {% if is_paginated %}
-    <nav aria-label="Paginación" class="mt-4">
-        <ul class="pagination justify-content-center">
+    <nav class="pagination-std" aria-label="Paginacion">
+        <ul class="pagination">
             {% if page_obj.has_previous %}
             <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
             {% else %}
             <li class="page-item disabled"><span class="page-link">Anterior</span></li>
             {% endif %}
-
             <li class="page-item active"><span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
-
             {% if page_obj.has_next %}
             <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
             {% else %}
@@ -87,4 +124,39 @@
     </nav>
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tableRows = document.querySelectorAll('#equiposTable tbody tr');
+    const searchInput = document.getElementById('searchEquipos');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+
+    let currentFilter = 'all';
+    let currentSearch = '';
+
+    function applyFilters() {
+        tableRows.forEach(row => {
+            const matchesFilter = currentFilter === 'all' || row.dataset.estado === currentFilter;
+            const matchesSearch = currentSearch === '' || row.textContent.toLowerCase().includes(currentSearch);
+            row.style.display = matchesFilter && matchesSearch ? '' : 'none';
+        });
+    }
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.dataset.filter;
+            applyFilters();
+        });
+    });
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            currentSearch = this.value.toLowerCase();
+            applyFilters();
+        });
+    }
+});
+</script>
 {% endblock %}

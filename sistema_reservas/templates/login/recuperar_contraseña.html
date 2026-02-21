@@ -6,458 +6,75 @@
 {% block body_class %}login-page{% endblock %}
 
 {% block content %}
-<style>
-    body.login-page {
-        background: linear-gradient(135deg, #39b54a 0%, #047857 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-        padding: 2rem 1rem;
-    }
-    
-    /* Animated background shapes */
-    body.login-page::before,
-    body.login-page::after {
-        content: '';
-        position: absolute;
-        border-radius: 50%;
-        opacity: 0.1;
-    }
-    
-    body.login-page::before {
-        width: 800px;
-        height: 800px;
-        background: white;
-        top: -400px;
-        left: -200px;
-        animation: float 20s ease-in-out infinite;
-    }
-    
-    body.login-page::after {
-        width: 600px;
-        height: 600px;
-        background: white;
-        bottom: -300px;
-        right: -150px;
-        animation: float 25s ease-in-out infinite reverse;
-    }
-    
-    @keyframes float {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        33% { transform: translate(50px, -50px) scale(1.1); }
-        66% { transform: translate(-30px, 30px) scale(0.9); }
-    }
-    
-    .recovery-container {
-        width: 100%;
-        max-width: 500px;
-        position: relative;
-        z-index: 1;
-        animation: slideIn 0.6s ease-out;
-        padding-top: 90px;
-    }
-    
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(40px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    /* Main card */
-    .recovery-card {
-        background: white;
-        border-radius: 24px;
-        padding: 3rem 2.5rem;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(10px);
-        position: relative;
-        margin-top: -70px;
-    }
-
-    .card-logo-wrapper {
-        width: 135px;
-        height: 135px;
-        margin: -97px auto 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #ffffff;
-        border-radius: 24px;
-        box-shadow: 
-            0 0 0 1px rgba(57, 181, 74, 0.08),
-            0 10px 30px rgba(0, 0, 0, 0.12),
-            0 4px 12px rgba(0, 0, 0, 0.08);
-        position: relative;
-        padding: 0.9rem;
-        box-sizing: border-box;
-        transition: all 0.3s ease;
-    }
-
-    .card-logo-wrapper img {
-        width: 100%;
-        height: auto;
-        position: relative;
-        z-index: 1;
-        filter: drop-shadow(0 2px 6px rgba(57, 181, 74, 0.15));
-    }
-    
-    .card-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1f2937;
-        text-align: center;
-        margin-bottom: 0.75rem;
-    }
-    
-    .card-description {
-        text-align: center;
-        color: #6b7280;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 2rem;
-    }
-    
-    /* Alerts */
-    .alert {
-        padding: 1rem 1.25rem;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        border: none;
-        animation: slideDown 0.4s ease-out;
-        display: flex;
-        align-items: center;
-    }
-    
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .alert::before {
-        font-size: 1.25rem;
-        margin-right: 0.75rem;
-    }
-    
-    .alert-success {
-        background: #d1fae5;
-        color: #065f46;
-        border-left: 4px solid #10b981;
-    }
-    
-    .alert-success::before {
-        content: '✓';
-    }
-    
-    .alert-danger {
-        background: #fee2e2;
-        color: #991b1b;
-        border-left: 4px solid #ef4444;
-    }
-    
-    .alert-danger::before {
-        content: '⚠';
-    }
-    
-    .alert-info {
-        background: #dbeafe;
-        color: #1e40af;
-        border-left: 4px solid #3b82f6;
-    }
-    
-    .alert-info::before {
-        content: 'ℹ';
-    }
-    
-    /* Form elements */
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-label {
-        display: block;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-    }
-    
-    .input-group {
-        position: relative;
-    }
-    
-    .input-icon {
-        position: absolute;
-        left: 1.25rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        font-size: 1.1rem;
-        z-index: 10;
-        transition: color 0.3s ease;
-    }
-    
-    .form-control {
-        width: 100%;
-        padding: 1rem 1.25rem 1rem 3.5rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 14px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        font-family: 'Poppins', sans-serif;
-        background: #f9fafb;
-    }
-    
-    .form-control:focus {
-        outline: none;
-        border-color: #39b54a;
-        background: white;
-        box-shadow: 0 0 0 4px rgba(57, 181, 74, 0.1);
-    }
-    
-    .form-control:focus + .input-icon,
-    .input-group:focus-within .input-icon {
-        color: #39b54a;
-    }
-    
-    .btn-primary {
-        width: 100%;
-        padding: 1.125rem 2rem;
-        background: linear-gradient(135deg, #39b54a 0%, #047857 100%);
-        border: none;
-        border-radius: 14px;
-        color: white;
-        font-weight: 600;
-        font-size: 1.05rem;
-        cursor: pointer;
-        transition: all 0.4s ease;
-        box-shadow: 0 8px 20px rgba(57, 181, 74, 0.35);
-        font-family: 'Poppins', sans-serif;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .btn-primary::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: left 0.5s ease;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(57, 181, 74, 0.45);
-    }
-    
-    .btn-primary:hover::before {
-        left: 100%;
-    }
-    
-    .btn-primary:active {
-        transform: translateY(0);
-    }
-    
-    .btn-primary i {
-        margin-right: 0.5rem;
-    }
-    
-    /* Divider */
-    .divider {
-        position: relative;
-        text-align: center;
-        margin: 2rem 0;
-    }
-    
-    .divider::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 0;
-        width: 100%;
-        height: 1px;
-        background: #e5e7eb;
-    }
-    
-    .divider span {
-        position: relative;
-        background: white;
-        padding: 0 1rem;
-        color: #9ca3af;
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-    
-    /* Footer links */
-    .card-footer {
-        text-align: center;
-    }
-    
-    .back-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: #39b54a;
-        text-decoration: none;
-        font-weight: 600;
-        padding: 0.75rem 1.5rem;
-        border-radius: 10px;
-        transition: all 0.3s ease;
-        font-size: 0.95rem;
-    }
-    
-    .back-link:hover {
-        background: #f0fdf4;
-        transform: translateX(-4px);
-    }
-    
-    .back-link i {
-        margin-right: 0.5rem;
-        transition: transform 0.3s ease;
-    }
-    
-    .back-link:hover i {
-        transform: translateX(-4px);
-    }
-    
-    /* Info section */
-    .info-section {
-        background: #f0fdf4;
-        border-left: 4px solid #39b54a;
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-top: 2rem;
-    }
-    
-    .info-title {
-        font-weight: 600;
-        color: #047857;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-    }
-    
-    .info-title i {
-        margin-right: 0.5rem;
-        font-size: 1rem;
-    }
-    
-    .info-text {
-        color: #065f46;
-        font-size: 0.875rem;
-        line-height: 1.6;
-        margin: 0;
-    }
-    
-    @media (max-width: 576px) {
-        body.login-page {
-            padding: 1rem;
-        }
-        
-        .recovery-card {
-            padding: 2rem 1.5rem;
-        }
-        
-        .card-title {
-            font-size: 1.35rem;
-        }
-
-        .card-logo-wrapper {
-            width: 115px;
-            height: 115px;
-            margin: -87px auto 1.5rem;
-        }
-
-        .recovery-container {
-            padding-top: 90px;
-        }
-    }
-</style>
-
-<div class="recovery-container">
-    <!-- Main Card -->
-    <div class="recovery-card">
-        <div class="card-logo-wrapper">
-            <img src="{% static 'logo_proyecto/logo_C.png' %}" alt="Logo SENA">
-        </div>
-        <h2 class="card-title">¿Olvidaste tu contraseña?</h2>
-        <p class="card-description">
-            Ingresa tu correo electrónico y te enviaremos instrucciones para recuperar tu cuenta.
-        </p>
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <form method="POST">
-            {% csrf_token %}
-            
-            <div class="form-group">
-                <label for="email" class="form-label">
-                    <i class="fas fa-at" style="margin-right: 0.25rem;"></i>
-                    Correo Electrónico
-                </label>
-                <div class="input-group">
-                    <input 
-                        type="email" 
-                        name="email" 
-                        id="email" 
-                        class="form-control"
-                        placeholder="tu.correo@sena.edu.co" 
-                        required
-                        autocomplete="email"
-                    >
-                    <i class="fas fa-envelope input-icon"></i>
-                </div>
+<div class="content-wrapper auth-page-layout">
+    <div class="auth-container auth-container-recovery">
+        <!-- Main Card -->
+        <div class="auth-card auth-card-recovery">
+            <div class="auth-card-logo">
+                <img src="{% static 'logo_proyecto/logo_C.png' %}" alt="Logo SENA">
             </div>
-            
-            <button type="submit" class="btn-primary">
-                <i class="fas fa-paper-plane"></i>
-                Enviar enlace de recuperación
-            </button>
-        </form>
-        
-        <div class="info-section">
-            <div class="info-title">
-                <i class="fas fa-info-circle"></i>
-                ¿Cómo funciona?
-            </div>
-            <p class="info-text">
-                Recibirás un correo con un enlace seguro que te permitirá crear una nueva contraseña. 
-                El enlace expirará en 24 horas por seguridad.
+            <h2 class="auth-recovery-title">¿Olvidaste tu contraseña?</h2>
+            <p class="auth-recovery-subtitle">
+                Ingresa tu correo electrónico y te enviaremos instrucciones para recuperar tu cuenta.
             </p>
-        </div>
-        
-        <div class="divider">
-            <span>o</span>
-        </div>
 
-        <div class="card-footer">
-            <a href="{% url 'login:login' %}" class="back-link">
-                <i class="fas fa-arrow-left"></i>
-                Volver al inicio de sesión
-            </a>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-rounded">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" class="auth-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-at me-1"></i>
+                        Correo Electrónico
+                    </label>
+                    <div class="auth-input-with-icon">
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            class="form-control"
+                            placeholder="tu.correo@sena.edu.co"
+                            required
+                            autocomplete="email"
+                        >
+                        <i class="fas fa-envelope input-icon-left"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn auth-btn-recovery">
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar enlace de recuperación
+                </button>
+            </form>
+
+            <div class="auth-info-section">
+                <div class="auth-info-title">
+                    <i class="fas fa-info-circle"></i>
+                    ¿Cómo funciona?
+                </div>
+                <p class="auth-info-text">
+                    Recibirás un correo con un enlace seguro que te permitirá crear una nueva contraseña.
+                    El enlace expirará en 24 horas por seguridad.
+                </p>
+            </div>
+
+            <div class="auth-divider">
+                <span>o</span>
+            </div>
+
+            <div class="text-center">
+                <a href="{% url 'login:login' %}" class="auth-back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver al inicio de sesión
+                </a>
+            </div>
         </div>
     </div>
 </div>

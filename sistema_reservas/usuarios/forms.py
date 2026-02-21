@@ -63,3 +63,17 @@ class UsuarioEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if 'documento' in self.fields:
             self.fields['documento'].widget.attrs['readonly'] = 'readonly'
+
+
+class PerfilEditForm(forms.ModelForm):
+    """Formulario para que un usuario edite su propio perfil."""
+
+    class Meta:
+        model = Usuario
+        fields = ['nombres', 'apellidos', 'email', 'telefono']
+        widgets = {
+            'nombres': forms.TextInput(attrs={'class': 'form-control'}),
+            'apellidos': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+        }

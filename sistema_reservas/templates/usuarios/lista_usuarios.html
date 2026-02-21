@@ -1,424 +1,61 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-    /* Animaciones */
-    @keyframes fadeInDown {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
 
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    /* Contenedor principal */
-    .users-container {
-        padding: 2rem;
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-
-    /* Header de la página */
-    .page-header {
-        margin-bottom: 2rem;
-        animation: fadeInDown 0.6s ease-out;
-    }
-
-    .page-title {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        color: #fff;
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .page-title i {
-        font-size: 2.5rem;
-        color: #fff;
-    }
-
-    .page-subtitle {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1rem;
-        margin-left: 3.5rem;
-    }
-
-    /* Barra de búsqueda y acciones */
-    .actions-bar {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: 0 4px 15px rgba(57, 169, 0, 0.1);
-        margin-bottom: 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-        animation: fadeInUp 0.6s ease-out;
-        animation-delay: 0.1s;
-        opacity: 0;
-        animation-fill-mode: forwards;
-    }
-
-    .search-box {
-        flex: 1;
-        min-width: 250px;
-        position: relative;
-    }
-
-    .search-box input {
-        width: 100%;
-        padding: 0.8rem 1rem 0.8rem 2.8rem;
-        border: 2px solid #e8f5e9;
-        border-radius: 0.5rem;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
-
-    .search-box input:focus {
-        outline: none;
-        border-color: #39a900;
-        box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
-    }
-
-    .search-box i {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #666;
-    }
-
-    .filter-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .filter-btn {
-        padding: 0.8rem 1.2rem;
-        border: 2px solid #e8f5e9;
-        background: white;
-        color: #666;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .filter-btn:hover,
-    .filter-btn.active {
-        background: linear-gradient(135deg, #39a900 0%, #4ece00 100%);
-        color: white;
-        border-color: #39a900;
-    }
-
-    /* Tarjeta de la tabla */
-    .users-card {
-        background: white;
-        border-radius: 1rem;
-        box-shadow: 0 4px 20px rgba(57, 169, 0, 0.08);
-        overflow: hidden;
-        animation: fadeInUp 0.6s ease-out;
-        animation-delay: 0.2s;
-        opacity: 0;
-        animation-fill-mode: forwards;
-    }
-
-    /* Estadísticas rápidas */
-    .stats-bar {
-        background: linear-gradient(135deg, #e8f5e9 0%, #f0f9f0 100%);
-        padding: 1.2rem 2rem;
-        display: flex;
-        justify-content: space-around;
-        border-bottom: 2px solid #e8f5e9;
-    }
-
-    .stat-item {
-        text-align: center;
-    }
-
-    .stat-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #39a900;
-    }
-
-    .stat-label {
-        font-size: 0.85rem;
-        color: #666;
-        margin-top: 0.3rem;
-    }
-
-    /* Tabla moderna */
-    .modern-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    .modern-table thead {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    }
-
-    .modern-table th {
-        padding: 1.2rem 1.5rem;
-        text-align: left;
-        font-weight: 700;
-        color: #2d3748;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid #e8f5e9;
-    }
-
-    .modern-table tbody tr {
-        animation: slideInLeft 0.4s ease-out forwards;
-        opacity: 0;
-        transition: all 0.3s ease;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .modern-table tbody tr:hover {
-        background: linear-gradient(to right, #f8fff8 0%, #ffffff 100%);
-        transform: translateX(5px);
-        box-shadow: -5px 0 0 #39a900;
-    }
-
-    .modern-table td {
-        padding: 1.2rem 1.5rem;
-        color: #4a5568;
-        font-size: 0.95rem;
-    }
-
-    /* Avatar en la tabla */
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #39a900 0%, #4ece00 100%);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 700;
-        margin-right: 1rem;
-        vertical-align: middle;
-    }
-
-    /* Nombre del usuario con avatar */
-    .user-name-cell {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .user-name-link {
-        color: #1e8449;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .user-name-link:hover {
-        color: #39a900;
-        text-decoration: underline;
-    }
-
-    /* Badge para roles */
-    .role-badge {
-        display: inline-block;
-        padding: 0.4rem 1rem;
-        border-radius: 2rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-    }
-
-    .role-badge.admin {
-        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-        color: white;
-    }
-
-    .role-badge.instructor {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-    }
-
-    .role-badge.aprendiz {
-        background: linear-gradient(135deg, #39a900 0%, #4ece00 100%);
-        color: white;
-    }
-
-    .role-badge.default {
-        background: linear-gradient(135deg, #a8a8a8 0%, #c0c0c0 100%);
-        color: white;
-    }
-
-    /* Botón de acción */
-    .action-btn {
-        padding: 0.6rem 1.2rem;
-        background: linear-gradient(135deg, #39a900 0%, #4ece00 100%);
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(57, 169, 0, 0.3);
-        color: white;
-    }
-
-    /* Mensaje sin usuarios */
-    .no-users-message {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: #666;
-        animation: fadeInUp 0.6s ease-out;
-    }
-
-    .no-users-message i {
-        font-size: 4rem;
-        color: #c0c0c0;
-        margin-bottom: 1rem;
-    }
-
-    .no-users-message h3 {
-        color: #4a5568;
-        margin-bottom: 0.5rem;
-    }
-
-    .no-users-message p {
-        color: #a0aec0;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .users-container {
-            padding: 1rem;
-        }
-
-        .page-title {
-            font-size: 1.8rem;
-        }
-
-        .actions-bar {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .search-box {
-            min-width: 100%;
-        }
-
-        .filter-buttons {
-            width: 100%;
-            justify-content: stretch;
-        }
-
-        .filter-btn {
-            flex: 1;
-        }
-
-        .stats-bar {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .modern-table {
-            font-size: 0.85rem;
-        }
-
-        .modern-table th,
-        .modern-table td {
-            padding: 0.8rem;
-        }
-
-        .user-avatar {
-            width: 35px;
-            height: 35px;
-            font-size: 0.9rem;
-        }
-    }
-</style>
-
-<div class="users-container">
+<div class="page-container">
     <!-- Header -->
-    <div class="page-header">
-        <h1 class="page-title">
-            <i class="fas fa-users"></i>
-            Usuarios del Sistema
-        </h1>
-        <p class="page-subtitle">Gestión y administración de usuarios registrados</p>
+    <div class="page-header-std">
+        <div class="page-title-row">
+            <div>
+                <h2><i class="fas fa-users"></i>Usuarios del Sistema</h2>
+                <p class="page-subtitle">Gestion y administracion de usuarios registrados</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Barra de acciones -->
-    <div class="actions-bar">
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Buscar por nombre, documento o email...">
-        </div>
-        <div class="filter-buttons">
-            <button class="filter-btn active" data-filter="all">Todos</button>
-            <button class="filter-btn" data-filter="instructor">Instructores</button>
-            <button class="filter-btn" data-filter="administrativo">Administrativos</button>
-            <button class="filter-btn" data-filter="coordinador">Coordinadores</button>
-            <button class="filter-btn" data-filter="admin">Administradores</button>
+    <!-- Barra de búsqueda -->
+    <div class="card-std mb-3">
+        <div class="card-body">
+            <div class="search-unified">
+                <div class="dropdown">
+                    <button type="button" class="search-unified-filter-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        <i class="fas fa-sliders-h"></i> Filtros <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu search-filter-dropdown">
+                        <button type="button" class="filter-dropdown-item filter-btn active" data-filter="all">
+                            <i class="fas fa-users"></i> Todos
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-btn" data-filter="instructor">
+                            <i class="fas fa-chalkboard-teacher"></i> Instructores
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-btn" data-filter="administrativo">
+                            <i class="fas fa-user-tie"></i> Administrativos
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-btn" data-filter="coordinador">
+                            <i class="fas fa-user-shield"></i> Coordinadores
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-btn" data-filter="admin">
+                            <i class="fas fa-cog"></i> Administradores
+                        </button>
+                    </div>
+                </div>
+                <div class="search-unified-input-wrapper">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre, documento o email...">
+                </div>
+                <button type="button" class="search-unified-btn" onclick="document.getElementById('searchInput').dispatchEvent(new Event('input'))">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Tarjeta de usuarios -->
-    <div class="users-card">
+    <div class="card-std">
         {% if usuarios %}
-        <!-- Estadísticas -->
-        <div class="stats-bar">
-            <div class="stat-item">
-                <div class="stat-value">{{ page_obj.paginator.count }}</div>
-                <div class="stat-label">Total Usuarios</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ page_obj.paginator.count }}</div>
-                <div class="stat-label">Activos</div>
-            </div>
-        </div>
 
         <!-- Tabla -->
         <div class="table-responsive">
-            <table class="modern-table">
+            <table class="table-std">
                 <thead>
                     <tr>
                         <th>Usuario</th>
@@ -426,16 +63,16 @@
                         <th>Email</th>
                         <th>Rol</th>
                         <th>Estado</th>
-                        <th>Acción</th>
+                        <th>Accion</th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody">
                     {% for usuario in usuarios %}
                     <tr data-role="{{ usuario.rol }}">
                         <td>
-                            <div class="user-name-cell">
-                                <span class="user-avatar">{{ usuario.nombre_completo.0|upper }}</span>
-                                <a href="{% url 'usuarios:detalle_usuario' usuario.pk %}" class="user-name-link">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-circle-lg">{{ usuario.nombre_completo.0|upper }}</div>
+                                <a href="{% url 'usuarios:detalle_usuario' usuario.pk %}" class="fw-semibold text-decoration-none text-color-primary-dark">
                                     {{ usuario.nombre_completo }}
                                 </a>
                             </div>
@@ -443,25 +80,26 @@
                         <td>{{ usuario.documento }}</td>
                         <td>{{ usuario.email }}</td>
                         <td>
-                            <span class="role-badge {% if usuario.rol == 'admin' %}admin{% elif usuario.rol == 'instructor' %}instructor{% elif usuario.rol == 'aprendiz' %}aprendiz{% else %}default{% endif %}">
+                            <span class="badge-std {% if usuario.rol == 'admin' %}badge-danger{% elif usuario.rol == 'instructor' %}badge-info{% elif usuario.rol == 'aprendiz' %}badge-success{% else %}badge-secondary{% endif %}">
                                 {{ usuario.get_rol_display }}
                             </span>
                         </td>
                         <td>
                             {% if usuario.activo %}
-                                <span class="badge bg-success">Activo</span>
+                                <span class="badge-std badge-success">Activo</span>
                             {% else %}
-                                <span class="badge bg-danger">Inactivo</span>
+                                <span class="badge-std badge-danger">Inactivo</span>
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{% url 'usuarios:detalle_usuario' usuario.pk %}" class="action-btn">
-                                <i class="fas fa-eye"></i> Ver
-                            </a>
-
-                            <a href="{% url 'usuarios:editar_usuario' usuario.pk %}" class="btn btn-sm btn-warning">
-                                <i class="fas fa-edit me-1"></i> Editar
-                            </a>
+                            <div class="btn-group-std">
+                                <a href="{% url 'usuarios:detalle_usuario' usuario.pk %}" class="btn-icon-std btn-view" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'usuarios:editar_usuario' usuario.pk %}" class="btn-icon-std btn-edit" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -469,9 +107,9 @@
             </table>
         </div>
 
-        <!-- Paginación -->
+        <!-- Paginacion -->
         {% if page_obj.has_other_pages %}
-        <nav aria-label="Paginación de usuarios" class="d-flex justify-content-center py-3">
+        <nav aria-label="Paginacion de usuarios" class="pagination-std">
             <ul class="pagination mb-0">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
@@ -499,9 +137,9 @@
         {% endif %}
 
         {% else %}
-        <div class="no-users-message">
-            <i class="fas fa-users-slash"></i>
-            <h3>No hay usuarios registrados</h3>
+        <div class="empty-state-std">
+            <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
+            <h5>No hay usuarios registrados</h5>
             <p>Comienza agregando usuarios al sistema</p>
         </div>
         {% endif %}
@@ -510,16 +148,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Animación de filas de la tabla
-        const tableRows = document.querySelectorAll('.modern-table tbody tr');
-        const initialDelay = 0.5;
-        const rowDelay = 0.08;
-
-        tableRows.forEach((row, index) => {
-            row.style.animationDelay = `${initialDelay + (index * rowDelay)}s`;
-        });
-
-        // Búsqueda en tiempo real
+        // Busqueda en tiempo real
+        const tableRows = document.querySelectorAll('.table-std tbody tr');
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.addEventListener('input', function(e) {

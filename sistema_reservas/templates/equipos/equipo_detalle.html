@@ -4,93 +4,88 @@
 {% block title %}Detalle de Equipo: {{ equipo.nombre }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%); min-height: 100vh;">
-    <div class="px-4 py-4">
+<div class="page-container">
+    <div class="px-2">
         {% include 'messages.html' %}
 
         <!-- Header Section -->
-        <div class="page-header mb-4 animate__animated animate__fadeInDown">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb bg-transparent mb-3">
-                    <li class="breadcrumb-item"><a href="/" class="text-white text-decoration-none"><i class="fas fa-home me-1"></i>Inicio</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'ambientes:lista' %}" class="text-white text-decoration-none">Ambientes</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'ambientes:detalle' equipo.ambiente.pk %}" class="text-white text-decoration-none">{{ equipo.ambiente.nombre }}</a></li>
-                    <li class="breadcrumb-item active text-white-50" aria-current="page">{{ equipo.nombre }}</li>
-                </ol>
+        <div class="page-header-std">
+            <nav class="breadcrumb-nav" aria-label="breadcrumb">
+                <a href="/"><i class="fas fa-home me-1"></i>Inicio</a>
+                <span class="mx-2">/</span>
+                <a href="{% url 'ambientes:lista' %}">Ambientes</a>
+                <span class="mx-2">/</span>
+                <a href="{% url 'ambientes:detalle' equipo.ambiente.pk %}">{{ equipo.ambiente.nombre }}</a>
+                <span class="mx-2">/</span>
+                <span>{{ equipo.nombre }}</span>
             </nav>
-            
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div class="page-title-row">
                 <div>
-                    <h1 class="mb-2 text-white fw-bold">
-                        <i class="fas fa-laptop-code me-2"></i>
-                        {{ equipo.nombre }}
-                    </h1>
-                    <span class="badge bg-white text-success px-3 py-2 fs-6">
+                    <h2><i class="fas fa-laptop-code"></i> {{ equipo.nombre }}</h2>
+                    <span class="badge bg-white text-success px-3 py-2 fs-6 mt-2 d-inline-block">
                         <i class="fas fa-barcode me-2"></i>{{ equipo.codigo }}
                     </span>
                 </div>
-                <a href="{% url 'ambientes:detalle' equipo.ambiente.pk %}" class="btn btn-outline-light">
-                    <i class="fas fa-arrow-left me-2"></i>Volver al Ambiente
+                <a href="{% url 'ambientes:detalle' equipo.ambiente.pk %}" class="btn-action">
+                    <i class="fas fa-arrow-left"></i> Volver al Ambiente
                 </a>
             </div>
         </div>
 
         <!-- Main Info Card -->
-        <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
-            <div class="card-header bg-gradient-success text-white py-3 rounded-top-4 d-flex justify-content-between align-items-center">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Detalles del Equipo
-                    </h5>
-                    {% if user.is_staff %}
-                    <div class="btn-group-modern" role="group">
-                        <a href="{% url 'equipos:equipo_editar' equipo.pk %}" class="btn-action btn-action-edit" data-bs-toggle="tooltip" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="{% url 'equipos:equipo_eliminar' equipo.pk %}" class="btn-action btn-action-delete" data-bs-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este equipo?')">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
-                    </div>
-                    {% endif %}
+        <div class="card-std">
+            <div class="card-header-green py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Detalles del Equipo
+                </h5>
+                {% if user.is_staff %}
+                <div class="btn-group-std">
+                    <a href="{% url 'equipos:equipo_editar' equipo.pk %}" class="btn-icon-std btn-edit" data-bs-toggle="tooltip" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'equipos:equipo_eliminar' equipo.pk %}" class="btn-icon-std btn-delete" data-bs-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Esta seguro de eliminar este equipo?')">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
                 </div>
+                {% endif %}
             </div>
             <div class="card-body p-4">
                 <div class="row g-4">
-                    <!-- Columna de Información General -->
+                    <!-- Columna de Informacion General -->
                     <div class="col-lg-7">
-                        <div class="info-list">
-                            <div class="info-list-item">
-                                <div class="info-icon bg-success"><i class="fas fa-tag"></i></div>
+                        <div class="detail-info-list">
+                            <div class="detail-info-item">
+                                <div class="detail-info-icon bg-success"><i class="fas fa-tag"></i></div>
                                 <div class="flex-grow-1">
                                     <small class="text-muted d-block">Nombre del Equipo</small>
                                     <strong class="text-dark">{{ equipo.nombre }}</strong>
                                 </div>
                             </div>
-                            <div class="info-list-item">
-                                <div class="info-icon bg-primary"><i class="fas fa-barcode"></i></div>
+                            <div class="detail-info-item">
+                                <div class="detail-info-icon bg-primary"><i class="fas fa-barcode"></i></div>
                                 <div class="flex-grow-1">
-                                    <small class="text-muted d-block">Código</small>
+                                    <small class="text-muted d-block">Codigo</small>
                                     <strong class="text-dark">{{ equipo.codigo }}</strong>
                                 </div>
                             </div>
-                            <div class="info-list-item">
-                                <div class="info-icon bg-info"><i class="fas fa-industry"></i></div>
+                            <div class="detail-info-item">
+                                <div class="detail-info-icon bg-info"><i class="fas fa-industry"></i></div>
                                 <div class="flex-grow-1">
                                     <small class="text-muted d-block">Marca / Modelo / Serie</small>
                                     <strong class="text-dark">{{ equipo.marca|default:'N/A' }} / {{ equipo.modelo|default:'N/A' }} / {{ equipo.serie|default:'N/A' }}</strong>
                                 </div>
                             </div>
-                            <div class="info-list-item">
-                                <div class="info-icon bg-secondary"><i class="fas fa-door-open"></i></div>
+                            <div class="detail-info-item">
+                                <div class="detail-info-icon bg-secondary"><i class="fas fa-door-open"></i></div>
                                 <div class="flex-grow-1">
                                     <small class="text-muted d-block">Ambiente Asignado</small>
                                     <a href="{% url 'ambientes:detalle' equipo.ambiente.pk %}" class="text-decoration-none fw-bold">{{ equipo.ambiente.nombre }}</a>
                                 </div>
                             </div>
                             {% if equipo.responsable %}
-                            <div class="info-list-item">
-                                <div class="info-icon bg-dark"><i class="fas fa-user-shield"></i></div>
+                            <div class="detail-info-item">
+                                <div class="detail-info-icon bg-dark"><i class="fas fa-user-shield"></i></div>
                                 <div class="flex-grow-1">
                                     <small class="text-muted d-block">Responsable</small>
                                     <strong class="text-dark">{{ equipo.responsable.nombre_completo|default:equipo.responsable.documento }}</strong>
@@ -100,7 +95,7 @@
                         </div>
                     </div>
 
-                    <!-- Columna de Estado y Descripción -->
+                    <!-- Columna de Estado y Descripcion -->
                     <div class="col-lg-5">
                         <!-- Estado -->
                         <div class="mb-4">
@@ -111,10 +106,10 @@
                             </div>
                         </div>
 
-                        <!-- Descripción -->
+                        <!-- Descripcion -->
                         {% if equipo.descripcion %}
                         <div class="mb-4">
-                            <h6 class="fw-bold text-success mb-3"><i class="fas fa-align-left me-2"></i>Descripción</h6>
+                            <h6 class="fw-bold text-success mb-3"><i class="fas fa-align-left me-2"></i>Descripcion</h6>
                             <p class="text-muted mb-0">{{ equipo.descripcion|linebreaksbr }}</p>
                         </div>
                         {% endif %}
@@ -133,52 +128,8 @@
     </div>
 </div>
 
-<!-- Importo los estilos de ambiente_detalle.html para reutilizarlos -->
-<style>
-/* Global */
-.rounded-4 { border-radius: 1rem !important; }
-.rounded-top-4 { border-top-left-radius: 1rem !important; border-top-right-radius: 1rem !important; }
-.bg-gradient-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
-
-/* Breadcrumb */
-.breadcrumb-item + .breadcrumb-item::before { color: rgba(255, 255, 255, 0.5); }
-
-/* Info List */
-.info-list { display: flex; flex-direction: column; gap: 1rem; }
-.info-list-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(40, 167, 69, 0.05); border-radius: 0.75rem; border-left: 4px solid #28a745; transition: all 0.3s ease; }
-.info-list-item:hover { background: rgba(40, 167, 69, 0.1); transform: translateX(5px); }
-.info-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 0.75rem; color: white; font-size: 1.25rem; flex-shrink: 0; }
-.info-icon.bg-primary { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2); }
-.info-icon.bg-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2); }
-.info-icon.bg-info { background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%); box-shadow: 0 4px 12px rgba(23, 162, 184, 0.2); }
-.info-icon.bg-secondary { background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2); }
-.info-icon.bg-dark { background: linear-gradient(135deg, #343a40 0%, #23272b 100%); box-shadow: 0 4px 12px rgba(52, 58, 64, 0.2); }
-
-/* Badge Modern */
-.badge-modern { display: inline-flex; align-items: center; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.3px; text-transform: uppercase; }
-.badge-modern i { font-size: 0.5rem; }
-.badge-estado-disponible { background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(32, 201, 151, 0.15) 100%); color: #28a745; border: 2px solid rgba(40, 167, 69, 0.3); }
-.badge-estado-mantenimiento { background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%); color: #ff9800; border: 2px solid rgba(255, 193, 7, 0.3); }
-.badge-estado-danado, .badge-estado-dañado { background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(200, 35, 51, 0.15) 100%); color: #dc3545; border: 2px solid rgba(220, 53, 69, 0.3); }
-.badge-estado-en_uso { background: linear-gradient(135deg, rgba(0, 123, 255, 0.15) 0%, rgba(0, 86, 179, 0.15) 100%); color: #007bff; border: 2px solid rgba(0, 123, 255, 0.3); }
-
-/* Button Actions Modern */
-.btn-group-modern { display: flex; gap: 0.5rem; }
-.btn-action { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; border: none; cursor: pointer; transition: all 0.3s ease; font-size: 0.875rem; text-decoration: none; }
-.btn-action-edit { background: linear-gradient(135deg, rgba(0, 123, 255, 0.1) 0%, rgba(0, 86, 179, 0.1) 100%); color: #007bff; }
-.btn-action-edit:hover { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); }
-.btn-action-delete { background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(200, 35, 51, 0.1) 100%); color: #dc3545; }
-.btn-action-delete:hover { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); }
-
-/* Buttons */
-.btn { border-radius: 0.75rem; font-weight: 600; transition: all 0.3s ease; text-transform: uppercase; font-size: 0.875rem; letter-spacing: 0.5px; }
-.btn-outline-light { border: 2px solid white; color: white; }
-.btn-outline-light:hover { background: white; color: #28a745; transform: translateY(-2px); }
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);

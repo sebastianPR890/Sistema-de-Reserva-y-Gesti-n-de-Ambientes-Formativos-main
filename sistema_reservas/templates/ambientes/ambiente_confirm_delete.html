@@ -1,30 +1,32 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Eliminar Ambiente{% endblock %}
+
 {% block content %}
 <div class="page-container d-flex align-items-center justify-content-center">
     <div class="delete-card-std">
         <div class="delete-header">
             <i class="fas fa-exclamation-triangle"></i>
-            <h4>Confirmar Eliminacion de Equipo</h4>
+            <h4>Confirmar Eliminacion de Ambiente</h4>
         </div>
         <div class="delete-body">
             <p>
-                ¿Estas seguro de que deseas eliminar el equipo
+                ¿Estas seguro de que deseas eliminar el ambiente
                 "<strong>{{ object.nombre }}</strong>" con codigo <strong>{{ object.codigo }}</strong>?
             </p>
             <div class="alert alert-danger text-center">
                 <i class="fas fa-exclamation-circle me-1"></i>
-                Esta accion no se puede deshacer y el equipo sera eliminado permanentemente.
+                Esta accion no se puede deshacer y el ambiente sera eliminado permanentemente.
             </div>
             <form method="post">
                 {% csrf_token %}
                 <div class="delete-actions">
-                    <a href="{% url 'ambientes:detalle' object.ambiente.pk %}" class="btn btn-std btn-outline-secondary">
+                    <a href="{% url 'ambientes:lista' %}" class="btn btn-std btn-outline-secondary">
                         <i class="fas fa-times"></i> Cancelar
                     </a>
                     <button type="submit" class="btn btn-std btn-danger">
-                        <i class="fas fa-trash-alt"></i> Eliminar Equipo
+                        <i class="fas fa-trash-alt"></i> Eliminar Ambiente
                     </button>
                 </div>
             </form>

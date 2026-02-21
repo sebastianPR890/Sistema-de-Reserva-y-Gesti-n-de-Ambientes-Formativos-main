@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Movimientos de Equipos{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header-std">
+        <div class="page-title-row">
+            <h2><i class="fas fa-exchange-alt"></i> Movimientos de Equipos</h2>
+            <a href="{% url 'equipos:movimiento_crear' %}" class="btn-action">
+                <i class="fas fa-plus"></i> Registrar Movimiento
+            </a>
+        </div>
+    </div>
+
+    {% include 'messages.html' %}
+
+    <div class="card-std">
+        <div class="card-body p-0">
+            {% if movimientos %}
+            <div class="table-responsive">
+                <table class="table-std">
+                    <thead>
+                        <tr>
+                            <th>Equipo</th>
+                            <th>Tipo</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Responsable</th>
+                            <th>Fecha</th>
+                            <th>Observaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movimiento in movimientos %}
+                        <tr>
+                            <td>{{ movimiento.equipo.nombre }}</td>
+                            <td>
+                                <span class="badge-std {% if movimiento.tipo_movimiento == 'entrada' %}badge-success{% else %}badge-warning{% endif %}">
+                                    {{ movimiento.get_tipo_movimiento_display }}
+                                </span>
+                            </td>
+                            <td>{{ movimiento.ambiente_origen.nombre|default:"N/A" }}</td>
+                            <td>{{ movimiento.ambiente_destino.nombre|default:"N/A" }}</td>
+                            <td>{{ movimiento.usuario_responsable.nombre_completo }}</td>
+                            <td>{{ movimiento.fecha_movimiento|date:"d/m/Y H:i" }}</td>
+                            <td>{{ movimiento.observaciones|truncatewords:10|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <nav class="pagination-std" aria-label="Paginacion de movimientos">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="empty-state-std">
+                <div class="empty-icon"><i class="fas fa-exchange-alt"></i></div>
+                <h5>No hay movimientos registrados</h5>
+                <p>Aun no se han registrado movimientos de equipos.</p>
+                <a href="{% url 'equipos:movimiento_crear' %}" class="btn btn-std btn-success">
+                    <i class="fas fa-plus"></i> Registrar Movimiento
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

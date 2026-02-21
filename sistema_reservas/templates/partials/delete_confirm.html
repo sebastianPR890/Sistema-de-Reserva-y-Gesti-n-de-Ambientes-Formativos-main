@@ -1,0 +1,35 @@
+<div class="page-container d-flex align-items-center justify-content-center">
+    <div class="delete-card-std">
+        <div class="delete-header">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h4>{{ delete_title|default:"Confirmar Eliminacion" }}</h4>
+        </div>
+        <div class="delete-body">
+            <p>{{ confirm_message }}</p>
+            {% if info_items %}
+            <ul class="info-list-std mb-4">
+                {% for item in info_items %}
+                <li class="info-item">
+                    <div class="info-icon"><i class="{{ item.icon }}"></i></div>
+                    <div>
+                        <div class="info-label">{{ item.label }}</div>
+                        <div class="info-value">{{ item.value }}</div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="delete-actions">
+                    <a href="{{ cancel_url }}" class="btn btn-std btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-std btn-danger">
+                        <i class="fas fa-trash-alt"></i> {{ delete_label|default:"Eliminar" }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

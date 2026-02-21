@@ -3,8 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST, require_GET
 from .models import Notificacion
 
 @login_required
@@ -83,6 +82,7 @@ def marcar_como_leidas_masiva(request):
     return redirect('notificaciones:listar_notificaciones')
 
 @login_required
+@require_GET
 def contar_no_leidas(request):
     """Retorna el número de notificaciones no leídas del usuario."""
     count = request.user.notificaciones.filter(leida=False).count()
