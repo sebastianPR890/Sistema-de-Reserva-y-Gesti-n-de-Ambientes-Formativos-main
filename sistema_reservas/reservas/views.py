@@ -26,7 +26,7 @@ def index(request):
 @login_required
 def lista_reservas(request):
     """Muestra la lista de reservas según el tipo de usuario."""
-    if request.user.is_staff:
+    if request.user.puede_gestionar_recursos():
         reservas = Reserva.objects.select_related('usuario', 'ambiente').all()
         user_type = 'admin'
     else:
@@ -78,7 +78,7 @@ def editar_reserva(request, pk):
     """Permite editar una reserva existente."""
     reserva = get_object_or_404(Reserva, pk=pk)
 
-    if reserva.usuario != request.user and not request.user.is_staff:
+    if reserva.usuario != request.user and not request.user.puede_gestionar_recursos():
         return HttpResponseForbidden("No tienes permiso para editar esta reserva.")
 
     if not reserva.puede_ser_editada():
@@ -107,7 +107,7 @@ def eliminar_reserva(request, pk):
     """Permite eliminar una reserva."""
     reserva = get_object_or_404(Reserva, pk=pk)
 
-    if reserva.usuario != request.user and not request.user.is_staff:
+    if reserva.usuario != request.user and not request.user.puede_gestionar_recursos():
         return HttpResponseForbidden("No tienes permiso para eliminar esta reserva.")
 
     if request.method == 'POST':
@@ -143,7 +143,7 @@ def descargar_reporte_pdf(request):
     )
     elements.append(Paragraph("Reporte de Reservas", title_style))
     
-    if request.user.is_staff:
+    if request.user.puede_gestionar_recursos():
         reservas = Reserva.objects.select_related('usuario', 'ambiente').all()
     else:
         reservas = Reserva.objects.filter(usuario=request.user).select_related('ambiente')
@@ -193,7 +193,7 @@ def manual_usuario(request):
 @require_POST
 def aprobar_reserva(request, pk):
     """Aprueba una reserva específica."""
-    if not request.user.is_staff:
+    if not request.user.puede_gestionar_recursos():
         messages.error(request, "No tienes permisos para aprobar reservas.")
         return redirect('reservas:lista_reservas')
 
@@ -221,7 +221,7 @@ def aprobar_reserva(request, pk):
 @require_POST
 def cancelar_reserva(request, pk):
     """Cancela una reserva específica."""
-    if not request.user.is_staff:
+    if not request.user.puede_gestionar_recursos():
         messages.error(request, "No tienes permisos para cancelar reservas.")
         return redirect('reservas:lista_reservas')
 

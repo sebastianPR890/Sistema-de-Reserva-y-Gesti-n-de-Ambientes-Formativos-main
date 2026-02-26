@@ -36,26 +36,22 @@ class UsuarioEditForm(forms.ModelForm):
     class Meta:
         model = Usuario
         fields = [
-            'documento', 
-            'nombres', 
-            'apellidos', 
-            'email', 
-            'telefono', 
-            'rol', 
-            'activo', 
-            'is_staff', 
-            'is_superuser', 
-        ] 
+            'documento',
+            'nombres',
+            'apellidos',
+            'email',
+            'telefono',
+            'rol',
+            'activo',
+        ]
         widgets = {
-            'documento': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}), 
+            'documento': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             'nombres': forms.TextInput(attrs={'class': 'form-control'}),
             'apellidos': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'rol': forms.Select(attrs={'class': 'form-select'}),
             'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_superuser': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
     
     def __init__(self, *args, **kwargs):

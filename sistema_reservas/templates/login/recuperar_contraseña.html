@@ -18,14 +18,6 @@
                 Ingresa tu correo electrónico y te enviaremos instrucciones para recuperar tu cuenta.
             </p>
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-rounded">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
             <form method="POST" class="auth-form">
                 {% csrf_token %}
 

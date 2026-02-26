@@ -15,9 +15,9 @@ from equipos.forms import EquipoForm
 from equipos.models import Equipo
 
 class StaffRequiredMixin(UserPassesTestMixin):
-    """Mixin que requiere que el usuario sea staff."""
+    """Mixin que requiere que el usuario sea staff o coordinador."""
     def test_func(self):
-        return self.request.user.is_staff
+        return self.request.user.puede_gestionar_recursos()
 
 @login_required
 def lista_ambientes(request):
@@ -138,7 +138,7 @@ def verificar_disponibilidad(request):
 @login_required
 def crear_ambiente(request):
     """Permite crear un nuevo ambiente."""
-    if not request.user.is_staff:
+    if not request.user.puede_gestionar_recursos():
         messages.error(request, 'No tienes permisos para crear ambientes')
         return redirect('ambientes:lista')
         
@@ -156,7 +156,7 @@ def crear_ambiente(request):
 @login_required
 def agregar_equipo(request, ambiente_id):
     """Permite agregar un equipo a un ambiente específico."""
-    if not request.user.is_staff:
+    if not request.user.puede_gestionar_recursos():
         messages.error(request, 'No tienes permisos para agregar equipos')
         return redirect('ambientes:detalle', pk=ambiente_id)
         

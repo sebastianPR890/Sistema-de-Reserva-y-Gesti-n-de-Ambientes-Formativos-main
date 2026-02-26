@@ -1,7 +1,17 @@
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin import AdminSite
 from django.urls import path, include
 from django.conf.urls.static import static
+
+
+class SuperuserAdminSite(AdminSite):
+    """Panel de administración de Django restringido exclusivamente a superusuarios."""
+    def has_permission(self, request):
+        return request.user.is_active and request.user.is_superuser
+
+
+admin.site.__class__ = SuperuserAdminSite
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -17,8 +17,8 @@ def get_reservas(request):
         estado__in=['pendiente', 'aprobada']
     )
     
-    # Si el usuario no es staff, solo mostrar sus propias reservas
-    if not request.user.is_staff:
+    # Si el usuario no puede gestionar recursos, solo mostrar sus propias reservas
+    if not request.user.puede_gestionar_recursos():
         reservas = reservas.filter(usuario=request.user)
     
     # Filtrar por rango de fechas si se proporcionan

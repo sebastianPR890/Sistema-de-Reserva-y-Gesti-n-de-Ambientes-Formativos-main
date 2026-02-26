@@ -79,8 +79,7 @@
                     {% endif %}
                 </div>
                 <div class="nav-item">
-                    <!-- solo superuser-->
-                    {% if user.is_staff %}
+                    {% if user.is_superuser %}
                     <a href="{% url 'admin:index' %}" class="nav-link"><i class="fas fa-cog nav-icon"></i> Panel Admin</a>
                     {% endif %}
                 </div>
@@ -117,6 +116,17 @@
     <div class="overlay" id="overlay"></div>
 
     <div class="content-wrapper">
+        {% if messages %}
+        <div id="django-messages" style="position:fixed;top:1rem;right:1rem;z-index:9999;width:min(360px, 90vw);">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert" style="margin-bottom:0.5rem;">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% block content %}{% endblock content %}
     </div>
 

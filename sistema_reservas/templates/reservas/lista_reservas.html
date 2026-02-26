@@ -87,7 +87,7 @@
                 <button type="button" class="search-unified-btn" onclick="document.getElementById('searchInput').dispatchEvent(new Event('keyup'))">
                     <i class="fas fa-search"></i> Buscar
                 </button>
-                {% if user.is_staff %}
+                {% if user.puede_gestionar_recursos %}
                 <a href="{% url 'reservas:descargar_reporte_pdf' %}" class="btn btn-std btn-danger">
                     <i class="fa fa-download"></i> Descargar PDF
                 </a>

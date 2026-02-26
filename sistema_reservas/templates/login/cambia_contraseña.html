@@ -50,14 +50,6 @@
                     </p>
                 </div>
 
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-rounded">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-
                 <div class="password-requirements">
                     <div class="requirements-title">Tu contraseña debe contener:</div>
                     <div class="requirement" id="req-length">

@@ -14,7 +14,7 @@ from .forms import EquipoForm, BusquedaEquipoForm, MovimientoEquipoForm
 
 class StaffRequiredMixin(UserPassesTestMixin):
     def test_func(self):
-        return self.request.user.is_staff
+        return self.request.user.puede_gestionar_recursos()
         
     def handle_no_permission(self):
         messages.error(self.request, "No tienes permisos para realizar esta acción.")
@@ -61,7 +61,7 @@ class EquipoCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
     success_url = reverse_lazy('equipos:lista')
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
+        if not request.user.puede_gestionar_recursos():
             messages.error(request, "No tienes permisos para crear equipos.")
             return redirect('ambientes:lista')
         return super().dispatch(request, *args, **kwargs)
@@ -80,7 +80,7 @@ class EquipoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
     success_url = reverse_lazy('equipos:lista')
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
+        if not request.user.puede_gestionar_recursos():
             messages.error(request, "No tienes permisos para editar equipos.")
             return redirect('ambientes:lista')
         return super().dispatch(request, *args, **kwargs)
@@ -111,7 +111,7 @@ class EquipoDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     success_url = reverse_lazy('equipos:lista')
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
+        if not request.user.puede_gestionar_recursos():
             messages.error(request, "No tienes permisos para eliminar equipos.")
             return redirect('ambientes:lista')
         return super().dispatch(request, *args, **kwargs)

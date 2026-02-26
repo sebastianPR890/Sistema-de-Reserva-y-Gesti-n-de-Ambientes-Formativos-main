@@ -74,14 +74,24 @@ class Usuario(AbstractUser):
         self.username = self.documento
         self.first_name = self.nombres
         self.last_name = self.apellidos
-            
+
         self.is_active = self.activo
+
+        # Los superusuarios conservan is_staff independientemente del rol.
+        # Para el resto, is_staff se deriva automáticamente del rol 'admin'.
+        if not self.is_superuser:
+            self.is_staff = (self.rol == 'admin')
+
         super().save(*args, **kwargs)
     
     def nombre_completo(self):
         """Retorna el nombre completo del usuario."""
         return f"{self.nombres} {self.apellidos}"
     
+    def puede_gestionar_recursos(self):
+        """Verifica si el usuario puede gestionar ambientes, equipos y reservas."""
+        return self.is_staff or self.rol == 'coordinador'
+
     def puede_aprobar_reservas(self):
         """Verifica si el usuario puede aprobar reservas."""
         return self.is_staff or self.rol in ['coordinador', 'admin']

@@ -59,19 +59,6 @@
                     <div class="step" id="step3"></div>
                 </div>
 
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {% if message.tags == 'success' %}
-                                <i class="fas fa-check-circle"></i>
-                            {% else %}
-                                <i class="fas fa-exclamation-circle"></i>
-                            {% endif %}
-                            <span>{{ message }}</span>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-
                 <form method="post" id="registerForm" novalidate>
                     {% csrf_token %}
 

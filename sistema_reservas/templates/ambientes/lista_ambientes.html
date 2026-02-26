@@ -13,7 +13,7 @@
                 </h2>
                 <p class="page-subtitle">Explora y gestiona todos los espacios de formación</p>
             </div>
-            {% if user.is_staff %}
+            {% if user.puede_gestionar_recursos %}
             <div>
                 <a href="{% url 'ambientes:crear' %}" class="btn-action">
                     <i class="fas fa-plus-circle"></i>Crear Ambiente
@@ -219,7 +219,7 @@
                         </div>
                         <h5>No se encontraron ambientes</h5>
                         <p>No hay ambientes registrados en el sistema</p>
-                        {% if user.is_staff %}
+                        {% if user.puede_gestionar_recursos %}
                         <a href="{% url 'ambientes:crear' %}" class="btn-std btn-success">
                             <i class="fas fa-plus-circle me-2"></i>Crear Primer Ambiente
                         </a>

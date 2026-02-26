@@ -100,7 +100,7 @@
                     <button type="button" class="search-unified-btn" onclick="document.getElementById('searchInput').dispatchEvent(new Event('input'))">
                         <i class="fas fa-search"></i> Buscar
                     </button>
-                    {% if user.is_staff %}
+                    {% if user.puede_gestionar_recursos %}
                     <a href="{% url 'ambientes:agregar_equipo' ambiente.pk %}" class="btn btn-std btn-success">
                         <i class="fas fa-plus-circle"></i> Agregar Equipo
                     </a>
@@ -146,7 +146,7 @@
                                             title="Ver detalles">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        {% if user.is_staff %}
+                                        {% if user.puede_gestionar_recursos %}
                                         <a href="{% url 'equipos:equipo_editar' equipo.pk %}"
                                             class="btn-icon-std btn-edit"
                                             data-bs-toggle="tooltip"
@@ -173,7 +173,7 @@
                     <div class="empty-icon"><i class="fas fa-laptop-code"></i></div>
                     <h5>No hay equipos registrados</h5>
                     <p>Este ambiente aun no tiene equipos asignados</p>
-                    {% if user.is_staff %}
+                    {% if user.puede_gestionar_recursos %}
                     <a href="{% url 'ambientes:agregar_equipo' ambiente.pk %}" class="btn btn-std btn-success">
                         <i class="fas fa-plus-circle me-2"></i>Agregar Primer Equipo
                     </a>
@@ -184,7 +184,7 @@
         </div>
 
         <!-- Edit/Delete Buttons for Staff -->
-        {% if user.is_staff %}
+        {% if user.puede_gestionar_recursos %}
         <div class="d-flex justify-content-end mt-4">
             <div class="d-flex gap-2">
                 <a href="{% url 'ambientes:editar' ambiente.pk %}" class="btn btn-std btn-success">

@@ -39,7 +39,7 @@
                     <i class="fas fa-info-circle me-2"></i>
                     Detalles del Equipo
                 </h5>
-                {% if user.is_staff %}
+                {% if user.puede_gestionar_recursos %}
                 <div class="btn-group-std">
                     <a href="{% url 'equipos:equipo_editar' equipo.pk %}" class="btn-icon-std btn-edit" data-bs-toggle="tooltip" title="Editar">
                         <i class="fas fa-edit"></i>
