@@ -97,18 +97,15 @@
 
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-phone me-1 text-success"></i> Telefono
+                                <i class="fas fa-phone me-1 text-success"></i> Telefono <span class="text-danger">*</span>
                             </label>
                             <input type="tel" name="telefono" class="form-control"
-                                value="{{ form.telefono.value|default:'' }}" placeholder="3001234567">
+                                value="{{ form.telefono.value|default:'' }}" placeholder="3001234567" required>
                             {% if form.telefono.errors %}
                             <div class="invalid-feedback d-block">
                                 <i class="fas fa-exclamation-circle me-1"></i>{{ form.telefono.errors.0 }}
                             </div>
                             {% endif %}
-                            <small class="form-text text-muted">
-                                <i class="fas fa-info-circle me-1"></i>Opcional: Numero de contacto
-                            </small>
                         </div>
 
                         <div class="d-flex gap-3 justify-content-end flex-wrap mt-4 pt-3 border-top">

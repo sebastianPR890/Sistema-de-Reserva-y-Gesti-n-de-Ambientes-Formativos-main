@@ -32,7 +32,7 @@ class UsuarioManager(BaseUserManager):
 
 class Usuario(AbstractUser):
     """Modelo personalizado de usuario que extiende AbstractUser."""
-    
+
     ROLES = [
         ('instructor', 'Instructor'),
         ('administrativo', 'Administrativo'),
@@ -40,14 +40,29 @@ class Usuario(AbstractUser):
         ('admin', 'Administrador'),
         ('usuario', 'Usuario'),
     ]
-    
+
+    TIPOS_DOCUMENTO = [
+        ('CC', 'Cédula de Ciudadanía'),
+        ('TI', 'Tarjeta de Identidad'),
+        ('CE', 'Cédula de Extranjería'),
+        ('PEP', 'PEP'),
+        ('PPT', 'Permiso por Protección Temporal'),
+    ]
+
+    tipo_documento = models.CharField(
+        max_length=10,
+        choices=TIPOS_DOCUMENTO,
+        default='CC',
+        verbose_name='Tipo de documento'
+    )
     documento = models.CharField(
-        max_length=20, 
-        unique=True, 
-        validators=[RegexValidator(regex=r'^\d+$', message='Solo números')]
+        max_length=20,
+        unique=True,
+        validators=[RegexValidator(regex=r'^[A-Za-z0-9]+$', message='Solo letras y números permitidos')]
     )
     nombres = models.CharField(max_length=100)
     apellidos = models.CharField(max_length=100)
+    email = models.EmailField(unique=True, verbose_name='Correo electrónico')
     telefono = models.CharField(max_length=15, blank=True)
     rol = models.CharField(max_length=20, choices=ROLES, default='usuario')
     activo = models.BooleanField(default=True)

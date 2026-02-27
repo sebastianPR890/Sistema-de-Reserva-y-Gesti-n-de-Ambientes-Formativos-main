@@ -3,6 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from datetime import timedelta
 
 class Reserva(models.Model):
     """Modelo que representa una reserva de ambiente."""
@@ -47,6 +48,11 @@ class Reserva(models.Model):
         
         if self.pk is None and self.fecha_inicio and self.fecha_inicio < timezone.now():
             raise ValidationError('No se puede crear una reserva con fecha de inicio en el pasado.')
+
+        if self.pk is None and self.fecha_inicio:
+            minimo = timezone.now() + timedelta(days=3)
+            if self.fecha_inicio < minimo:
+                raise ValidationError('Las reservas deben realizarse con al menos 3 días de antelación.')
         
         if self.ambiente and self.fecha_inicio and self.fecha_fin:
             if not self.ambiente.esta_disponible(self.fecha_inicio, self.fecha_fin, exclude_reserva_id=self.pk):
@@ -89,5 +95,11 @@ class Reserva(models.Model):
             self.observaciones = observaciones
         self.save()
     
+    @classmethod
+    def cancelar_expiradas(cls):
+        """Cancela reservas pendientes que llevan más de 72 horas sin ser aprobadas."""
+        limite = timezone.now() - timedelta(hours=72)
+        return cls.objects.filter(estado='pendiente', fecha_creacion__lte=limite).update(estado='cancelada')
+
     def __str__(self):
         return f"Reserva {self.id} - {self.ambiente.nombre} ({self.fecha_inicio.strftime('%d/%m/%Y %H:%M')})"

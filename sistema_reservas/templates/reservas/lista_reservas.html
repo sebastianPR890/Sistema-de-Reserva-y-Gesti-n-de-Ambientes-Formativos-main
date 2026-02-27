@@ -77,14 +77,58 @@
         </div>
     </div>
 
-    <!-- Barra de búsqueda -->
+    <!-- Barra de búsqueda y filtros -->
     <div class="card-std mb-3">
         <div class="card-body">
             <div class="search-unified">
+                <div class="dropdown">
+                    <button type="button" class="search-unified-filter-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        <i class="fas fa-sliders-h"></i> Filtros <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu search-filter-dropdown">
+                        <!-- Filtro por Estado -->
+                        <div class="filter-dropdown-label" style="padding: 12px 18px 4px;">
+                            <i class="fas fa-info-circle"></i> Estado
+                        </div>
+                        <button type="button" class="filter-dropdown-item filter-estado active" data-estado="all">
+                            <i class="fas fa-list"></i> Todos
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-estado" data-estado="pendiente">
+                            <i class="fas fa-clock"></i> Pendiente
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-estado" data-estado="aprobada">
+                            <i class="fas fa-check-circle"></i> Aprobada
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-estado" data-estado="cancelada">
+                            <i class="fas fa-times-circle"></i> Cancelada
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-estado" data-estado="rechazada">
+                            <i class="fas fa-ban"></i> Rechazada
+                        </button>
+                        <button type="button" class="filter-dropdown-item filter-estado" data-estado="completada">
+                            <i class="fas fa-flag-checkered"></i> Completada
+                        </button>
+
+                        <!-- Filtro por Fecha -->
+                        <div class="filter-dropdown-label" style="padding: 12px 18px 4px; border-top: 1px solid var(--border-color); margin-top: 4px;">
+                            <i class="fas fa-calendar-alt"></i> Rango de fechas
+                        </div>
+                        <div style="padding: 4px 18px 12px;">
+                            <label class="form-label small mb-1">Desde</label>
+                            <input type="date" id="filtroDesde" class="form-control form-control-sm mb-2" onchange="aplicarFiltros()">
+                            <label class="form-label small mb-1">Hasta</label>
+                            <input type="date" id="filtroHasta" class="form-control form-control-sm mb-2" onchange="aplicarFiltros()">
+                            <button type="button" class="filter-dropdown-item w-100" style="color:var(--text-muted);" onclick="limpiarFiltros()">
+                                <i class="fas fa-times me-1"></i> Limpiar filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="search-unified-input-wrapper">
                     <input type="text" id="searchInput" class="form-control" placeholder="Buscar reserva...">
                 </div>
-                <button type="button" class="search-unified-btn" onclick="document.getElementById('searchInput').dispatchEvent(new Event('keyup'))">
+                <button type="button" class="search-unified-btn" onclick="aplicarFiltros()">
                     <i class="fas fa-search"></i> Buscar
                 </button>
                 {% if user.puede_gestionar_recursos %}
@@ -92,6 +136,13 @@
                     <i class="fa fa-download"></i> Descargar PDF
                 </a>
                 {% endif %}
+            </div>
+
+            <div class="mt-2">
+                <span class="text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Mostrando <strong class="text-success" id="contadorFiltrado">{{ reservas|length }}</strong> resultado(s)
+                </span>
             </div>
         </div>
     </div>
@@ -127,7 +178,7 @@
                     </thead>
                     <tbody>
                         {% for reserva in reservas %}
-                        <tr>
+                        <tr data-estado="{{ reserva.estado }}" data-fecha="{{ reserva.fecha_inicio|date:'Y-m-d' }}">
                             {% if user_type == 'admin' %}
                             <td>
                                 <div class="fw-semibold">{{ reserva.usuario.get_full_name }}</div>
@@ -267,23 +318,59 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
-    // Search functionality
+    // Filtro por estado (botones dropdown)
+    let estadoActivo = 'all';
+    document.querySelectorAll('.filter-estado').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-estado').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            estadoActivo = this.dataset.estado;
+            aplicarFiltros();
+        });
+    });
+
+    // Búsqueda en tiempo real
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.addEventListener('keyup', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const tableRows = document.querySelectorAll('#reservasTable tbody tr:not(.empty-state)');
-
-            tableRows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
+        searchInput.addEventListener('keyup', aplicarFiltros);
     }
+
+    // Función global de filtros combinados
+    window.aplicarFiltros = function() {
+        const texto  = (searchInput ? searchInput.value : '').toLowerCase();
+        const desde  = (document.getElementById('filtroDesde').value || '');
+        const hasta  = (document.getElementById('filtroHasta').value || '');
+
+        const filas = document.querySelectorAll('#reservasTable tbody tr[data-estado]');
+        let visibles = 0;
+
+        filas.forEach(fila => {
+            const filaEstado = (fila.dataset.estado || '').toLowerCase();
+            const filaFecha  = fila.dataset.fecha || '';
+            const filaTexto  = fila.textContent.toLowerCase();
+
+            const pasaTexto  = !texto              || filaTexto.includes(texto);
+            const pasaEstado = estadoActivo === 'all' || filaEstado === estadoActivo;
+            const pasaDesde  = !desde              || filaFecha >= desde;
+            const pasaHasta  = !hasta              || filaFecha <= hasta;
+
+            const visible = pasaTexto && pasaEstado && pasaDesde && pasaHasta;
+            fila.style.display = visible ? '' : 'none';
+            if (visible) visibles++;
+        });
+
+        document.getElementById('contadorFiltrado').textContent = visibles;
+    };
+
+    window.limpiarFiltros = function() {
+        if (searchInput) searchInput.value = '';
+        document.getElementById('filtroDesde').value = '';
+        document.getElementById('filtroHasta').value = '';
+        estadoActivo = 'all';
+        document.querySelectorAll('.filter-estado').forEach(b => b.classList.remove('active'));
+        document.querySelector('.filter-estado[data-estado="all"]').classList.add('active');
+        aplicarFiltros();
+    };
 
     // Smooth scroll for new reservation button
     const buttons = document.querySelectorAll('a[href^="#"]');

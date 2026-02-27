@@ -139,14 +139,15 @@
                             {% endfor %}
 
                             <!-- Tipo de Documento (select personalizado) -->
-                            <div class="form-group">
+                            <div class="form-group full-width">
                                 <div class="floating-label-group">
                                     <select name="tipo_documento" id="tipo_documento" required>
                                         <option value=""></option>
                                         <option value="CC">Cédula de Ciudadanía</option>
-                                        <option value="CE">Cédula de Extranjería</option>
                                         <option value="TI">Tarjeta de Identidad</option>
-                                        <option value="PAS">Pasaporte</option>
+                                        <option value="CE">Cédula de Extranjería</option>
+                                        <option value="PEP">PEP</option>
+                                        <option value="PPT">Permiso por Protección Temporal</option>
                                     </select>
                                     <label>Tipo de Documento <span class="required-asterisk">*</span></label>
                                     <span class="input-icon"></span>
@@ -156,12 +157,15 @@
                             {% for field in form %}
                                 {% if 'documento' in field.name or 'cedula' in field.name or 'id_number' in field.name %}
                                     {% if 'tipo' not in field.name and 'type' not in field.name %}
-                                        <div class="form-group">
+                                        <div class="form-group full-width">
                                             <div class="floating-label-group {% if field.errors %}has-error{% endif %}">
                                                 {{ field }}
                                                 <label>{{ field.label }} {% if field.field.required %}<span class="required-asterisk">*</span>{% endif %}</label>
                                                 <span class="input-icon"></span>
                                             </div>
+                                            <small class="form-text text-muted mt-1 d-block" id="doc-hint">
+                                                Selecciona primero el tipo de documento
+                                            </small>
                                             {% if field.errors %}
                                                 <div class="error-message">
                                                     <i class="fas fa-exclamation-circle"></i>
@@ -461,5 +465,54 @@
         if (strength <= 4) return { level: 'medium', score: strength };
         return { level: 'strong', score: strength };
     }
+
+    // ── Validación dinámica de documento según tipo ──
+    const DOC_RULES = {
+        'CC':  { maxlength: 10, pattern: '[0-9]{6,10}',      inputmode: 'numeric', placeholder: '',             hint: '6 a 10 dígitos numéricos' },
+        'TI':  { maxlength: 11, pattern: '[0-9]{10,11}',     inputmode: 'numeric', placeholder: '',             hint: '10 u 11 dígitos numéricos' },
+        'CE':  { maxlength: 12, pattern: '[A-Za-z0-9]{1,12}',inputmode: 'text',    placeholder: '',       hint: 'Hasta 12 caracteres alfanuméricos' },
+        'PEP': { maxlength: 15, pattern: '[A-Za-z0-9]{1,15}',inputmode: 'text',    placeholder: '',                  hint: 'Hasta 15 caracteres alfanuméricos' },
+        'PPT': { maxlength: 15, pattern: '[A-Za-z0-9]{1,15}',inputmode: 'text',    placeholder: '',                  hint: 'Hasta 15 caracteres alfanuméricos' },
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoSelect  = document.getElementById('tipo_documento');
+        const docInput    = document.getElementById('id_documento');
+        const docHint     = document.getElementById('doc-hint');
+
+        function applyDocRules(tipo) {
+            const rules = DOC_RULES[tipo];
+            if (!rules || !docInput) return;
+            docInput.setAttribute('maxlength',  rules.maxlength);
+            docInput.setAttribute('pattern',    rules.pattern);
+            docInput.setAttribute('inputmode',  rules.inputmode);
+            docInput.setAttribute('placeholder', rules.placeholder);
+            docInput.value = '';
+            if (docHint) docHint.textContent = rules.hint;
+        }
+
+        if (tipoSelect) {
+            // Restaurar tipo al recargar con error de validación
+            if (tipoSelect.value) applyDocRules(tipoSelect.value);
+
+            tipoSelect.addEventListener('change', function() {
+                applyDocRules(this.value);
+                docInput && docInput.focus();
+            });
+        }
+
+        // Filtrar entrada según tipo seleccionado
+        if (docInput) {
+            docInput.addEventListener('input', function() {
+                const tipo = tipoSelect ? tipoSelect.value : 'CC';
+                const rules = DOC_RULES[tipo];
+                if (rules && rules.inputmode === 'numeric') {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                } else {
+                    this.value = this.value.replace(/[^A-Za-z0-9]/g, '');
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}

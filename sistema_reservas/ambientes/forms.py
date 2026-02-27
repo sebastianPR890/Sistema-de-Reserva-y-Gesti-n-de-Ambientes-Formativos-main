@@ -42,7 +42,7 @@ class AmbienteForm(forms.ModelForm):
     # Observaciones
     observaciones = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Observaciones...'}),
-        required=False,
+        required=True,
         label='Observaciones'
     )
     
@@ -71,7 +71,9 @@ class AmbienteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Inicializa el formulario cargando datos existentes si es edición."""
         super().__init__(*args, **kwargs)
-        
+        self.fields['descripcion'].required = True
+        self.fields['ubicacion'].required = True
+
         if self.instance and self.instance.pk and self.instance.recursos:
             recursos = self.instance.recursos
             self.fields['tiene_computadores'].initial = recursos.get('computadores', False)
@@ -180,7 +182,7 @@ class BusquedaAmbienteForm(forms.Form):
     
 class CrearAmbienteForm(forms.ModelForm):
     """Formulario simplificado para crear ambientes."""
-    
+
     class Meta:
         model = Ambiente
         fields = ['codigo', 'nombre', 'descripcion', 'capacidad', 'tipo', 'ubicacion']
@@ -192,6 +194,11 @@ class CrearAmbienteForm(forms.ModelForm):
             'tipo': forms.Select(attrs={'class': 'form-control'}),
             'ubicacion': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['descripcion'].required = True
+        self.fields['ubicacion'].required = True
 
     def clean_nombre(self):
         """Valida que el nombre del ambiente sea único."""

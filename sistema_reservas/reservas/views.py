@@ -26,6 +26,7 @@ def index(request):
 @login_required
 def lista_reservas(request):
     """Muestra la lista de reservas según el tipo de usuario."""
+    Reserva.cancelar_expiradas()
     if request.user.puede_gestionar_recursos():
         reservas = Reserva.objects.select_related('usuario', 'ambiente').all()
         user_type = 'admin'

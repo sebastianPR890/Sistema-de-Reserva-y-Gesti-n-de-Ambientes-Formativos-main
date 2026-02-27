@@ -3,7 +3,7 @@ from .models import Equipo, MovimientoEquipo
 
 class EquipoForm(forms.ModelForm):
     """Formulario para crear y actualizar equipos."""
-    
+
     class Meta:
         model = Equipo
         fields = [
@@ -20,7 +20,12 @@ class EquipoForm(forms.ModelForm):
             'ambiente': forms.Select(attrs={'class': 'form-control'}),
             'estado': forms.Select(attrs={'class': 'form-control'}),
         }
-    
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in ['descripcion', 'marca', 'modelo', 'serie', 'ambiente']:
+            self.fields[field_name].required = True
+
 class BusquedaEquipoForm(forms.Form):
     """Formulario para buscar y filtrar equipos."""
     
@@ -41,11 +46,16 @@ class BusquedaEquipoForm(forms.Form):
     
 class MovimientoEquipoForm(forms.ModelForm):
     """Formulario para registrar movimientos de equipos."""
-    
+
     class Meta:
         model = MovimientoEquipo
         fields = [
-            'equipo', 'tipo_movimiento', 'ambiente_origen', 
+            'equipo', 'tipo_movimiento', 'ambiente_origen',
             'ambiente_destino', 'usuario_responsable', 'observaciones',
             'autorizado_por'
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in ['ambiente_origen', 'ambiente_destino', 'observaciones', 'autorizado_por']:
+            self.fields[field_name].required = True

@@ -55,10 +55,11 @@ class UsuarioEditForm(forms.ModelForm):
         }
     
     def __init__(self, *args, **kwargs):
-        """Configura el documento como solo lectura."""
+        """Configura el documento como solo lectura y telefono como obligatorio."""
         super().__init__(*args, **kwargs)
         if 'documento' in self.fields:
             self.fields['documento'].widget.attrs['readonly'] = 'readonly'
+        self.fields['telefono'].required = True
 
 
 class PerfilEditForm(forms.ModelForm):
@@ -73,3 +74,7 @@ class PerfilEditForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['telefono'].required = True
