@@ -329,12 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Búsqueda en tiempo real
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('keyup', aplicarFiltros);
-    }
-
     // Función global de filtros combinados
     window.aplicarFiltros = function() {
         const texto  = (searchInput ? searchInput.value : '').toLowerCase();
@@ -361,6 +355,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('contadorFiltrado').textContent = visibles;
     };
+
+    // Búsqueda en tiempo real (definido después de window.aplicarFiltros)
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', () => aplicarFiltros());
+    }
 
     window.limpiarFiltros = function() {
         if (searchInput) searchInput.value = '';
