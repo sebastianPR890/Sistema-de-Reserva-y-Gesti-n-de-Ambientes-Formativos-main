@@ -129,9 +129,7 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group-std justify-content-center">
-                                            <a href="{% url 'backups:download_backup' backup.filename %}"
-                                               class="btn-action-backup btn-download"
-                                               title="Descargar">
+                                            <a href="{% url 'backups:download_backup' backup.filename %}"class="btn-action-backup btn-download"title="Descargar">
                                                 <i class="fas fa-download"></i>
                                             </a>
                                             <button onclick="showRestoreModal('{{ backup.filename }}')"

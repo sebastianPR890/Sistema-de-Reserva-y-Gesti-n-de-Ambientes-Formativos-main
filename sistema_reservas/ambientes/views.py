@@ -7,12 +7,14 @@ from django.views.generic import UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from datetime import datetime
+from copy import deepcopy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .models import Ambiente
 from .forms import AmbienteForm, BusquedaAmbienteForm, CrearAmbienteForm
 from equipos.forms import EquipoForm
 from equipos.models import Equipo
+from actividad.utils import registrar_actualizacion, capturar_cambios
 
 class StaffRequiredMixin(UserPassesTestMixin):
     """Mixin que requiere que el usuario sea staff o coordinador."""
@@ -83,8 +85,28 @@ class AmbienteUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
     success_url = reverse_lazy('ambientes:lista')
 
     def form_valid(self, form):
+        # Capturar datos anteriores
+        ambiente_antes = deepcopy(self.object)
+        
+        # Guardar el formulario
+        response = super().form_valid(form)
+        
+        # Capturar cambios
+        campos_a_comparar = ['nombre', 'codigo', 'descripcion', 'capacidad', 'tipo', 'ubicacion', 'activo']
+        cambios = capturar_cambios(ambiente_antes, self.object, campos_a_comparar)
+        
+        # Registrar la actualización
+        if cambios:
+            registrar_actualizacion(
+                usuario=self.request.user,
+                objeto=f'Ambiente {self.object.nombre}',
+                cambios=cambios,
+                modulo='ambientes',
+                request=self.request
+            )
+        
         messages.success(self.request, "Ambiente actualizado exitosamente.")
-        return super().form_valid(form)
+        return response
 
 class AmbienteDetailView(LoginRequiredMixin, DetailView):
     """Vista para mostrar los detalles de un ambiente."""

@@ -23,6 +23,7 @@ urlpatterns = [
     path('accounts/', include('login.urls')),
     path('backups/', include('backups.urls')),
     path('calendario/', include('calendario.urls')),
+    path('actividad/', include('actividad.urls')),
 ]
 
 if settings.DEBUG:

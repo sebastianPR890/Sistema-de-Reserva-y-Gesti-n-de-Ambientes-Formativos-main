@@ -8,9 +8,11 @@ from django.views.generic import (
     CreateView, UpdateView, DetailView, DeleteView, ListView
 )
 from django.urls import reverse_lazy, reverse
+from copy import deepcopy
 
 from .models import Equipo, MovimientoEquipo
 from .forms import EquipoForm, BusquedaEquipoForm, MovimientoEquipoForm
+from actividad.utils import registrar_actualizacion, capturar_cambios
 
 class StaffRequiredMixin(UserPassesTestMixin):
     def test_func(self):
@@ -91,8 +93,28 @@ class EquipoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        # Capturar datos anteriores
+        equipo_antes = deepcopy(self.object)
+        
+        # Guardar el formulario
+        response = super().form_valid(form)
+        
+        # Capturar cambios
+        campos_a_comparar = ['codigo', 'nombre', 'serie', 'estado', 'descripcion', 'activo']
+        cambios = capturar_cambios(equipo_antes, self.object, campos_a_comparar)
+        
+        # Registrar la actualización
+        if cambios:
+            registrar_actualizacion(
+                usuario=self.request.user,
+                objeto=f'Equipo {self.object.nombre}',
+                cambios=cambios,
+                modulo='equipos',
+                request=self.request
+            )
+        
         messages.success(self.request, "Equipo actualizado exitosamente.")
-        return super().form_valid(form)
+        return response
 
 class EquipoDetailView(LoginRequiredMixin, DetailView):
     """

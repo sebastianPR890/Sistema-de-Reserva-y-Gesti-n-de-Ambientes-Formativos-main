@@ -154,12 +154,10 @@
                                     <td class="text-center pe-4">
                                         {% if solicitud.estado == 'pendiente' %}
                                         <div class="btn-group-std justify-content-center">
-                                            <a href="{% url 'usuarios:aprobar_solicitud_rol' solicitud.pk %}"
-                                               class="btn-icon-std btn-approve" title="Aprobar">
+                                            <a href="{% url 'usuarios:aprobar_solicitud_rol' solicitud.pk %}"class="btn-icon-std btn-approve" title="Aprobar">
                                                 <i class="fas fa-check"></i>
                                             </a>
-                                            <a href="{% url 'usuarios:rechazar_solicitud_rol' solicitud.pk %}"
-                                               class="btn-icon-std btn-reject" title="Rechazar">
+                                            <a href="{% url 'usuarios:rechazar_solicitud_rol' solicitud.pk %}"class="btn-icon-std btn-reject" title="Rechazar">
                                                 <i class="fas fa-times"></i>
                                             </a>
                                         </div>

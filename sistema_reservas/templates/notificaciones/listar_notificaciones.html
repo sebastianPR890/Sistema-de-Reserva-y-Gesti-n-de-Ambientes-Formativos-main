@@ -107,8 +107,7 @@
                     {% if notificaciones %}
                         <div class="notifications-list">
                             {% for notificacion in notificaciones %}
-                            <div class="notification-item {% if not notificacion.leida %}unread{% endif %}"
-                                 id="notificacion-{{ notificacion.id }}">
+                            <div class="notification-item {% if not notificacion.leida %}unread{% endif %}"id="notificacion-{{ notificacion.id }}">
 
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h6 class="fw-bold mb-0 d-flex align-items-center gap-2">

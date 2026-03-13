@@ -23,20 +23,21 @@
             Bienvenido al sistema de reservas de ambientes del Centro Minero
         </p>
         <div class="cta-buttons">
-            {% if user.is_authenticated %}
+            {% if user.rol == 'usuario' %}
+                <div class="sidebar-info-box">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <p class="text-muted"><strong>¿Necesitas más acceso?</strong></p>
+                        <p class="text-muted">Solicita cambiar tu rol para acceder a más características.</p>
+                        <a href="{% url 'usuarios:solicitar_cambio_rol' %}" class="btn btn-std btn-success w-100">
+                            <i class="fas fa-arrow-up"></i> Solicitar Cambio de Rol
+                        </a>
+                    </div>
+            {% else %}
                 <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-primary">
                     <i class="fas fa-calendar-alt"></i> Ver Reservas
                 </a>
                 <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-secondary">
-                    <i class="fas fa-plus"></i> Crear Reserva
-                </a>
-            {% else %}
-                <a href="{% url 'login:login' %}" class="btn btn-primary">
-                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                </a>
-                <a href="{% url 'login:registro' %}" class="btn btn-secondary">
-                    <i class="fas fa-user-plus"></i> Registrarse
-                </a>
+                    <i class="fas fa-plus"></i> Crear Reserva                </a>
             {% endif %}
         </div>
     </section>

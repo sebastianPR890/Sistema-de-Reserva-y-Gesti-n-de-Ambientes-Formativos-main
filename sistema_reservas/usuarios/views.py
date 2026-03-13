@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -7,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 from notificaciones.models import Notificacion
+from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad
 from .forms import BusquedaUsuarioForm, UsuarioEditForm, PerfilEditForm
 from .models import Usuario, SolicitudCambioRol
 
@@ -64,12 +66,29 @@ def editar_usuario(request, pk):
     usuario = get_object_or_404(Usuario, pk=pk)
     
     if request.method == 'POST':
+        usuario_antes = deepcopy(usuario)
+        
         form = UsuarioEditForm(request.POST, instance=usuario)
         
         if form.is_valid():
             usuario = form.save(commit=False)
             usuario.is_active = usuario.activo
             usuario.save()
+            
+            # Capturar cambios
+            campos_a_comparar = ['nombres', 'apellidos', 'email', 'telefono', 'rol', 'activo']
+            cambios = capturar_cambios(usuario_antes, usuario, campos_a_comparar)
+            
+            # Registrar la actualización
+            if cambios:
+                registrar_actualizacion(
+                    usuario=request.user,
+                    objeto=f'Usuario {usuario.nombre_completo()}',
+                    cambios=cambios,
+                    modulo='usuarios',
+                    request=request
+                )
+            
             messages.success(request, f'Usuario {usuario.nombre_completo()} actualizado exitosamente.')
             return redirect('usuarios:lista_usuarios') 
         else:
@@ -97,9 +116,26 @@ def perfil_usuario(request):
 def editar_perfil(request):
     """Permite al usuario editar su propio perfil."""
     if request.method == 'POST':
+        usuario_antes = deepcopy(request.user)
+        
         form = PerfilEditForm(request.POST, instance=request.user)
         if form.is_valid():
-            form.save()
+            usuario_actualizado = form.save()
+            
+            # Capturar cambios
+            campos_a_comparar = ['nombres', 'apellidos', 'email', 'telefono']
+            cambios = capturar_cambios(usuario_antes, usuario_actualizado, campos_a_comparar)
+            
+            # Registrar la actualización
+            if cambios:
+                registrar_actualizacion(
+                    usuario=request.user,
+                    objeto=f'Perfil de {request.user.nombre_completo()}',
+                    cambios=cambios,
+                    modulo='usuarios',
+                    request=request
+                )
+            
             messages.success(request, 'Perfil actualizado exitosamente.')
             return redirect('usuarios:perfil')
         else:
@@ -215,7 +251,27 @@ def aprobar_solicitud_rol(request, pk):
 
     if request.method == 'POST':
         comentario = request.POST.get('comentario', '')
+        solicitud_antes = deepcopy(solicitud)
         solicitud.aprobar(request.user, comentario)
+
+        # Registrar la actualización
+        cambios = {
+            'estado': {
+                'antes': 'Pendiente',
+                'después': 'Aprobada'
+            },
+            'rol': {
+                'antes': solicitud_antes.usuario.rol,
+                'después': solicitud.rol_solicitado
+            }
+        }
+        registrar_actualizacion(
+            usuario=request.user,
+            objeto=f'Solicitud de rol - {solicitud.usuario.nombre_completo()}',
+            cambios=cambios,
+            modulo='usuarios',
+            request=request
+        )
 
         # Notificar al usuario
         try:
@@ -248,6 +304,21 @@ def rechazar_solicitud_rol(request, pk):
     if request.method == 'POST':
         comentario = request.POST.get('comentario', '')
         solicitud.rechazar(request.user, comentario)
+
+        # Registrar la actualización
+        cambios = {
+            'estado': {
+                'antes': 'Pendiente',
+                'después': 'Rechazada'
+            }
+        }
+        registrar_actualizacion(
+            usuario=request.user,
+            objeto=f'Solicitud de rol - {solicitud.usuario.nombre_completo()}',
+            cambios=cambios,
+            modulo='usuarios',
+            request=request
+        )
 
         # Notificar al usuario
         try:

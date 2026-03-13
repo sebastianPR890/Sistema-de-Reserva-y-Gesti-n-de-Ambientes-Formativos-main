@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "backups",
     "calendario",
     "accessibility",
+    "actividad",
 ]
 
 AUTH_USER_MODEL = 'usuarios.Usuario'

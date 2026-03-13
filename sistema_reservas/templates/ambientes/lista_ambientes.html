@@ -142,10 +142,10 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4" id="ambientesGrid">
         {% for ambiente in ambientes %}
         <div class="col ambiente-card"
-             data-tipo="{{ ambiente.tipo }}"
-             data-activo="{% if ambiente.activo %}true{% else %}false{% endif %}"
-             data-nombre="{{ ambiente.nombre|lower }}"
-             data-codigo="{{ ambiente.codigo|lower }}">
+            data-tipo="{{ ambiente.tipo }}"
+            data-activo="{% if ambiente.activo %}true{% else %}false{% endif %}"
+            data-nombre="{{ ambiente.nombre|lower }}"
+            data-codigo="{{ ambiente.codigo|lower }}">
             <div class="card-std h-100">
                 <div class="card-header card-header-green">
                     <i class="fas fa-door-open fa-2x"></i>

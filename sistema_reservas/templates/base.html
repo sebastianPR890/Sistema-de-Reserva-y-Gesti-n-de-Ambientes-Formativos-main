@@ -79,6 +79,11 @@
                     {% endif %}
                 </div>
                 <div class="nav-item">
+                    {% if user.is_staff or user.rol == 'coordinador' %}
+                    <a href="{% url 'actividad:lista' %}" class="nav-link {% if request.resolver_match.app_name == 'actividad' %}active{% endif %}"><i class="fas fa-history nav-icon"></i>Registro de Actividad</a>
+                    {% endif %}
+                </div>
+                <div class="nav-item">
                     {% if user.is_superuser %}
                     <a href="{% url 'admin:index' %}" class="nav-link"><i class="fas fa-cog nav-icon"></i> Panel Admin</a>
                     {% endif %}

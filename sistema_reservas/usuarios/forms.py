@@ -55,11 +55,11 @@ class UsuarioEditForm(forms.ModelForm):
         }
     
     def __init__(self, *args, **kwargs):
-        """Configura el documento como solo lectura y telefono como obligatorio."""
+        """Configura el documento como solo lectura."""
         super().__init__(*args, **kwargs)
         if 'documento' in self.fields:
             self.fields['documento'].widget.attrs['readonly'] = 'readonly'
-        self.fields['telefono'].required = True
+        self.fields['telefono'].required = False
 
 
 class PerfilEditForm(forms.ModelForm):

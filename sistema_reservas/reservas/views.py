@@ -2,6 +2,7 @@ from django.utils import timezone
 import io
 import json
 from datetime import datetime
+from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -16,6 +17,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 
 from ambientes.models import Ambiente
 from notificaciones.models import Notificacion
+from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad
 from .models import Reserva
 from .forms import ReservaForm
 
@@ -87,9 +89,28 @@ def editar_reserva(request, pk):
         return redirect('reservas:lista_reservas')
 
     if request.method == 'POST':
+        # Capturar datos anteriores
+        reserva_antes = deepcopy(reserva)
+        
         form = ReservaForm(request.POST, instance=reserva)
         if form.is_valid():
-            form.save()
+            reserva_actualizada = form.save()
+            
+            # Capturar cambios
+            campos_a_comparar = ['fecha_inicio', 'fecha_fin', 'proposito', 'numero_asistentes', 
+                                'observaciones', 'ambiente_id']
+            cambios = capturar_cambios(reserva_antes, reserva_actualizada, campos_a_comparar)
+            
+            # Registrar la actualización
+            if cambios:
+                registrar_actualizacion(
+                    usuario=request.user,
+                    objeto=f'Reserva {reserva.pk}',
+                    cambios=cambios,
+                    modulo='reservas',
+                    request=request
+                )
+            
             Notificacion.crear(
                 usuario=request.user,
                 titulo='Reserva Actualizada',
@@ -204,9 +225,26 @@ def aprobar_reserva(request, pk):
         messages.warning(request, "Solo se pueden aprobar reservas en estado pendiente.")
         return redirect('reservas:lista_reservas')
 
+    estado_anteriormente = reserva.estado
+    
     if not reserva.aprobar(request.user):
         messages.error(request, "No se pudo aprobar la reserva.")
         return redirect('reservas:lista_reservas')
+
+    # Registrar la actualización
+    cambios = {
+        'estado': {
+            'antes': 'Pendiente',
+            'después': 'Aprobada'
+        }
+    }
+    registrar_actualizacion(
+        usuario=request.user,
+        objeto=f'Reserva {reserva.pk}',
+        cambios=cambios,
+        modulo='reservas',
+        request=request
+    )
 
     Notificacion.crear(
         usuario=reserva.usuario,
@@ -232,8 +270,24 @@ def cancelar_reserva(request, pk):
         messages.warning(request, "Esta reserva no puede ser cancelada.")
         return redirect('reservas:lista_reservas')
 
+    estado_anterior = reserva.estado
     reserva.estado = 'cancelada'
     reserva.save()
+
+    # Registrar la actualización
+    cambios = {
+        'estado': {
+            'antes': 'Aprobada' if estado_anterior == 'aprobada' else 'Pendiente',
+            'después': 'Cancelada'
+        }
+    }
+    registrar_actualizacion(
+        usuario=request.user,
+        objeto=f'Reserva {reserva.pk}',
+        cambios=cambios,
+        modulo='reservas',
+        request=request
+    )
 
     Notificacion.crear(
         usuario=reserva.usuario,
