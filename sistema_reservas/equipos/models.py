@@ -5,14 +5,15 @@ from ambientes.models import Ambiente
 
 class Equipo(models.Model):
     """Modelo que representa un equipo de cómputo o mobiliario."""
-    
+
     ESTADOS = [
         ('disponible', 'Disponible'),
         ('en_uso', 'En uso'),
         ('mantenimiento', 'Mantenimiento'),
         ('dañado', 'Dañado'),
+        ('retirado', 'Retirado'),
     ]
-    
+
     codigo = models.CharField(max_length=50, unique=True)
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True)
@@ -20,16 +21,25 @@ class Equipo(models.Model):
     modelo = models.CharField(max_length=50, blank=True)
     serie = models.CharField(max_length=100, blank=True)
     ambiente = models.ForeignKey(Ambiente, on_delete=models.SET_NULL, null=True, blank=True, related_name='equipos')
-    estado = models.CharField(max_length=20, choices=ESTADOS, default='disponible') 
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='disponible')
     responsable = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete= models.SET_NULL,
-        null= True,
-        blank= True,
-        related_name= 'equipos_responsable'
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='equipos_responsable'
     )
-    fecha_adquisicion = models.DateField(null=True, blank=True)
-    valor = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    # Campos para equipos externos (no pertenecen a la institución)
+    es_externo = models.BooleanField(default=False)
+    propietario_externo = models.CharField(max_length=200, blank=True)
+    doc_propietario = models.CharField(max_length=50, blank=True)
+    reserva_origen = models.ForeignKey(
+        'reservas.Reserva',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='equipos_externos'
+    )
     activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     

@@ -12,9 +12,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .models import Ambiente
 from .forms import AmbienteForm, BusquedaAmbienteForm, CrearAmbienteForm
-from equipos.forms import EquipoForm
+from equipos.forms import EquipoForm, EquipoExternoForm
 from equipos.models import Equipo
-from actividad.utils import registrar_actualizacion, capturar_cambios
+from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad
 
 class StaffRequiredMixin(UserPassesTestMixin):
     """Mixin que requiere que el usuario sea staff o coordinador."""
@@ -102,7 +102,8 @@ class AmbienteUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
                 objeto=f'Ambiente {self.object.nombre}',
                 cambios=cambios,
                 modulo='ambientes',
-                request=self.request
+                request=self.request,
+                instancia=self.object,
             )
         
         messages.success(self.request, "Ambiente actualizado exitosamente.")
@@ -113,6 +114,26 @@ class AmbienteDetailView(LoginRequiredMixin, DetailView):
     model = Ambiente
     template_name = 'ambientes/ambiente_detalle.html'
     context_object_name = 'ambiente'
+
+    def get_context_data(self, **kwargs):
+        from reservas.models import Reserva
+        from django.utils import timezone
+        Reserva.cerrar_vencidas()
+        context = super().get_context_data(**kwargs)
+        # Para permisos del usuario logueado
+        context['reserva_activa'] = Reserva.get_reserva_activa(self.object, self.request.user)
+        # Responsable actual del aula: quien tenga reserva aprobada vigente (presente o futura)
+        ahora = timezone.now()
+        reserva_vigente = (
+            Reserva.objects
+            .filter(ambiente=self.object, estado='aprobada', fecha_fin__gte=ahora)
+            .select_related('usuario')
+            .order_by('fecha_inicio')
+            .first()
+        )
+        context['responsable_actual'] = reserva_vigente.usuario if reserva_vigente else None
+        context['reserva_vigente'] = reserva_vigente
+        return context
 
 class AmbienteDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     """Vista para eliminar un ambiente."""
@@ -177,25 +198,62 @@ def crear_ambiente(request):
 
 @login_required
 def agregar_equipo(request, ambiente_id):
-    """Permite agregar un equipo a un ambiente específico."""
-    if not request.user.puede_gestionar_recursos():
-        messages.error(request, 'No tienes permisos para agregar equipos')
-        return redirect('ambientes:detalle', pk=ambiente_id)
-        
+    """
+    Permite agregar un equipo (institucional o externo) a un ambiente.
+
+    Tienen acceso:
+    - Staff / coordinadores / admins (siempre).
+    - El responsable activo del ambiente: usuario con reserva aprobada y vigente.
+    """
+    from reservas.models import Reserva
+
     ambiente = get_object_or_404(Ambiente, pk=ambiente_id)
-    
+    es_gestor = request.user.puede_gestionar_recursos()
+    reserva_activa = Reserva.get_reserva_activa(ambiente, request.user)
+
+    if not es_gestor and not reserva_activa:
+        messages.error(request, 'No tienes permisos para agregar equipos a este ambiente.')
+        return redirect('ambientes:detalle', pk=ambiente_id)
+
+    # Tipo de equipo a registrar (GET param o POST)
+    tipo = request.POST.get('tipo_equipo', request.GET.get('tipo_equipo', 'institucional'))
+    es_externo = (tipo == 'externo')
+
+    FormClass = EquipoExternoForm if es_externo else EquipoForm
+
     if request.method == 'POST':
-        form = EquipoForm(request.POST)
+        form = FormClass(request.POST)
         if form.is_valid():
             equipo = form.save(commit=False)
             equipo.ambiente = ambiente
+            equipo.responsable = request.user
+            if es_externo:
+                equipo.es_externo = True
+                equipo.reserva_origen = reserva_activa
+                # Código autogenerado para externos: EXT-<reserva_id>-<timestamp>
+                from django.utils import timezone as tz
+                equipo.codigo = f"EXT-{reserva_activa.pk if reserva_activa else 'manual'}-{tz.now().strftime('%Y%m%d%H%M%S')}"
             equipo.save()
-            messages.success(request, f'Equipo {equipo.nombre} agregado exitosamente')
+
+            registrar_actividad(
+                usuario=request.user,
+                accion=f'Equipo {"externo" if es_externo else "institucional"} registrado: {equipo.nombre}',
+                descripcion=f'Ambiente: {ambiente.nombre}' + (
+                    f' | Propietario: {equipo.propietario_externo}' if es_externo else ''
+                ),
+                modulo='equipos',
+                tipo_accion='CREATE',
+                objeto=equipo,
+                request=request,
+            )
+            messages.success(request, f'Equipo {equipo.nombre} agregado exitosamente.')
             return redirect('ambientes:detalle', pk=ambiente_id)
     else:
-        form = EquipoForm()
-    
+        form = FormClass()
+
     return render(request, 'equipos/equipo_form.html', {
         'form': form,
-        'ambiente': ambiente
+        'ambiente': ambiente,
+        'es_externo': es_externo,
+        'reserva_activa': reserva_activa,
     })

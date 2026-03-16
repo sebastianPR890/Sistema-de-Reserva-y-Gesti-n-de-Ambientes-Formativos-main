@@ -5,33 +5,105 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ titulo }}</title>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-            <td align="center">
-                <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td align="center" style="padding: 20px; background-color: #007bff; color: #ffffff;">
-                            <h1 style="margin: 0;">Notificación del Sistema de Reservas</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <h2 style="color: #333333;">{{ titulo }}</h2>
-                            <p style="color: #555555; line-height: 1.6;">
-                                {{ mensaje|linebreaksbr }}
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="padding: 20px; background-color: #f4f4f4; color: #888888; font-size: 12px;">
-                            <p style="margin: 0;">Este es un correo electrónico generado automáticamente. Por favor, no respondas a este mensaje.</p>
-                            <p style="margin: 5px 0 0;">Sistema de Reserva y Gestión de Ambientes Formativos</p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+<body style="margin:0; padding:0; background-color:#f0f2f5; font-family:Arial, Helvetica, sans-serif;">
+
+<!--  Wrapper  -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0f2f5; padding:32px 0;">
+    <tr>
+        <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" border="0"
+                   style="background-color:#ffffff; border-radius:10px; overflow:hidden;
+                          box-shadow:0 4px 16px rgba(0,0,0,0.10); max-width:600px;">
+
+                <!-- ===== HEADER ===== -->
+                <tr>
+                    <td align="center" style="background-color:#1a7a3f; padding:28px 40px 24px;">
+                        <table cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="center">
+                                    <p style="margin:0; font-size:11px; letter-spacing:2px;
+                                               text-transform:uppercase; color:#a8e6bf;">
+                                        SENA &mdash; Centro Minero
+                                    </p>
+                                    <h1 style="margin:6px 0 0; font-size:20px; font-weight:700;
+                                               color:#ffffff; letter-spacing:0.3px;">
+                                        Sistema de Reserva de Ambientes
+                                    </h1>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- ===== TIPO BADGE ===== -->
+                {% if tipo == 'alerta' %}
+                <tr>
+                    <td align="center"
+                        style="background-color:#e74c3c; padding:10px 40px; font-size:13px;
+                               font-weight:700; color:#ffffff; letter-spacing:1px; text-transform:uppercase;">
+                        &#9888; Alerta
+                    </td>
+                </tr>
+                {% elif tipo == 'reserva' %}
+                <tr>
+                    <td align="center"
+                        style="background-color:#27ae60; padding:10px 40px; font-size:13px;
+                               font-weight:700; color:#ffffff; letter-spacing:1px; text-transform:uppercase;">
+                        &#128197; Reserva
+                    </td>
+                </tr>
+                {% elif tipo == 'equipo' %}
+                <tr>
+                    <td align="center"
+                        style="background-color:#2980b9; padding:10px 40px; font-size:13px;
+                               font-weight:700; color:#ffffff; letter-spacing:1px; text-transform:uppercase;">
+                        &#128187; Equipo
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td align="center"
+                        style="background-color:#7f8c8d; padding:10px 40px; font-size:13px;
+                               font-weight:700; color:#ffffff; letter-spacing:1px; text-transform:uppercase;">
+                        &#8505; Sistema
+                    </td>
+                </tr>
+                {% endif %}
+
+                <!-- ===== CONTENT ===== -->
+                <tr>
+                    <td style="padding:36px 40px 28px;">
+                        <h2 style="margin:0 0 16px; font-size:18px; font-weight:700;
+                                   color:#1a1a1a; line-height:1.3;">
+                            {{ titulo }}
+                        </h2>
+                        <p style="margin:0; font-size:15px; color:#444444; line-height:1.7;">
+                            {{ mensaje|linebreaksbr }}
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- ===== DIVIDER ===== -->
+                <tr>
+                    <td style="padding:0 40px;">
+                        <div style="border-top:1px solid #e8e8e8;"></div>
+                    </td>
+                </tr>
+
+                <!-- ===== FOOTER ===== -->
+                <tr>
+                    <td style="padding:20px 40px 28px;">
+                        <p style="margin:0; font-size:12px; color:#999999; line-height:1.6;">
+                            Este correo fue generado automáticamente. Por favor no respondas a este mensaje.<br>
+                            &copy; SENA Centro Minero &mdash; Sistema de Reserva y Gestión de Ambientes Formativos
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
 </body>
 </html>

@@ -40,7 +40,7 @@ class Notificacion(models.Model):
         )
 
         try:
-            html_content = render_to_string('email/notification.html', {'titulo': titulo, 'mensaje': mensaje})
+            html_content = render_to_string('email/notification.html', {'titulo': titulo, 'mensaje': mensaje, 'tipo': tipo})
             text_content = strip_tags(html_content)
 
             msg = EmailMultiAlternatives(
@@ -56,10 +56,24 @@ class Notificacion(models.Model):
 
         return notificacion
     
+    @classmethod
+    def notificar_gestores(cls, titulo, mensaje, tipo='alerta'):
+        """
+        Crea una notificación (y envía email) a todos los coordinadores y admins activos.
+        """
+        from django.contrib.auth import get_user_model
+        Usuario = get_user_model()
+        gestores = Usuario.objects.filter(
+            rol__in=['coordinador', 'admin'],
+            activo=True,
+        )
+        for gestor in gestores:
+            cls.crear(usuario=gestor, titulo=titulo, mensaje=mensaje, tipo=tipo)
+
     def marcar_como_leida(self):
         """Marca la notificación como leída."""
         self.leida = True
         self.save()
-        
+
     def __str__(self):
         return f"{self.titulo} - {self.usuario.nombre_completo()}"

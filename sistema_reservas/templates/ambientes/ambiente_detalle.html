@@ -77,6 +77,26 @@
                             </strong>
                         </div>
                     </div>
+
+                    <div class="detail-info-item">
+                        <div class="detail-info-icon {% if responsable_actual %}bg-success{% else %}bg-secondary{% endif %}">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <small class="text-muted d-block">Responsable Actual del Aula</small>
+                            {% if responsable_actual %}
+                                <strong class="text-dark">{{ responsable_actual.nombre_completo }}</strong>
+                                <small class="d-block text-muted">
+                                    {{ responsable_actual.get_rol_display }}
+                                    &nbsp;·&nbsp;
+                                    <i class="fas fa-calendar me-1"></i>
+                                    {{ reserva_vigente.fecha_inicio|date:"d/m/Y H:i" }} – {{ reserva_vigente.fecha_fin|date:"d/m/Y H:i" }}
+                                </small>
+                            {% else %}
+                                <span class="text-muted fst-italic">Sin responsable asignado</span>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
 
                 {% if ambiente.descripcion %}
@@ -100,10 +120,15 @@
                     <button type="button" class="search-unified-btn" onclick="document.getElementById('searchInput').dispatchEvent(new Event('input'))">
                         <i class="fas fa-search"></i> Buscar
                     </button>
-                    {% if user.puede_gestionar_recursos %}
-                    <a href="{% url 'ambientes:agregar_equipo' ambiente.pk %}" class="btn btn-std btn-success">
+                    {% if user.puede_gestionar_recursos or reserva_activa %}
+                    <a href="{% url 'ambientes:agregar_equipo' ambiente.pk %}{% if reserva_activa and not user.puede_gestionar_recursos %}?tipo_equipo=institucional{% endif %}" class="btn btn-std btn-success">
                         <i class="fas fa-plus-circle"></i> Agregar Equipo
                     </a>
+                    {% if reserva_activa and not user.puede_gestionar_recursos %}
+                    <a href="{% url 'ambientes:agregar_equipo' ambiente.pk %}?tipo_equipo=externo" class="btn btn-std btn-outline-success">
+                        <i class="fas fa-laptop"></i> Registrar Equipo Externo
+                    </a>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
@@ -117,6 +142,7 @@
                                 <th><i class="fas fa-tag me-2 text-success"></i>Nombre</th>
                                 <th><i class="fas fa-info-circle me-2 text-success"></i>Estado</th>
                                 <th><i class="fas fa-industry me-2 text-success"></i>Marca/Modelo</th>
+                                <th><i class="fas fa-user-shield me-2 text-success"></i>Responsable</th>
                                 <th class="text-center" style="width: 200px;"><i class="fas fa-cog me-2 text-success"></i>Acciones</th>
                             </tr>
                         </thead>
@@ -138,6 +164,13 @@
                                 <td>
                                     <span class="text-muted">{{ equipo.marca }} {{ equipo.modelo }}</span>
                                 </td>
+                                <td>
+                                    {% if responsable_actual %}
+                                        <span class="text-dark">{{ responsable_actual.nombre_completo }}</span>
+                                    {% else %}
+                                        <span class="text-muted fst-italic">Sin asignar</span>
+                                    {% endif %}
+                                </td>
                                 <td class="text-center">
                                     <div class="btn-group-std justify-content-center">
                                         <a href="{% url 'equipos:equipo_detalle' equipo.id %}"
@@ -146,13 +179,15 @@
                                             title="Ver detalles">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        {% if user.puede_gestionar_recursos %}
+                                        {% if user.puede_gestionar_recursos or reserva_activa %}
                                         <a href="{% url 'equipos:equipo_editar' equipo.pk %}"
                                             class="btn-icon-std btn-edit"
                                             data-bs-toggle="tooltip"
                                             title="Editar equipo">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        {% endif %}
+                                        {% if user.puede_gestionar_recursos %}
                                         <a href="{% url 'equipos:equipo_eliminar' equipo.pk %}"
                                             class="btn-icon-std btn-delete"
                                             data-bs-toggle="tooltip"
@@ -173,7 +208,7 @@
                     <div class="empty-icon"><i class="fas fa-laptop-code"></i></div>
                     <h5>No hay equipos registrados</h5>
                     <p>Este ambiente aun no tiene equipos asignados</p>
-                    {% if user.puede_gestionar_recursos %}
+                    {% if user.puede_gestionar_recursos or reserva_activa %}
                     <a href="{% url 'ambientes:agregar_equipo' ambiente.pk %}" class="btn btn-std btn-success">
                         <i class="fas fa-plus-circle me-2"></i>Agregar Primer Equipo
                     </a>
@@ -217,11 +252,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const nombre = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
             const estado = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
             const marca = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+            const responsable = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
 
             if (codigo.includes(searchTerm) ||
                 nombre.includes(searchTerm) ||
                 estado.includes(searchTerm) ||
-                marca.includes(searchTerm)) {
+                marca.includes(searchTerm) ||
+                responsable.includes(searchTerm)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';

@@ -101,5 +101,65 @@ class Reserva(models.Model):
         limite = timezone.now() - timedelta(hours=72)
         return cls.objects.filter(estado='pendiente', fecha_creacion__lte=limite).update(estado='cancelada')
 
+    @classmethod
+    def cerrar_vencidas(cls):
+        """
+        Marca como 'completada' las reservas aprobadas cuya fecha_fin ya pasó.
+        También retira los equipos externos registrados durante esas reservas.
+        Retorna el número de reservas cerradas.
+        """
+        from equipos.models import Equipo
+        ahora = timezone.now()
+        vencidas = cls.objects.filter(estado='aprobada', fecha_fin__lt=ahora)
+        ids_vencidas = list(vencidas.values_list('id', flat=True))
+        if not ids_vencidas:
+            return 0
+        # Retirar equipos externos vinculados a estas reservas
+        Equipo.objects.filter(
+            es_externo=True,
+            reserva_origen_id__in=ids_vencidas,
+            activo=True,
+        ).update(activo=False, estado='retirado')
+        # Notificar a cada usuario que su reserva fue completada
+        from notificaciones.models import Notificacion
+        for reserva in cls.objects.filter(id__in=ids_vencidas).select_related('usuario', 'ambiente'):
+            Notificacion.crear(
+                usuario=reserva.usuario,
+                titulo='Reserva completada',
+                mensaje=(
+                    f'Tu reserva del aula {reserva.ambiente.nombre} '
+                    f'({reserva.fecha_inicio.strftime("%d/%m/%Y %H:%M")} – '
+                    f'{reserva.fecha_fin.strftime("%d/%m/%Y %H:%M")}) '
+                    f'ha finalizado. Ya no eres responsable del aula.'
+                ),
+                tipo='reserva',
+            )
+        # Marcar reservas como completadas
+        cantidad = vencidas.update(estado='completada')
+        return cantidad
+
+    @classmethod
+    def get_reserva_activa(cls, ambiente, usuario):
+        """
+        Retorna la reserva aprobada y vigente (presente o futura) para el ambiente y usuario dados.
+        El usuario es responsable del aula desde que su reserva es aprobada hasta que finaliza.
+        Retorna None si no existe ninguna.
+        """
+        ahora = timezone.now()
+        return cls.objects.filter(
+            ambiente=ambiente,
+            usuario=usuario,
+            estado='aprobada',
+            fecha_fin__gte=ahora,
+        ).order_by('fecha_inicio').first()
+
+    @classmethod
+    def es_responsable_activo(cls, ambiente, usuario):
+        """
+        Devuelve True si el usuario tiene una reserva aprobada y vigente sobre el ambiente.
+        Los admins y coordinadores siempre tienen permisos independientemente de esto.
+        """
+        return cls.get_reserva_activa(ambiente, usuario) is not None
+
     def __str__(self):
         return f"Reserva {self.id} - {self.ambiente.nombre} ({self.fecha_inicio.strftime('%d/%m/%Y %H:%M')})"

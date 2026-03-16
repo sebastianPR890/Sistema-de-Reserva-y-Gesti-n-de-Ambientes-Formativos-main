@@ -28,7 +28,7 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="row g-4 mb-4">
+            <div class="row g-3 mb-4">
                 {% for modulo_key, modulo_label in modulos %}
                     {% if modulo_key != 'sesion' and modulo_key != 'sistema' %}
                     <div class="col-md-4 col-lg-2">
@@ -58,77 +58,87 @@
                 {% endfor %}
             </div>
 
-            <!-- Barra de búsqueda -->
+            <!-- Formulario oculto para envío servidor -->
+            <form method="GET" id="filterForm" style="display:none;">
+                <input type="hidden" id="h-modulo"      name="modulo"      value="{{ filtro_modulo }}">
+                <input type="hidden" id="h-tipo_accion" name="tipo_accion" value="{{ filtro_tipo_accion }}">
+                <input type="hidden" id="h-busqueda"    name="busqueda"    value="{{ filtro_busqueda }}">
+                <input type="hidden" id="h-fecha_desde" name="fecha_desde" value="{{ filtro_fecha_desde }}">
+                <input type="hidden" id="h-fecha_hasta" name="fecha_hasta" value="{{ filtro_fecha_hasta }}">
+            </form>
+
+            <!-- Barra de búsqueda y filtros -->
             <div class="card-std mb-3">
                 <div class="card-body">
-                    <form method="GET" class="search-unified" id="filterForm">
+                    <div class="search-unified">
                         <div class="dropdown">
                             <button type="button" class="search-unified-filter-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                                 <i class="fas fa-sliders-h"></i> Filtros <i class="fas fa-chevron-down"></i>
                             </button>
-                            <div class="dropdown-menu search-filter-dropdown">
-                                <div class="p-3">
-                                    <label class="form-label fw-semibold text-muted small d-block mb-2">
-                                        <i class="fas fa-layer-group me-1"></i>Módulo
-                                    </label>
-                                    <select name="modulo" class="form-select form-select-sm auto-submit" id="moduloFilter">
-                                        <option value="">Todos los módulos</option>
-                                        {% for key, label in modulos %}
-                                            {% if key != 'sesion' and key != 'sistema' %}
-                                            <option value="{{ key }}" {% if filtro_modulo == key %}selected{% endif %}>
-                                                {{ label }}
-                                            </option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </select>
+                            <div class="dropdown-menu search-filter-dropdown" style="max-height:50vh; overflow-y:auto;">
+
+                                <!-- Filtro por Módulo -->
+                                <div class="filter-dropdown-label" style="padding: 12px 18px 4px;">
+                                    <i class="fas fa-layer-group"></i> Módulo
                                 </div>
-                                <hr class="my-2">
-                                <div class="p-3">
-                                    <label class="form-label fw-semibold text-muted small d-block mb-2">
-                                        <i class="fas fa-calendar me-1"></i>Desde
-                                    </label>
-                                    <input type="date" name="fecha_desde" value="{{ filtro_fecha_desde }}"class="form-control form-control-sm mb-3 auto-submit" id="fechaDesdeFilter">
-                                    <label class="form-label fw-semibold text-muted small d-block mb-2">
-                                        <i class="fas fa-calendar me-1"></i>Hasta
-                                    </label>
-                                    <input type="date" name="fecha_hasta" value="{{ filtro_fecha_hasta }}"class="form-control form-control-sm auto-submit" id="fechaHastaFilter">
+                                {% for key, label in modulos %}
+                                    {% if key != 'sesion' and key != 'sistema' %}
+                                    <button type="button" class="filter-dropdown-item filter-modulo {% if filtro_modulo == key %}active{% endif %}" data-modulo="{{ key }}">
+                                        <i class="fas {% if key == 'reservas' %}fa-calendar-alt{% elif key == 'usuarios' %}fa-users{% elif key == 'ambientes' %}fa-door-open{% elif key == 'equipos' %}fa-desktop{% else %}fa-cog{% endif %}"></i> {{ label }}
+                                    </button>
+                                    {% endif %}
+                                {% endfor %}
+
+                                <!-- Filtro por Tipo de acción -->
+                                <div class="filter-dropdown-label" style="padding: 12px 18px 4px; border-top: 1px solid var(--border-color); margin-top: 4px;">
+                                    <i class="fas fa-tag"></i> Tipo de acción
                                 </div>
-                                <hr class="my-2">
-                                <div class="p-3">
-                                    <a href="{% url 'actividad:lista' %}" class="btn btn-sm btn-outline-secondary w-100">
-                                        <i class="fas fa-times me-1"></i>Limpiar filtros
-                                    </a>
+                                {% for key, label in tipos_accion %}
+                                <button type="button" class="filter-dropdown-item filter-tipo {% if filtro_tipo_accion == key %}active{% endif %}" data-tipo="{{ key }}">
+                                    <i class="fas {% if key == 'CREATE' %}fa-plus-circle{% elif key == 'UPDATE' %}fa-edit{% elif key == 'DELETE' %}fa-trash{% elif key == 'LOGIN' %}fa-sign-in-alt{% elif key == 'LOGOUT' %}fa-sign-out-alt{% elif key == 'APPROVE' %}fa-check-circle{% elif key == 'REJECT' %}fa-ban{% elif key == 'CANCEL' %}fa-times-circle{% elif key == 'EXPORT' %}fa-file-export{% else %}fa-circle{% endif %}"></i> {{ label }}
+                                </button>
+                                {% endfor %}
+
+                                <!-- Filtro por Fecha -->
+                                <div class="filter-dropdown-label" style="padding: 12px 18px 4px; border-top: 1px solid var(--border-color); margin-top: 4px;">
+                                    <i class="fas fa-calendar-alt"></i> Rango de fechas
                                 </div>
+                                <div style="padding: 4px 18px 12px;">
+                                    <label class="form-label small mb-1">Desde</label>
+                                    <input type="date" id="filtroDesde" value="{{ filtro_fecha_desde }}" class="form-control form-control-sm mb-2" onchange="submitFiltros()">
+                                    <label class="form-label small mb-1">Hasta</label>
+                                    <input type="date" id="filtroHasta" value="{{ filtro_fecha_hasta }}" class="form-control form-control-sm mb-2" onchange="submitFiltros()">
+                                    <button type="button" class="filter-dropdown-item w-100" style="color:var(--text-muted);" onclick="limpiarFiltros()">
+                                        <i class="fas fa-times me-1"></i> Limpiar filtros
+                                    </button>
+                                </div>
+
                             </div>
                         </div>
+
                         <div class="search-unified-input-wrapper">
-                            <input type="text" name="busqueda" value="{{ filtro_busqueda }}" id="searchInput"class="form-control" placeholder="Buscar por acción, descripción o usuario...">
+                            <input type="text" id="searchInput" class="form-control"value="{{ filtro_busqueda }}"placeholder="Buscar por acción, descripción o usuario..."onkeyup="filtrarTabla()">
                         </div>
-                        <button type="submit" class="search-unified-btn">
+                        <button type="button" class="search-unified-btn" onclick="submitFiltros()">
                             <i class="fas fa-search"></i> Buscar
                         </button>
-                    </form>
+                    </div>
+
+                    <div class="mt-2">
+                        <span class="text-muted small">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Mostrando <strong class="text-success" id="contadorFiltrado">{{ total }}</strong> resultado(s)
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <!-- Tabla -->
             <div class="card-std">
-                <div class="card-header bg-white py-3 border-0">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0 fw-bold text-success">
-                            <i class="fas fa-history me-2"></i>Actividades
-                        </h5>
-                        {% if filtro_modulo or filtro_busqueda or filtro_fecha_desde or filtro_fecha_hasta %}
-                        <span class="badge-std badge-warning px-3 py-2">
-                            <i class="fas fa-filter me-1"></i>Filtros activos — {{ total }} resultado{% if total != 1 %}s{% endif %}
-                        </span>
-                        {% endif %}
-                    </div>
-                </div>
                 <div class="card-body p-0">
                     {% if actividades %}
                     <div class="table-responsive">
-                        <table class="table-std">
+                        <table class="table-std" id="actividadTable">
                             <thead>
                                 <tr>
                                     <th class="ps-4">
@@ -139,6 +149,9 @@
                                     </th>
                                     <th>
                                         <i class="fas fa-layer-group text-success me-2"></i>Módulo
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-tag text-success me-2"></i>Tipo
                                     </th>
                                     <th>
                                         <i class="fas fa-bolt text-success me-2"></i>Acción
@@ -153,7 +166,7 @@
                             </thead>
                             <tbody>
                                 {% for actividad in actividades %}
-                                <tr>
+                                <tr data-modulo="{{ actividad.modulo }}" data-tipo="{{ actividad.tipo_accion }}">
                                     <td class="ps-4">
                                         <span class="text-dark fw-semibold">{{ actividad.fecha|date:"d/m/Y" }}</span>
                                         <small class="d-block text-muted">{{ actividad.fecha|date:"H:i:s" }}</small>
@@ -161,7 +174,7 @@
                                     <td>
                                         {% if actividad.usuario %}
                                         <div class="d-flex align-items-center gap-2">
-                                            <div class="user-avatar-sm bg-success text-white rounded-circle d-flex align-items-center justify-content-center"style="width:32px;height:32px;font-size:.75rem;flex-shrink:0;">
+                                            <div class="user-avatar-sm bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:.75rem;flex-shrink:0;">
                                                 {{ actividad.usuario.nombres|first|upper }}{{ actividad.usuario.apellidos|first|upper }}
                                             </div>
                                             <div>
@@ -185,6 +198,18 @@
                                         </span>
                                     </td>
                                     <td>
+                                        <span class="badge-std
+                                            {% if actividad.tipo_accion == 'CREATE' %}badge-success
+                                            {% elif actividad.tipo_accion == 'UPDATE' %}badge-warning
+                                            {% elif actividad.tipo_accion == 'DELETE' %}badge-danger
+                                            {% elif actividad.tipo_accion == 'APPROVE' %}badge-primary
+                                            {% elif actividad.tipo_accion == 'REJECT' or actividad.tipo_accion == 'CANCEL' %}badge-secondary
+                                            {% elif actividad.tipo_accion == 'LOGIN' or actividad.tipo_accion == 'LOGOUT' %}badge-info
+                                            {% else %}badge-dark{% endif %}">
+                                            {{ actividad.get_tipo_accion_display }}
+                                        </span>
+                                    </td>
+                                    <td>
                                         <span class="text-dark">{{ actividad.accion }}</span>
                                     </td>
                                     <td>
@@ -201,16 +226,23 @@
 
                     <!-- Paginación -->
                     {% if page_obj.has_other_pages %}
-                    <div class="d-flex justify-content-center py-3">
-                        <nav aria-label="Paginación">
+                    <div class="pagination-std">
+                        <small class="text-muted fw-semibold me-3">
+                            <i class="fas fa-database me-1"></i>
+                            Página <strong>{{ page_obj.number }}</strong> de <strong>{{ page_obj.paginator.num_pages }}</strong>
+                        </small>
+                        <nav>
                             <ul class="pagination pagination-sm mb-0">
                                 {% if page_obj.has_previous %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&modulo={{ filtro_modulo }}&busqueda={{ filtro_busqueda }}&fecha_desde={{ filtro_fecha_desde }}&fecha_hasta={{ filtro_fecha_hasta }}">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&modulo={{ filtro_modulo }}&tipo_accion={{ filtro_tipo_accion }}&busqueda={{ filtro_busqueda }}&fecha_desde={{ filtro_fecha_desde }}&fecha_hasta={{ filtro_fecha_hasta }}">
                                         <i class="fas fa-chevron-left"></i>
                                     </a>
                                 </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left"></i></span></li>
                                 {% endif %}
+
                                 {% for num in page_obj.paginator.page_range %}
                                     {% if page_obj.number == num %}
                                     <li class="page-item active">
@@ -218,16 +250,19 @@
                                     </li>
                                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}&modulo={{ filtro_modulo }}&busqueda={{ filtro_busqueda }}&fecha_desde={{ filtro_fecha_desde }}&fecha_hasta={{ filtro_fecha_hasta }}">{{ num }}</a>
+                                        <a class="page-link" href="?page={{ num }}&modulo={{ filtro_modulo }}&tipo_accion={{ filtro_tipo_accion }}&busqueda={{ filtro_busqueda }}&fecha_desde={{ filtro_fecha_desde }}&fecha_hasta={{ filtro_fecha_hasta }}">{{ num }}</a>
                                     </li>
                                     {% endif %}
                                 {% endfor %}
+
                                 {% if page_obj.has_next %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&modulo={{ filtro_modulo }}&busqueda={{ filtro_busqueda }}&fecha_desde={{ filtro_fecha_desde }}&fecha_hasta={{ filtro_fecha_hasta }}">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&modulo={{ filtro_modulo }}&tipo_accion={{ filtro_tipo_accion }}&busqueda={{ filtro_busqueda }}&fecha_desde={{ filtro_fecha_desde }}&fecha_hasta={{ filtro_fecha_hasta }}">
                                         <i class="fas fa-chevron-right"></i>
                                     </a>
                                 </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-right"></i></span></li>
                                 {% endif %}
                             </ul>
                         </nav>
@@ -249,17 +284,59 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Auto-submit form cuando cambian los filtros
-        const autoSubmitElements = document.querySelectorAll('.auto-submit');
-        const filterForm = document.getElementById('filterForm');
+document.addEventListener('DOMContentLoaded', function () {
 
-        autoSubmitElements.forEach(element => {
-            element.addEventListener('change', function() {
-                filterForm.submit();
-            });
+    // ── Filtros de módulo (botones) ──────────────────────────────────────────
+    document.querySelectorAll('.filter-modulo').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.filter-modulo').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('h-modulo').value = this.dataset.modulo;
+            submitFiltros();
         });
     });
+
+    // ── Filtros de tipo acción (botones) ────────────────────────────────────
+    document.querySelectorAll('.filter-tipo').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.filter-tipo').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('h-tipo_accion').value = this.dataset.tipo;
+            submitFiltros();
+        });
+    });
+
+    // ── Búsqueda en tiempo real sobre la página actual ───────────────────────
+    window.filtrarTabla = function () {
+        const texto = document.getElementById('searchInput').value.toLowerCase();
+        const filas = document.querySelectorAll('#actividadTable tbody tr');
+        let visibles = 0;
+        filas.forEach(fila => {
+            const coincide = fila.textContent.toLowerCase().includes(texto);
+            fila.style.display = coincide ? '' : 'none';
+            if (coincide) visibles++;
+        });
+        document.getElementById('contadorFiltrado').textContent = visibles;
+    };
+
+    // ── Envío al servidor con todos los filtros activos ──────────────────────
+    window.submitFiltros = function () {
+        const busqueda = document.getElementById('searchInput').value;
+        const desde    = document.getElementById('filtroDesde').value;
+        const hasta    = document.getElementById('filtroHasta').value;
+
+        document.getElementById('h-busqueda').value    = busqueda;
+        document.getElementById('h-fecha_desde').value = desde;
+        document.getElementById('h-fecha_hasta').value = hasta;
+
+        document.getElementById('filterForm').submit();
+    };
+
+    // ── Limpiar todos los filtros ────────────────────────────────────────────
+    window.limpiarFiltros = function () {
+        window.location.href = "{% url 'actividad:lista' %}";
+    };
+});
 </script>
 
 {% endblock %}

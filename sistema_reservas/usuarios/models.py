@@ -41,20 +41,6 @@ class Usuario(AbstractUser):
         ('usuario', 'Usuario'),
     ]
 
-    TIPOS_DOCUMENTO = [
-        ('CC', 'Cédula de Ciudadanía'),
-        ('TI', 'Tarjeta de Identidad'),
-        ('CE', 'Cédula de Extranjería'),
-        ('PEP', 'PEP'),
-        ('PPT', 'Permiso por Protección Temporal'),
-    ]
-
-    tipo_documento = models.CharField(
-        max_length=10,
-        choices=TIPOS_DOCUMENTO,
-        default='CC',
-        verbose_name='Tipo de documento'
-    )
     documento = models.CharField(
         max_length=20,
         unique=True,
@@ -67,7 +53,6 @@ class Usuario(AbstractUser):
     rol = models.CharField(max_length=20, choices=ROLES, default='usuario')
     activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
     
     username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=30, blank=True, null=True)

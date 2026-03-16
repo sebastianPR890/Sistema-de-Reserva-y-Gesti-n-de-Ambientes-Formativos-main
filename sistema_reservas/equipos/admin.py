@@ -21,9 +21,6 @@ class EquipoAdmin(admin.ModelAdmin):
         ('Estado y Ubicación', {
             'fields': ('ambiente', 'estado', 'responsable', 'activo')
         }),
-        ('Detalles de Adquisición', {
-            'fields': ('fecha_adquisicion', 'valor')
-        }),
     )
 
 @admin.register(MovimientoEquipo)

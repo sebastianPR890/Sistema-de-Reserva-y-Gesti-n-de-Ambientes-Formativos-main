@@ -22,7 +22,7 @@ from .models import Reserva
 from .forms import ReservaForm
 
 def index(request):
-    """Vista principal accesible para todos los usuarios."""
+    """Vista principal."""
     return render(request, 'index.html')
 
 @login_required
@@ -57,6 +57,9 @@ def lista_reservas(request):
 @login_required
 def crear_reserva(request):
     """Permite crear una nueva reserva."""
+    if request.user.rol == 'usuario':
+        messages.error(request, 'Necesitas un rol asignado para poder crear reservas. Solicita cambio de rol primero.')
+        return redirect('/')
     if request.method == 'POST':
         form = ReservaForm(request.POST)
         if form.is_valid():
@@ -369,6 +372,8 @@ def obtener_reservas_calendario(request):
 @require_POST
 def crear_reserva_calendario(request):
     """Crear reserva desde el calendario (AJAX)."""
+    if request.user.rol == 'usuario':
+        return JsonResponse({'success': False, 'error': 'Necesitas un rol asignado para crear reservas.'}, status=403)
     try:
         data = json.loads(request.body)
         ambiente_id = data.get('ambiente_id')

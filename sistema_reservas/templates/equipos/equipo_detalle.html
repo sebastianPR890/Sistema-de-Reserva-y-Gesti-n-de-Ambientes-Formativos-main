@@ -36,17 +36,25 @@
                 <h5 class="mb-0 fw-bold">
                     <i class="fas fa-info-circle me-2"></i>
                     Detalles del Equipo
+                    {% if es_responsable and not user.puede_gestionar_recursos %}
+                    <span class="badge bg-success ms-2" style="font-size:.7rem;">
+                        <i class="fas fa-user-shield me-1"></i>Eres responsable activo
+                    </span>
+                    {% endif %}
                 </h5>
-                {% if user.puede_gestionar_recursos %}
                 <div class="btn-group-std">
-                    <a href="{% url 'equipos:equipo_editar' equipo.pk %}" class="btn-icon-std btn-edit" data-bs-toggle="tooltip" title="Editar">
+                    {% if user.puede_gestionar_recursos or es_responsable %}
+                    <a href="{% url 'equipos:equipo_editar' equipo.pk %}" class="btn-icon-std btn-edit" data-bs-toggle="tooltip"
+                       title="{% if es_responsable and not user.puede_gestionar_recursos %}Actualizar estado del equipo{% else %}Editar equipo{% endif %}">
                         <i class="fas fa-edit"></i>
                     </a>
+                    {% endif %}
+                    {% if user.puede_gestionar_recursos %}
                     <a href="{% url 'equipos:equipo_eliminar' equipo.pk %}" class="btn-icon-std btn-delete" data-bs-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Esta seguro de eliminar este equipo?')">
                         <i class="fas fa-trash-alt"></i>
                     </a>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
             <div class="card-body p-4">
                 <div class="row g-4">
@@ -81,15 +89,25 @@
                                     <a href="{% url 'ambientes:detalle' equipo.ambiente.pk %}" class="text-decoration-none fw-bold">{{ equipo.ambiente.nombre }}</a>
                                 </div>
                             </div>
-                            {% if equipo.responsable %}
                             <div class="detail-info-item">
-                                <div class="detail-info-icon bg-dark"><i class="fas fa-user-shield"></i></div>
+                                <div class="detail-info-icon {% if responsable_actual %}bg-success{% else %}bg-secondary{% endif %}">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
                                 <div class="flex-grow-1">
-                                    <small class="text-muted d-block">Responsable</small>
-                                    <strong class="text-dark">{{ equipo.responsable.nombre_completo|default:equipo.responsable.documento }}</strong>
+                                    <small class="text-muted d-block">Responsable del Aula</small>
+                                    {% if responsable_actual %}
+                                        <strong class="text-dark">{{ responsable_actual.nombre_completo }}</strong>
+                                        <small class="d-block text-muted">
+                                            {{ responsable_actual.get_rol_display }}
+                                            &nbsp;·&nbsp;
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ reserva_vigente.fecha_inicio|date:"d/m/Y H:i" }} – {{ reserva_vigente.fecha_fin|date:"d/m/Y H:i" }}
+                                        </small>
+                                    {% else %}
+                                        <span class="text-muted fst-italic">Sin responsable asignado</span>
+                                    {% endif %}
                                 </div>
                             </div>
-                            {% endif %}
                         </div>
                     </div>
 
