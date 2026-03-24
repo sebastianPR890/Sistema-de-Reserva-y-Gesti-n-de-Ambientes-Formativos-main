@@ -58,12 +58,12 @@
                         </div>
                     </div>
 
-                    <div class="alert alert-success border-0 mb-4">
+                    <div class="alert-success-custom border-0 mb-4">
                         <div class="d-flex align-items-start">
-                            <i class="fas fa-info-circle me-3 mt-1"></i>
-                            <div>
-                                <strong>Al aprobar esta solicitud:</strong>
-                                <ul class="mb-0 mt-2">
+                            <div class="alert-icon"><i class="fas fa-info-circle"></i></div>
+                            <div class="flex-grow-1">
+                                <h6 class="alert-heading fw-bold mb-1">Al aprobar esta solicitud:</h6>
+                                <ul class="mb-0 ps-3 small">
                                     <li>El usuario recibira el rol de <strong>{{ solicitud.get_rol_solicitado_display }}</strong></li>
                                     <li>Se le notificara por el sistema</li>
                                     <li>Tendra acceso a las funciones de su nuevo rol</li>

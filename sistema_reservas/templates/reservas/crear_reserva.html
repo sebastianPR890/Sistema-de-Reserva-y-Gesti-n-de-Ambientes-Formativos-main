@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const clickada = new Date(info.date);
                 clickada.setHours(0, 0, 0, 0);
                 if (clickada < fechaMinima) {
-                    alert('Solo se pueden hacer reservas con al menos 3 días de antelación.');
+                    showToast('Solo se pueden hacer reservas con al menos 3 días de antelación.', 'warning');
                     return;
                 }
                 seleccionarFecha(info.date);
@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `<i class="fas fa-calendar-times text-success me-1"></i>Sin seleccionar`;
             actualizarInputs();
             actualizarCalendario();
-        } else if (!fechaFin && date > fechaInicio) {
+        } else if (!fechaFin && date >= fechaInicio) {
             fechaFin = new Date(date);
             document.getElementById('fechaFinDisplay').innerHTML =
                 `<i class="fas fa-calendar-times text-success me-1"></i>${fechaStr} ${horaFStr}`;
@@ -408,6 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function actualizarDuracion() {
+        const btnGuardar = document.getElementById('btnGuardar');
         if (!fechaInicio || !fechaFin) return;
         const { h: hI, m: mI } = parseTime(getHoraInicio());
         const { h: hF, m: mF } = parseTime(getHoraFin());
@@ -416,9 +417,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const diff = (end - start) / (1000 * 60 * 60);
         if (diff <= 0) {
             document.getElementById('duracionDisplay').innerHTML =
-                `<i class="fas fa-exclamation-triangle text-warning me-1"></i>Revisa las horas`;
+                `<i class="fas fa-exclamation-triangle text-warning me-1"></i>La hora de fin debe ser posterior a la hora de inicio`;
+            if (btnGuardar) btnGuardar.disabled = true;
             return;
         }
+        if (btnGuardar) btnGuardar.disabled = false;
         const dias  = Math.floor(diff / 24);
         const horas = Math.floor(diff % 24);
         const t = dias > 0 ? `${dias} dia(s) y ${horas} hora(s)` : `${horas} hora(s)`;

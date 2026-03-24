@@ -255,27 +255,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isValid) {
             e.preventDefault();
 
-            // Scroll to first invalid field
             if (firstInvalidField) {
                 firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 firstInvalidField.focus();
             }
 
-            // Show alert
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
-            alertDiv.style.zIndex = '9999';
-            alertDiv.style.maxWidth = '500px';
-            alertDiv.innerHTML = `
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>Error:</strong> Por favor, complete todos los campos obligatorios
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(alertDiv);
-
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 5000);
+            showToast('Por favor, complete todos los campos obligatorios.', 'danger');
         }
     });
 

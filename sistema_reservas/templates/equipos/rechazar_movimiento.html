@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rechazar Movimiento{% endblock %}
+
+{% block content %}
+<div class="page-container d-flex align-items-center justify-content-center">
+    <div class="delete-card-std" style="max-width:560px;width:100%;">
+        <div class="delete-header gradient-danger">
+            <i class="fas fa-times-circle"></i>
+            <h4>Rechazar Solicitud de Movimiento</h4>
+        </div>
+        <div class="delete-body">
+
+            <ul class="info-list-std mb-4">
+                <li class="info-item">
+                    <div class="info-icon"><i class="fas fa-desktop"></i></div>
+                    <div>
+                        <div class="info-label">Equipo</div>
+                        <div class="info-value">{{ movimiento.equipo.nombre }} ({{ movimiento.equipo.codigo }})</div>
+                    </div>
+                </li>
+                <li class="info-item">
+                    <div class="info-icon"><i class="fas fa-arrow-right"></i></div>
+                    <div>
+                        <div class="info-label">Movimiento</div>
+                        <div class="info-value">
+                            {{ movimiento.ambiente_origen.nombre|default:"Externo" }}
+                            &rarr;
+                            {{ movimiento.ambiente_destino.nombre|default:"Externo" }}
+                        </div>
+                    </div>
+                </li>
+                <li class="info-item">
+                    <div class="info-icon"><i class="fas fa-user"></i></div>
+                    <div>
+                        <div class="info-label">Solicitado por</div>
+                        <div class="info-value">{{ movimiento.usuario_responsable.nombre_completo }}</div>
+                    </div>
+                </li>
+                <li class="info-item">
+                    <div class="info-icon"><i class="fas fa-comment-alt"></i></div>
+                    <div>
+                        <div class="info-label">Observaciones del solicitante</div>
+                        <div class="info-value">{{ movimiento.observaciones|default:"—" }}</div>
+                    </div>
+                </li>
+            </ul>
+
+            <form method="post" class="form-std">
+                {% csrf_token %}
+                <div class="form-group mb-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-comment-dots me-1"></i>
+                        {{ form.motivo_rechazo.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.motivo_rechazo }}
+                    {% if form.motivo_rechazo.errors %}
+                    <div class="invalid-feedback d-block mt-1">
+                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.motivo_rechazo.errors.0 }}
+                    </div>
+                    {% endif %}
+                    <small class="form-text text-muted">El solicitante recibirá este motivo en su notificación.</small>
+                </div>
+                <div class="delete-actions">
+                    <a href="{% url 'equipos:lista_movimientos' %}" class="btn btn-std btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-std btn-danger">
+                        <i class="fas fa-times-circle"></i> Confirmar Rechazo
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

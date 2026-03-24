@@ -128,6 +128,33 @@
     </div>
 </div>
 
+<!-- Modal detalle de reserva -->
+<div class="modal fade" id="modalDetalleReservaR" tabindex="-1" aria-labelledby="modalDetalleReservaRLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header card-header-green border-0">
+                <h5 class="modal-title fw-bold" id="modalDetalleReservaRLabel">
+                    <i class="fas fa-calendar-check me-2"></i>Detalle de Reserva
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-3"><span class="text-muted small">Reservado por</span><div class="fw-bold" id="modalCalRUsuario"></div></li>
+                    <li class="mb-3"><span class="text-muted small">Propósito</span><div class="fw-bold" id="modalCalRProposito"></div></li>
+                    <li class="mb-3"><span class="text-muted small">Estado</span><div class="fw-bold" id="modalCalREstado"></div></li>
+                    <li><span class="text-muted small">Asistentes</span><div class="fw-bold" id="modalCalRAsistentes"></div></li>
+                </ul>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-std btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- FullCalendar CSS -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
 
@@ -160,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const ambienteId = ambienteSelect.value;
         if (!ambienteId) {
-            alert('Por favor selecciona un ambiente primero');
+            showToast('Por favor selecciona un ambiente primero.', 'warning');
             return;
         }
 
@@ -230,12 +257,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function mostrarDetalleReserva(event) {
-        alert(
-            `Reserva de: ${event.extendedProps.usuario}\n` +
-            `Proposito: ${event.extendedProps.proposito}\n` +
-            `Estado: ${event.extendedProps.estado}\n` +
-            `Asistentes: ${event.extendedProps.numero_asistentes}`
-        );
+        document.getElementById('modalCalRUsuario').textContent    = event.extendedProps.usuario           || '-';
+        document.getElementById('modalCalRProposito').textContent  = event.extendedProps.proposito         || '-';
+        document.getElementById('modalCalREstado').textContent     = event.extendedProps.estado            || '-';
+        document.getElementById('modalCalRAsistentes').textContent = event.extendedProps.numero_asistentes || '-';
+        new bootstrap.Modal(document.getElementById('modalDetalleReservaR')).show();
     }
 
     function calcularDuracion() {
@@ -341,13 +367,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
 
             if (result.success) {
-                alert('Reserva creada exitosamente');
-                window.location.href = '{% url "reservas:lista_reservas" %}';
+                showToast('Reserva creada exitosamente.', 'success');
+                setTimeout(() => { window.location.href = '{% url "reservas:lista_reservas" %}'; }, 1500);
             } else {
-                alert(`Error: ${result.error}`);
+                showToast('Error: ' + result.error, 'danger');
             }
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast('Error: ' + error.message, 'danger');
         }
     });
 });

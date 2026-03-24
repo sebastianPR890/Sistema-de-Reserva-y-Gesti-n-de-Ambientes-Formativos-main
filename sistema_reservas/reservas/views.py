@@ -66,6 +66,15 @@ def crear_reserva(request):
             reserva = form.save(commit=False)
             reserva.usuario = request.user
             reserva.save()
+            registrar_actividad(
+                usuario=request.user,
+                accion=f'Reserva creada: {reserva.ambiente.nombre}',
+                descripcion=f'Desde: {reserva.fecha_inicio.strftime("%d/%m/%Y %H:%M")} | Hasta: {reserva.fecha_fin.strftime("%d/%m/%Y %H:%M")} | Propósito: {reserva.proposito}',
+                modulo='reservas',
+                tipo_accion='CREATE',
+                objeto=reserva,
+                request=request,
+            )
             Notificacion.crear(
                 usuario=request.user,
                 titulo='Reserva Creada',
@@ -89,6 +98,10 @@ def editar_reserva(request, pk):
 
     if not reserva.puede_ser_editada():
         messages.error(request, 'Esta reserva ya no puede ser editada.')
+        return redirect('reservas:lista_reservas')
+
+    if reserva.estado == 'aprobada' and not request.user.is_staff:
+        messages.error(request, 'Las reservas aprobadas solo pueden ser modificadas por un administrador.')
         return redirect('reservas:lista_reservas')
 
     if request.method == 'POST':
@@ -137,7 +150,14 @@ def eliminar_reserva(request, pk):
 
     if request.method == 'POST':
         fecha_inicio_str = reserva.fecha_inicio.strftime("%d/%m/%Y a las %H:%M")
-        
+        registrar_actividad(
+            usuario=request.user,
+            accion=f'Reserva eliminada: {reserva.ambiente.nombre}',
+            descripcion=f'Fecha: {fecha_inicio_str} | Estado anterior: {reserva.get_estado_display()}',
+            modulo='reservas',
+            tipo_accion='DELETE',
+            request=request,
+        )
         reserva.delete()
         Notificacion.crear(
             usuario=request.user,
@@ -421,13 +441,22 @@ def crear_reserva_calendario(request):
             numero_asistentes=numero_asistentes
         )
         
+        registrar_actividad(
+            usuario=request.user,
+            accion=f'Reserva creada (calendario): {ambiente.nombre}',
+            descripcion=f'Desde: {fecha_inicio.strftime("%d/%m/%Y %H:%M")} | Hasta: {fecha_fin.strftime("%d/%m/%Y %H:%M")} | Propósito: {proposito}',
+            modulo='reservas',
+            tipo_accion='CREATE',
+            objeto=reserva,
+            request=request,
+        )
         Notificacion.crear(
             usuario=request.user,
             titulo='Reserva Creada',
             mensaje=f'Tu reserva en {ambiente.nombre} ha sido creada',
             tipo='reserva'
         )
-        
+
         return JsonResponse({
             'success': True,
             'reserva_id': reserva.id,

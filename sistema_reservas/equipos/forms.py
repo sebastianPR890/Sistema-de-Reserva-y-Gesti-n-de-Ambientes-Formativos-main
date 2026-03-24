@@ -112,17 +112,33 @@ class BusquedaEquipoForm(forms.Form):
 
 
 class MovimientoEquipoForm(forms.ModelForm):
-    """Formulario para registrar movimientos de equipos."""
+    """Formulario para solicitar un movimiento de equipo."""
 
     class Meta:
         model = MovimientoEquipo
         fields = [
             'equipo', 'tipo_movimiento', 'ambiente_origen',
-            'ambiente_destino', 'usuario_responsable', 'observaciones',
-            'autorizado_por'
+            'ambiente_destino', 'observaciones',
         ]
+        widgets = {
+            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3,
+                                                   'placeholder': 'Describe el motivo del movimiento...'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field_name in ['ambiente_origen', 'ambiente_destino', 'observaciones', 'autorizado_por']:
-            self.fields[field_name].required = True
+        self.fields['ambiente_origen'].required = True
+        self.fields['observaciones'].required = True
+
+
+class RechazarMovimientoForm(forms.Form):
+    """Formulario para rechazar un movimiento con motivo."""
+    motivo_rechazo = forms.CharField(
+        label='Motivo del rechazo',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Explica por qué se rechaza el movimiento...',
+        }),
+        min_length=10,
+    )

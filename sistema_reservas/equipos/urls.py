@@ -14,4 +14,6 @@ urlpatterns = [
     # URLs para Movimientos de Equipo
     path('movimientos/crear/', views.MovimientoEquipoCreateView.as_view(), name='movimiento_crear'),
     path('movimientos/', views.MovimientoEquipoListView.as_view(), name='lista_movimientos'),
+    path('movimientos/<int:pk>/autorizar/', views.autorizar_movimiento, name='movimiento_autorizar'),
+    path('movimientos/<int:pk>/rechazar/', views.rechazar_movimiento, name='movimiento_rechazar'),
 ]

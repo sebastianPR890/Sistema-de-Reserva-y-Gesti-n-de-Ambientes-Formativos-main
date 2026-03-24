@@ -61,13 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         },
         eventClick: function(info) {
-            const evento = info.event;
-            alert(
-                `Ambiente: ${evento.title}\n` +
-                `Usuario: ${evento.extendedProps.usuario}\n` +
-                `Estado: ${evento.extendedProps.estado}\n` +
-                `Propósito: ${evento.extendedProps.proposito}`
-            );
+            const ev = info.event;
+            document.getElementById('modalCalTitulo').textContent   = ev.title;
+            document.getElementById('modalCalUsuario').textContent  = ev.extendedProps.usuario || '-';
+            document.getElementById('modalCalEstado').textContent   = ev.extendedProps.estado  || '-';
+            document.getElementById('modalCalProposito').textContent = ev.extendedProps.proposito || '-';
+            new bootstrap.Modal(document.getElementById('modalDetalleReserva')).show();
         },
         eventClassNames: function(info) {
             const estado = info.event.extendedProps.estado;
@@ -89,4 +88,30 @@ document.addEventListener('DOMContentLoaded', function() {
     calendar.render();
 });
 </script>
+<!-- Modal detalle de reserva -->
+<div class="modal fade" id="modalDetalleReserva" tabindex="-1" aria-labelledby="modalDetalleReservaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header card-header-green border-0">
+                <h5 class="modal-title fw-bold" id="modalDetalleReservaLabel">
+                    <i class="fas fa-calendar-check me-2"></i>Detalle de Reserva
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-3"><span class="text-muted small">Ambiente</span><div class="fw-bold" id="modalCalTitulo"></div></li>
+                    <li class="mb-3"><span class="text-muted small">Usuario</span><div class="fw-bold" id="modalCalUsuario"></div></li>
+                    <li class="mb-3"><span class="text-muted small">Estado</span><div class="fw-bold" id="modalCalEstado"></div></li>
+                    <li><span class="text-muted small">Propósito</span><div class="fw-bold" id="modalCalProposito"></div></li>
+                </ul>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-std btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

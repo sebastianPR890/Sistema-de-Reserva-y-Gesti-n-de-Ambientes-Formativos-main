@@ -45,15 +45,32 @@ class Reserva(models.Model):
         """Valida los datos del modelo antes de guardar."""
         if self.fecha_fin and self.fecha_inicio and self.fecha_fin <= self.fecha_inicio:
             raise ValidationError('La fecha de fin debe ser posterior a la fecha de inicio.')
-        
-        if self.pk is None and self.fecha_inicio and self.fecha_inicio < timezone.now():
-            raise ValidationError('No se puede crear una reserva con fecha de inicio en el pasado.')
 
-        if self.pk is None and self.fecha_inicio:
-            minimo = timezone.now() + timedelta(days=3)
-            if self.fecha_inicio < minimo:
-                raise ValidationError('Las reservas deben realizarse con al menos 3 días de antelación.')
-        
+        if self.fecha_inicio:
+            if self.fecha_inicio < timezone.now():
+                raise ValidationError('No se puede establecer una fecha de inicio en el pasado.')
+
+            # Aplicar regla de 3 días solo al crear o cuando la fecha_inicio cambia
+            fecha_inicio_changed = True
+            if self.pk:
+                try:
+                    original = Reserva.objects.get(pk=self.pk)
+                    fecha_inicio_changed = original.fecha_inicio != self.fecha_inicio
+                except Reserva.DoesNotExist:
+                    pass
+
+            if fecha_inicio_changed:
+                minimo = timezone.now() + timedelta(days=3)
+                if self.fecha_inicio < minimo:
+                    raise ValidationError('Las reservas deben realizarse con al menos 3 días de antelación.')
+
+        if self.ambiente and self.numero_asistentes is not None:
+            if self.numero_asistentes > self.ambiente.capacidad:
+                raise ValidationError(
+                    f'El número de asistentes ({self.numero_asistentes}) supera la capacidad máxima '
+                    f'del ambiente "{self.ambiente.nombre}" ({self.ambiente.capacidad} personas).'
+                )
+
         if self.ambiente and self.fecha_inicio and self.fecha_fin:
             if not self.ambiente.esta_disponible(self.fecha_inicio, self.fecha_fin, exclude_reserva_id=self.pk):
                 raise ValidationError('El ambiente no está disponible en el horario seleccionado.')

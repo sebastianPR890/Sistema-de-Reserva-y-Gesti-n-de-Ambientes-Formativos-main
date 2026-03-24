@@ -142,6 +142,14 @@ class AmbienteDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     success_url = reverse_lazy('ambientes:lista')
 
     def form_valid(self, form):
+        registrar_actividad(
+            usuario=self.request.user,
+            accion=f'Ambiente eliminado: {self.object.nombre}',
+            descripcion=f'Código: {self.object.codigo} | Tipo: {self.object.tipo}',
+            modulo='ambientes',
+            tipo_accion='DELETE',
+            request=self.request,
+        )
         messages.success(self.request, "Ambiente eliminado exitosamente.")
         return super().form_valid(form)
     
@@ -189,6 +197,15 @@ def crear_ambiente(request):
         form = CrearAmbienteForm(request.POST)
         if form.is_valid():
             ambiente = form.save()
+            registrar_actividad(
+                usuario=request.user,
+                accion=f'Ambiente creado: {ambiente.nombre}',
+                descripcion=f'Código: {ambiente.codigo} | Tipo: {ambiente.tipo} | Capacidad: {ambiente.capacidad}',
+                modulo='ambientes',
+                tipo_accion='CREATE',
+                objeto=ambiente,
+                request=request,
+            )
             messages.success(request, f'Ambiente {ambiente.nombre} creado exitosamente')
             return redirect('ambientes:lista')
     else:

@@ -10,8 +10,11 @@ from django.views.generic import (
 from django.urls import reverse_lazy, reverse
 from copy import deepcopy
 
+from django.http import HttpResponseForbidden
+from django.views.decorators.http import require_POST
+
 from .models import Equipo, MovimientoEquipo
-from .forms import EquipoForm, BusquedaEquipoForm, MovimientoEquipoForm, EquipoExternoForm, EquipoResponsableForm
+from .forms import EquipoForm, BusquedaEquipoForm, MovimientoEquipoForm, EquipoExternoForm, EquipoResponsableForm, RechazarMovimientoForm
 from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad
 
 class StaffRequiredMixin(UserPassesTestMixin):
@@ -206,6 +209,14 @@ class EquipoDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        registrar_actividad(
+            usuario=self.request.user,
+            accion=f'Equipo eliminado: {self.object.nombre}',
+            descripcion=f'Código: {self.object.codigo} | Ambiente: {self.object.ambiente}',
+            modulo='equipos',
+            tipo_accion='DELETE',
+            request=self.request,
+        )
         messages.success(self.request, "Equipo eliminado exitosamente.")
         return super().form_valid(form)
 
@@ -221,36 +232,154 @@ class MovimientoEquipoCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateV
         return reverse('equipos:equipo_detalle', kwargs={'pk': self.object.equipo.pk})
 
     def form_valid(self, form):
-        from reservas.models import Reserva
         from notificaciones.models import Notificacion
-        from django.utils import timezone
-        response = super().form_valid(form)
+        movimiento = form.save(commit=False)
+        movimiento.usuario_responsable = self.request.user
+        movimiento.estado = 'pendiente'
+        movimiento.save()
+        self.object = movimiento
 
-        # Verificar si alguno de los ambientes involucrados tiene reserva activa
-        ahora = timezone.now()
-        ambientes_a_verificar = [
-            a for a in [self.object.ambiente_origen, self.object.ambiente_destino] if a
-        ]
-        sin_reserva = [
-            a for a in ambientes_a_verificar
-            if not Reserva.objects.filter(
-                ambiente=a, estado='aprobada', fecha_fin__gte=ahora
-            ).exists()
-        ]
-        if sin_reserva:
-            nombres = ', '.join(a.nombre for a in sin_reserva)
-            Notificacion.notificar_gestores(
-                titulo='Movimiento de equipo sin reserva activa',
+        Notificacion.notificar_gestores(
+            titulo='Solicitud de movimiento de equipo pendiente',
+            mensaje=(
+                f'{self.request.user.nombre_completo()} solicitó mover el equipo '
+                f'"{movimiento.equipo.nombre}" ({movimiento.equipo.codigo}) '
+                f'desde {movimiento.ambiente_origen or "externo"} '
+                f'hacia {movimiento.ambiente_destino or "externo"}. '
+                f'Requiere autorización.'
+            ),
+            tipo='alerta',
+        )
+
+        registrar_actividad(
+            usuario=self.request.user,
+            accion=f'Solicitud de movimiento: {movimiento.equipo.nombre}',
+            descripcion=(
+                f'Origen: {movimiento.ambiente_origen or "Externo"} → '
+                f'Destino: {movimiento.ambiente_destino or "Externo"} | '
+                f'Observaciones: {movimiento.observaciones}'
+            ),
+            modulo='equipos',
+            tipo_accion='OTHER',
+            objeto=movimiento.equipo,
+            request=self.request,
+        )
+        messages.success(
+            self.request,
+            'Solicitud de movimiento registrada. Queda pendiente de autorización por un coordinador o administrador.'
+        )
+        return redirect(self.get_success_url())
+
+@login_required
+@require_POST
+def autorizar_movimiento(request, pk):
+    """Autoriza un movimiento pendiente. Solo coordinadores y admins."""
+    if not request.user.puede_gestionar_recursos():
+        return HttpResponseForbidden("No tienes permisos para autorizar movimientos.")
+
+    movimiento = get_object_or_404(MovimientoEquipo, pk=pk)
+
+    if movimiento.estado != 'pendiente':
+        messages.warning(request, 'Este movimiento ya fue procesado.')
+        return redirect('equipos:lista_movimientos')
+
+    if movimiento.usuario_responsable == request.user:
+        messages.error(request, 'No puedes autorizar tu propio movimiento.')
+        return redirect('equipos:lista_movimientos')
+
+    movimiento.estado = 'autorizado'
+    movimiento.autorizado_por = request.user
+    movimiento.save()
+
+    # Actualizar ubicación del equipo
+    equipo = movimiento.equipo
+    if movimiento.tipo_movimiento == 'entrada' and movimiento.ambiente_destino:
+        equipo.ambiente = movimiento.ambiente_destino
+    elif movimiento.tipo_movimiento == 'salida':
+        equipo.ambiente = None
+    equipo.save()
+
+    from notificaciones.models import Notificacion
+    Notificacion.crear(
+        usuario=movimiento.usuario_responsable,
+        titulo='Movimiento autorizado',
+        mensaje=(
+            f'Tu solicitud de movimiento del equipo "{equipo.nombre}" '
+            f'({movimiento.ambiente_origen or "externo"} → {movimiento.ambiente_destino or "externo"}) '
+            f'fue autorizada por {request.user.nombre_completo()}.'
+        ),
+        tipo='equipo',
+    )
+
+    registrar_actividad(
+        usuario=request.user,
+        accion=f'Movimiento autorizado: {equipo.nombre}',
+        descripcion=f'Movimiento #{movimiento.pk} autorizado.',
+        modulo='equipos',
+        tipo_accion='APPROVE',
+        objeto=equipo,
+        request=request,
+    )
+
+    messages.success(request, 'Movimiento autorizado. La ubicación del equipo ha sido actualizada.')
+    return redirect('equipos:lista_movimientos')
+
+
+@login_required
+def rechazar_movimiento(request, pk):
+    """Rechaza un movimiento pendiente con motivo obligatorio."""
+    if not request.user.puede_gestionar_recursos():
+        return HttpResponseForbidden("No tienes permisos para rechazar movimientos.")
+
+    movimiento = get_object_or_404(MovimientoEquipo, pk=pk)
+
+    if movimiento.estado != 'pendiente':
+        messages.warning(request, 'Este movimiento ya fue procesado.')
+        return redirect('equipos:lista_movimientos')
+
+    if movimiento.usuario_responsable == request.user:
+        messages.error(request, 'No puedes rechazar tu propio movimiento.')
+        return redirect('equipos:lista_movimientos')
+
+    if request.method == 'POST':
+        form = RechazarMovimientoForm(request.POST)
+        if form.is_valid():
+            movimiento.estado = 'rechazado'
+            movimiento.motivo_rechazo = form.cleaned_data['motivo_rechazo']
+            movimiento.autorizado_por = request.user
+            movimiento.save()
+
+            from notificaciones.models import Notificacion
+            Notificacion.crear(
+                usuario=movimiento.usuario_responsable,
+                titulo='Movimiento rechazado',
                 mensaje=(
-                    f'{self.request.user.nombre_completo()} registró un movimiento del equipo '
-                    f'"{self.object.equipo.nombre}" ({self.object.equipo.codigo}). '
-                    f'El siguiente ambiente no tiene reserva activa: {nombres}.'
+                    f'Tu solicitud de movimiento del equipo "{movimiento.equipo.nombre}" fue rechazada. '
+                    f'Motivo: {movimiento.motivo_rechazo}'
                 ),
-                tipo='alerta',
+                tipo='equipo',
             )
 
-        messages.success(self.request, "Movimiento de equipo registrado exitosamente.")
-        return response
+            registrar_actividad(
+                usuario=request.user,
+                accion=f'Movimiento rechazado: {movimiento.equipo.nombre}',
+                descripcion=f'Movimiento #{movimiento.pk} rechazado. Motivo: {movimiento.motivo_rechazo}',
+                modulo='equipos',
+                tipo_accion='REJECT',
+                objeto=movimiento.equipo,
+                request=request,
+            )
+
+            messages.success(request, 'Movimiento rechazado. Se notificó al solicitante.')
+            return redirect('equipos:lista_movimientos')
+    else:
+        form = RechazarMovimientoForm()
+
+    return render(request, 'equipos/rechazar_movimiento.html', {
+        'movimiento': movimiento,
+        'form': form,
+    })
+
 
 class MovimientoEquipoListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
     """

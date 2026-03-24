@@ -13,8 +13,8 @@
                 <nav class="breadcrumb-nav" aria-label="breadcrumb">
                     <a href="{% url 'equipos:lista_movimientos' %}"><i class="fas fa-arrow-left me-1"></i> Volver a Movimientos</a>
                 </nav>
-                <h2><i class="fas fa-exchange-alt"></i> Registrar Movimiento de Equipo</h2>
-                <p class="page-subtitle">Registra la entrada o salida de un equipo entre ambientes.</p>
+                <h2><i class="fas fa-exchange-alt"></i> Solicitar Movimiento de Equipo</h2>
+                <p class="page-subtitle">La solicitud quedará pendiente hasta que un coordinador o administrador la autorice.</p>
             </div>
 
             <div class="card-std">
@@ -34,6 +34,21 @@
                         </div>
                         {% endif %}
 
+                        <div class="alert-success-custom border-0 mb-4">
+                            <div class="d-flex align-items-start">
+                                <div class="alert-icon"><i class="fas fa-info-circle"></i></div>
+                                <div class="flex-grow-1">
+                                    <h6 class="alert-heading fw-bold mb-1">¿Cómo funciona?</h6>
+                                    <ul class="mb-0 ps-3 small">
+                                        <li>Completa el formulario con los datos del movimiento.</li>
+                                        <li>La solicitud quedará en estado <strong>Pendiente</strong>.</li>
+                                        <li>Un coordinador o administrador deberá <strong>autorizar</strong> o rechazar la solicitud.</li>
+                                        <li>Solo los movimientos autorizados actualizan la ubicación del equipo.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row g-4">
                             <div class="col-md-6">
                                 {% include 'partials/form_field.html' with field=form.equipo %}
@@ -47,23 +62,17 @@
                             <div class="col-md-6">
                                 {% include 'partials/form_field.html' with field=form.ambiente_destino %}
                             </div>
-                            <div class="col-md-6">
-                                {% include 'partials/form_field.html' with field=form.usuario_responsable %}
-                            </div>
-                            <div class="col-md-6">
-                                {% include 'partials/form_field.html' with field=form.autorizado_por %}
-                            </div>
                             <div class="col-12">
                                 {% include 'partials/form_field.html' with field=form.observaciones %}
                             </div>
                         </div>
 
                         <div class="d-flex gap-3 justify-content-end flex-wrap mt-4">
-                            <a href="{% url 'equipos:lista' %}" class="btn btn-std btn-outline-secondary">
+                            <a href="{% url 'equipos:lista_movimientos' %}" class="btn btn-std btn-outline-secondary">
                                 <i class="fas fa-times"></i> Cancelar
                             </a>
                             <button type="submit" class="btn btn-std btn-success">
-                                <i class="fas fa-save"></i> Registrar Movimiento
+                                <i class="fas fa-paper-plane"></i> Enviar Solicitud
                             </button>
                         </div>
                     </form>

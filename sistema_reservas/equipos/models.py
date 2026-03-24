@@ -50,11 +50,11 @@ class Equipo(models.Model):
         ordering = ['codigo']
     
     def ultimo_movimiento(self):
-        """Obtiene el último movimiento registrado del equipo."""
-        return self.movimientos.order_by('-fecha_movimiento').first()
-    
+        """Obtiene el último movimiento autorizado del equipo."""
+        return self.movimientos.filter(estado='autorizado').order_by('-fecha_movimiento').first()
+
     def ubicacion_actual(self):
-        """Determina la ubicación actual del equipo."""
+        """Determina la ubicación actual del equipo según el último movimiento autorizado."""
         ultimo_mov = self.ultimo_movimiento()
         if ultimo_mov:
             if ultimo_mov.tipo_movimiento == 'entrada' and ultimo_mov.ambiente_destino:
@@ -70,41 +70,49 @@ class Equipo(models.Model):
 
 class MovimientoEquipo(models.Model):
     """Modelo para registrar movimientos de equipos entre ambientes."""
-    
+
     TIPOS_MOVIMIENTO = [
         ('entrada', 'Entrada'),
         ('salida', 'Salida'),
     ]
-    
+
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('autorizado', 'Autorizado'),
+        ('rechazado', 'Rechazado'),
+    ]
+
     equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='movimientos')
     tipo_movimiento = models.CharField(max_length=20, choices=TIPOS_MOVIMIENTO)
     ambiente_origen = models.ForeignKey(
-        Ambiente, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
+        Ambiente,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='movimientos_origen'
     )
     ambiente_destino = models.ForeignKey(
-        Ambiente, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
+        Ambiente,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='movimientos_destino'
     )
     usuario_responsable = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='movimientos_realizados'
     )
     observaciones = models.TextField(blank=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     autorizado_por = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.SET_NULL, 
-        null=True, 
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
         related_name='movimientos_autorizados'
     )
+    motivo_rechazo = models.TextField(blank=True)
     fecha_movimiento = models.DateTimeField(auto_now_add=True)
     
     class Meta:

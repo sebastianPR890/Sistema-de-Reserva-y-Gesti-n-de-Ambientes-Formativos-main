@@ -179,6 +179,14 @@ def solicitar_cambio_rol(request):
             razon=razon
         )
 
+        registrar_actividad(
+            usuario=request.user,
+            accion=f'Solicitud de cambio de rol: {solicitud.get_rol_solicitado_display()}',
+            descripcion=f'Rol actual: {solicitud.get_rol_actual_display()} → Solicitado: {solicitud.get_rol_solicitado_display()} | Razón: {razon}',
+            modulo='usuarios',
+            tipo_accion='CREATE',
+            request=request,
+        )
         messages.success(
             request,
             f'Solicitud de cambio de rol enviada correctamente. '
