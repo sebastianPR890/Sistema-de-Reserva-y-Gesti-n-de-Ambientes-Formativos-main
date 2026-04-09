@@ -54,12 +54,28 @@ def lista_reservas(request):
     return render(request, 'reservas/lista_reservas.html', context)
 
 
+MAX_RESERVAS_ACTIVAS = 2
+
 @login_required
 def crear_reserva(request):
     """Permite crear una nueva reserva."""
     if request.user.rol == 'usuario':
         messages.error(request, 'Necesitas un rol asignado para poder crear reservas. Solicita cambio de rol primero.')
         return redirect('/')
+
+    reservas_activas = Reserva.objects.filter(
+        usuario=request.user,
+        estado__in=['pendiente', 'aprobada'],
+        fecha_fin__gt=timezone.now()
+    ).count()
+    if reservas_activas >= MAX_RESERVAS_ACTIVAS:
+        messages.error(
+            request,
+            f'No puedes tener más de {MAX_RESERVAS_ACTIVAS} reservas activas simultáneamente. '
+            f'Cancela o espera a que finalicen las existentes.'
+        )
+        return redirect('reservas:lista_reservas')
+
     if request.method == 'POST':
         form = ReservaForm(request.POST)
         if form.is_valid():
@@ -282,12 +298,15 @@ def aprobar_reserva(request, pk):
 @login_required
 @require_POST
 def cancelar_reserva(request, pk):
-    """Cancela una reserva específica."""
-    if not request.user.puede_gestionar_recursos():
-        messages.error(request, "No tienes permisos para cancelar reservas.")
-        return redirect('reservas:lista_reservas')
-
+    """Cancela una reserva: coordinadores pueden cancelar cualquiera; usuarios solo las propias pendientes."""
     reserva = get_object_or_404(Reserva, pk=pk)
+
+    es_dueno = reserva.usuario == request.user
+    es_gestor = request.user.puede_gestionar_recursos()
+
+    if not es_gestor and not (es_dueno and reserva.estado == 'pendiente'):
+        messages.error(request, "No tienes permisos para cancelar esta reserva.")
+        return redirect('reservas:lista_reservas')
 
     if not reserva.puede_ser_cancelada():
         messages.warning(request, "Esta reserva no puede ser cancelada.")
@@ -321,6 +340,52 @@ def cancelar_reserva(request, pk):
 
     messages.success(request, "Reserva cancelada exitosamente.")
     return redirect('reservas:lista_reservas')
+
+@login_required
+def rechazar_reserva(request, pk):
+    """Rechaza una reserva con motivo obligatorio."""
+    if not request.user.puede_gestionar_recursos():
+        messages.error(request, "No tienes permisos para rechazar reservas.")
+        return redirect('reservas:lista_reservas')
+
+    reserva = get_object_or_404(Reserva, pk=pk)
+
+    if reserva.estado != 'pendiente':
+        messages.warning(request, "Solo se pueden rechazar reservas en estado pendiente.")
+        return redirect('reservas:lista_reservas')
+
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo', '').strip()
+        if not motivo:
+            messages.error(request, "El motivo del rechazo es obligatorio.")
+            return render(request, 'reservas/rechazar_reserva.html', {'reserva': reserva})
+
+        reserva.rechazar(observaciones=motivo)
+
+        registrar_actualizacion(
+            usuario=request.user,
+            objeto=f'Reserva {reserva.pk}',
+            cambios={'estado': {'antes': 'Pendiente', 'después': 'Rechazada'}},
+            modulo='reservas',
+            request=request
+        )
+
+        Notificacion.crear(
+            usuario=reserva.usuario,
+            titulo='Reserva Rechazada',
+            mensaje=(
+                f'Tu reserva del ambiente {reserva.ambiente.nombre} '
+                f'para el {reserva.fecha_inicio.strftime("%d/%m/%Y")} ha sido rechazada. '
+                f'Motivo: {motivo}'
+            ),
+            tipo='reserva'
+        )
+
+        messages.success(request, "Reserva rechazada correctamente.")
+        return redirect('reservas:lista_reservas')
+
+    return render(request, 'reservas/rechazar_reserva.html', {'reserva': reserva})
+
 
 @login_required
 @require_GET
@@ -394,6 +459,18 @@ def crear_reserva_calendario(request):
     """Crear reserva desde el calendario (AJAX)."""
     if request.user.rol == 'usuario':
         return JsonResponse({'success': False, 'error': 'Necesitas un rol asignado para crear reservas.'}, status=403)
+
+    reservas_activas = Reserva.objects.filter(
+        usuario=request.user,
+        estado__in=['pendiente', 'aprobada'],
+        fecha_fin__gt=timezone.now()
+    ).count()
+    if reservas_activas >= MAX_RESERVAS_ACTIVAS:
+        return JsonResponse({
+            'success': False,
+            'error': f'No puedes tener más de {MAX_RESERVAS_ACTIVAS} reservas activas simultáneamente.'
+        }, status=400)
+
     try:
         data = json.loads(request.body)
         ambiente_id = data.get('ambiente_id')

@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rechazar Reserva - SENA{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="page-header-std">
+                <nav class="breadcrumb-nav" aria-label="breadcrumb">
+                    <a href="{% url 'reservas:lista_reservas' %}"><i class="fas fa-arrow-left me-1"></i> Volver a Reservas</a>
+                </nav>
+                <h2><i class="fas fa-ban"></i> Rechazar Reserva</h2>
+                <p class="page-subtitle">Registra el motivo del rechazo antes de confirmar</p>
+            </div>
+
+            <div class="card-std">
+                <div class="delete-header">
+                    <i class="fas fa-calendar-times icon-size-lg"></i>
+                    <h5 class="mb-0 fw-bold mt-2">Confirmar Rechazo</h5>
+                </div>
+                <div class="card-body p-4 form-std">
+
+                    <!-- Detalle de la reserva -->
+                    <div class="p-4 rounded-3 bg-light mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar-circle-lg me-3">
+                                {{ reserva.usuario.nombres|slice:":1" }}{{ reserva.usuario.apellidos|slice:":1" }}
+                            </div>
+                            <div>
+                                <h5 class="mb-1 fw-bold">{{ reserva.usuario.get_full_name }}</h5>
+                                <small class="text-muted">{{ reserva.usuario.email }}</small>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="p-3 bg-white rounded-3 text-center">
+                                    <small class="text-muted d-block">Ambiente</small>
+                                    <span class="fw-semibold">{{ reserva.ambiente.nombre }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-white rounded-3 text-center">
+                                    <small class="text-muted d-block">Estado actual</small>
+                                    <span class="badge bg-warning text-dark fs-6 mt-1">Pendiente</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-white rounded-3 text-center">
+                                    <small class="text-muted d-block">Fecha inicio</small>
+                                    <span class="fw-semibold">{{ reserva.fecha_inicio|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-white rounded-3 text-center">
+                                    <small class="text-muted d-block">Fecha fin</small>
+                                    <span class="fw-semibold">{{ reserva.fecha_fin|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if reserva.proposito %}
+                        <div class="mt-3 p-3 bg-white rounded-3">
+                            <small class="text-muted d-block mb-1"><strong>Propósito:</strong></small>
+                            <p class="mb-0">{{ reserva.proposito }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Advertencia -->
+                    <div class="alert alert-danger border-0 mb-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-triangle me-3 mt-1"></i>
+                            <div>
+                                <strong>Al rechazar esta reserva:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>El estado cambiará a <strong>Rechazada</strong> y no podrá modificarse.</li>
+                                    <li>El usuario recibirá una notificación con el motivo.</li>
+                                    <li>El ambiente quedará disponible para otras reservas.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario -->
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% if 'obligatorio' in message.message %}
+                                <div class="alert alert-warning mb-3">{{ message }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="form-group mb-4">
+                            <label for="motivo" class="form-label fw-semibold">
+                                <i class="fas fa-comment-alt me-1"></i> Motivo del rechazo <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" id="motivo" name="motivo" rows="4"
+                                placeholder="Explica al usuario por qué se rechaza su solicitud de reserva..."
+                                required></textarea>
+                            <small class="form-text text-muted">Este motivo será enviado al usuario por correo y quedará registrado.</small>
+                        </div>
+
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-std btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-std btn-danger">
+                                <i class="fas fa-ban"></i> Rechazar Reserva
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

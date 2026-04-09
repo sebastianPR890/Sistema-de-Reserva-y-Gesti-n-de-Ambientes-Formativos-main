@@ -209,26 +209,43 @@
                                 </small>
                             </td>
                             <td>
-                                <span class="badge-std {% if reserva.estado == 'aprobada' %}badge-success{% elif reserva.estado == 'pendiente' %}badge-warning{% elif reserva.estado == 'cancelada' %}badge-danger{% else %}badge-info{% endif %}">
+                                <span class="badge-std {% if reserva.estado == 'aprobada' %}badge-success{% elif reserva.estado == 'pendiente' %}badge-warning{% elif reserva.estado == 'cancelada' or reserva.estado == 'rechazada' %}badge-danger{% else %}badge-info{% endif %}">
                                     {{ reserva.get_estado_display }}
                                 </span>
                             </td>
                             <td>
                                 <div class="btn-group-std" role="group">
-                                    {% if user.is_staff and reserva.estado == 'pendiente' %}
+                                    {% if user.puede_gestionar_recursos and reserva.estado == 'pendiente' %}
                                         <form method="POST" action="{% url 'reservas:aprobar_reserva' reserva.pk %}"
-                                            onsubmit="return confirm('Esta seguro de aprobar esta reserva?')">
+                                            onsubmit="return confirm('¿Está seguro de aprobar esta reserva?')">
                                             {% csrf_token %}
                                             <button type="submit" class="btn-icon-std btn-approve"
                                                 data-bs-toggle="tooltip" title="Aprobar reserva">
                                                 <i class="fas fa-check"></i>
                                             </button>
                                         </form>
+                                        <a href="{% url 'reservas:rechazar_reserva' reserva.pk %}"
+                                            class="btn-icon-std btn-reject"
+                                            data-bs-toggle="tooltip" title="Rechazar reserva">
+                                            <i class="fas fa-ban"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if user.puede_gestionar_recursos and reserva.estado == 'aprobada' and reserva.puede_ser_cancelada %}
                                         <form method="POST" action="{% url 'reservas:cancelar_reserva' reserva.pk %}"
-                                            onsubmit="return confirm('Esta seguro de cancelar esta reserva?')">
+                                            onsubmit="return confirm('¿Está seguro de cancelar esta reserva aprobada?')">
                                             {% csrf_token %}
                                             <button type="submit" class="btn-icon-std btn-reject"
                                                 data-bs-toggle="tooltip" title="Cancelar reserva">
+                                                <i class="fas fa-times-circle"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    {% if reserva.usuario == user and reserva.estado == 'pendiente' and reserva.puede_ser_cancelada %}
+                                        <form method="POST" action="{% url 'reservas:cancelar_reserva' reserva.pk %}"
+                                            onsubmit="return confirm('¿Deseas cancelar tu reserva? Esta acción no se puede deshacer.')">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-icon-std btn-reject"
+                                                data-bs-toggle="tooltip" title="Cancelar mi reserva">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </form>
@@ -243,7 +260,7 @@
                                         class="btn-icon-std btn-delete"
                                         data-bs-toggle="tooltip"
                                         title="Eliminar reserva"
-                                        onclick="return confirm('Esta seguro de eliminar esta reserva?')">
+                                        onclick="return confirm('¿Está seguro de eliminar esta reserva?')">
                                         <i class="fas fa-trash-alt"></i>
                                     </a>
                                 </div>
