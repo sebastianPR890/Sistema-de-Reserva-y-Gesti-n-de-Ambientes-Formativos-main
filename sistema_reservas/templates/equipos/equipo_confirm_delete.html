@@ -6,16 +6,16 @@
     <div class="delete-card-std">
         <div class="delete-header">
             <i class="fas fa-exclamation-triangle"></i>
-            <h4>Confirmar Eliminacion de Equipo</h4>
+            <h4>Confirmar Eliminación de Equipo</h4>
         </div>
         <div class="delete-body">
             <p>
-                ¿Estas seguro de que deseas eliminar el equipo
-                "<strong>{{ object.nombre }}</strong>" con codigo <strong>{{ object.codigo }}</strong>?
+                ¿Estás seguro de que deseas eliminar el equipo
+                "<strong>{{ object.nombre }}</strong>" con código <strong>{{ object.codigo }}</strong>?
             </p>
             <div class="alert alert-danger text-center">
                 <i class="fas fa-exclamation-circle me-1"></i>
-                Esta accion no se puede deshacer y el equipo sera eliminado permanentemente.
+                Esta acción no se puede deshacer y el equipo será eliminado permanentemente.
             </div>
             <form method="post">
                 {% csrf_token %}

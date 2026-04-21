@@ -31,7 +31,7 @@
             <div class="card-header-green py-3">
                 <h5 class="mb-0 fw-bold">
                     <i class="fas fa-info-circle me-2"></i>
-                    Informacion General
+                    Información General
                 </h5>
             </div>
             <div class="card-body p-4">
@@ -61,7 +61,7 @@
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <small class="text-muted d-block">Ubicacion</small>
+                            <small class="text-muted d-block">Ubicación</small>
                             <strong class="text-dark">{{ ambiente.ubicacion }}</strong>
                         </div>
                     </div>
@@ -102,7 +102,7 @@
                 {% if ambiente.descripcion %}
                 <div class="mt-4 pt-3 border-top">
                     <h6 class="fw-bold text-success mb-3">
-                        <i class="fas fa-align-left me-2"></i>Descripcion
+                        <i class="fas fa-align-left me-2"></i>Descripción
                     </h6>
                     <p class="text-muted mb-0">{{ ambiente.descripcion }}</p>
                 </div>
@@ -192,7 +192,7 @@
                                             class="btn-icon-std btn-delete"
                                             data-bs-toggle="tooltip"
                                             title="Eliminar equipo"
-                                            onclick="return confirm('¿Esta seguro de eliminar este equipo?')">
+                                            onclick="return confirm('¿Estás seguro de eliminar este equipo?')">
                                             <i class="fas fa-trash-alt"></i>
                                         </a>
                                         {% endif %}
@@ -207,7 +207,7 @@
                 <div class="empty-state-std">
                     <div class="empty-icon"><i class="fas fa-laptop-code"></i></div>
                     <h5>No hay equipos registrados</h5>
-                    <p>Este ambiente aun no tiene equipos asignados</p>
+                    <p>Este ambiente aún no tiene equipos asignados</p>
                     {% if user.puede_gestionar_recursos or reserva_activa %}
                     <a href="{% url 'ambientes:agregar_equipo' ambiente.pk %}" class="btn btn-std btn-success">
                         <i class="fas fa-plus-circle me-2"></i>Agregar Primer Equipo

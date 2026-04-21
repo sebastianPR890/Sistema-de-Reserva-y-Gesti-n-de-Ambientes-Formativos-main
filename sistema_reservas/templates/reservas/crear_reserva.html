@@ -45,14 +45,13 @@
                                     <div class="d-flex align-items-start">
                                         <div class="alert-icon"><i class="fas fa-lightbulb"></i></div>
                                         <div class="flex-grow-1">
-                                            <h6 class="alert-heading fw-bold mb-2">Como reservar</h6>
+                                            <h6 class="alert-heading fw-bold mb-2">Cómo reservar</h6>
                                             <ul class="mb-0 ps-3 small">
-                                                <li>La reserva debe ser solicitada con 3 dias de anticipación</li>
                                                 <li>Selecciona el ambiente deseado</li>
                                                 <li>Ajusta la <strong>hora de inicio</strong> y <strong>hora de fin</strong> en el calendario</li>
                                                 <li>Haz clic en el calendario para elegir la fecha de inicio</li>
                                                 <li>Haz clic nuevamente para elegir la fecha de fin</li>
-                                                <li>Los dias ocupados se muestran en el calendario automaticamente</li>
+                                                <li>Los días ocupados se muestran en el calendario automáticamente</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -249,10 +248,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let fechaInicio = null;
     let fechaFin = null;
 
-    // Fecha mínima permitida: hoy + 3 días
-    const fechaMinima = new Date();
-    fechaMinima.setDate(fechaMinima.getDate() + 3);
-    fechaMinima.setHours(0, 0, 0, 0);
+    // Fecha mínima permitida: hoy
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
 
     const formControls = form.querySelectorAll('input, select, textarea');
     formControls.forEach(control => {
@@ -318,8 +316,8 @@ document.addEventListener('DOMContentLoaded', function() {
             dateClick: function(info) {
                 const clickada = new Date(info.date);
                 clickada.setHours(0, 0, 0, 0);
-                if (clickada < fechaMinima) {
-                    showToast('Solo se pueden hacer reservas con al menos 3 días de antelación.', 'warning');
+                if (clickada < hoy) {
+                    showToast('No se puede seleccionar fechas anteriores al día actual.', 'warning');
                     return;
                 }
                 seleccionarFecha(info.date);
@@ -327,9 +325,10 @@ document.addEventListener('DOMContentLoaded', function() {
             dayCellDidMount: function(info) {
                 const celda = new Date(info.date);
                 celda.setHours(0, 0, 0, 0);
-                if (celda < fechaMinima) {
+                if (celda < hoy) {
                     info.el.style.cursor = 'not-allowed';
-                    info.el.title = 'No disponible (menos de 3 días de antelación)';
+                    info.el.style.opacity = '0.5';
+                    info.el.title = 'No disponible (fecha anterior)';
                 }
             },
             // Al navegar de mes, re-aplicar el resaltado de selección

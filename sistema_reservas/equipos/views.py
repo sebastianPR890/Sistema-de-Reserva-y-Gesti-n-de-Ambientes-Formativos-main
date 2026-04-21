@@ -15,7 +15,8 @@ from django.views.decorators.http import require_POST
 
 from .models import Equipo, MovimientoEquipo
 from .forms import EquipoForm, BusquedaEquipoForm, MovimientoEquipoForm, EquipoExternoForm, EquipoResponsableForm, RechazarMovimientoForm
-from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad
+from .utils import registrar_cambio_equipo
+from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad, capturar_todos_campos
 
 class StaffRequiredMixin(UserPassesTestMixin):
     def test_func(self):
@@ -128,36 +129,74 @@ class EquipoUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         from notificaciones.models import Notificacion
-        equipo_antes = deepcopy(self.object)
+
+        # Guardar estado ANTES de cualquier cambio (directamente de la BD)
+        equipo_db = Equipo.objects.get(pk=self.object.pk)
+        datos_antes = capturar_todos_campos(equipo_db)
+
+        # Guardar los cambios
         response = super().form_valid(form)
 
-        campos_a_comparar = ['codigo', 'nombre', 'serie', 'estado', 'descripcion', 'activo']
-        cambios = capturar_cambios(equipo_antes, self.object, campos_a_comparar)
+        # Capturar estado DESPUÉS de guardar
+        datos_despues = capturar_todos_campos(self.object)
+
+        # Comparar y detectar cambios
+        cambios = {}
+        for campo in datos_antes.keys():
+            valor_antes = datos_antes.get(campo, '')
+            valor_despues = datos_despues.get(campo, '')
+            if str(valor_antes) != str(valor_despues):
+                cambios[campo] = {
+                    'antes': valor_antes,
+                    'después': valor_despues
+                }
+
+        # Construir descripción de cambios
+        descripcion_cambios = ""
+        if cambios:
+            cambios_formateados = []
+            for campo, valores in cambios.items():
+                antes = valores.get('antes', '—')
+                despues = valores.get('después', '—')
+                cambios_formateados.append(f"{campo}: {antes} → {despues}")
+            descripcion_cambios = "\n".join(cambios_formateados)
+
+        # Registrar actividad SIEMPRE
+        registrar_actividad(
+            usuario=self.request.user,
+            accion=f'Equipo actualizado: {self.object.nombre}',
+            descripcion=descripcion_cambios if descripcion_cambios else 'Sin cambios detectados',
+            modulo='equipos',
+            tipo_accion='UPDATE',
+            objeto=self.object,
+            datos_antes=datos_antes,
+            datos_despues=datos_despues,
+            request=self.request,
+        )
 
         if cambios:
-            registrar_actualizacion(
+            # Registrar en el historial del equipo
+            registrar_cambio_equipo(
+                equipo_antes=equipo_db,
+                equipo_despues=self.object,
                 usuario=self.request.user,
-                objeto=f'Equipo {self.object.nombre}',
-                cambios=cambios,
-                modulo='equipos',
-                request=self.request,
-                instancia=self.object,
+                descripcion=descripcion_cambios
             )
 
-        # Alerta si el estado cambió a dañado o mantenimiento
-        estado_nuevo = self.object.estado
-        estado_viejo = equipo_antes.estado
-        if estado_nuevo in ('dañado', 'mantenimiento') and estado_nuevo != estado_viejo:
-            ambiente_nombre = self.object.ambiente.nombre if self.object.ambiente else 'Sin ambiente'
-            Notificacion.notificar_gestores(
-                titulo=f'Equipo {self.object.get_estado_display()}: {self.object.nombre}',
-                mensaje=(
-                    f'{self.request.user.nombre_completo()} reportó el equipo '
-                    f'"{self.object.nombre}" ({self.object.codigo}) '
-                    f'en {ambiente_nombre} como {self.object.get_estado_display().lower()}.'
-                ),
-                tipo='alerta',
-            )
+            # Alerta si el estado cambió a dañado o mantenimiento
+            if 'estado' in cambios:
+                estado_nuevo = datos_despues.get('estado', '')
+                if 'dañado' in estado_nuevo or 'mantenimiento' in estado_nuevo:
+                    ambiente_nombre = self.object.ambiente.nombre if self.object.ambiente else 'Sin ambiente'
+                    Notificacion.notificar_gestores(
+                        titulo=f'Equipo {self.object.get_estado_display()}: {self.object.nombre}',
+                        mensaje=(
+                            f'{self.request.user.nombre_completo()} reportó el equipo '
+                            f'"{self.object.nombre}" ({self.object.codigo}) '
+                            f'en {ambiente_nombre} como {self.object.get_estado_display().lower()}.'
+                        ),
+                        tipo='alerta',
+                    )
 
         messages.success(self.request, "Equipo actualizado exitosamente.")
         return response

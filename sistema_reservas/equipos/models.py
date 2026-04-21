@@ -42,13 +42,13 @@ class Equipo(models.Model):
     )
     activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         verbose_name = 'Equipo'
         verbose_name_plural = 'Equipos'
         db_table = 'equipos'
         ordering = ['codigo']
-    
+
     def ultimo_movimiento(self):
         """Obtiene el último movimiento autorizado del equipo."""
         return self.movimientos.filter(estado='autorizado').order_by('-fecha_movimiento').first()
@@ -64,9 +64,42 @@ class Equipo(models.Model):
         if self.ambiente:
             return self.ambiente.nombre
         return "Desconocida"
-    
+
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"
+
+class HistorialEquipo(models.Model):
+    """Modelo para registrar el historial completo de cambios en equipos."""
+
+    TIPOS_CAMBIO = [
+        ('estado', 'Cambio de Estado'),
+        ('ambiente', 'Cambio de Ambiente'),
+        ('responsable', 'Cambio de Responsable'),
+        ('caracteristica', 'Cambio de Característica'),
+        ('movimiento', 'Movimiento Registrado'),
+        ('otro', 'Otro Cambio'),
+    ]
+
+    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='historial')
+    tipo_cambio = models.CharField(max_length=20, choices=TIPOS_CAMBIO)
+    campo = models.CharField(max_length=100, help_text="Campo que fue modificado")
+    valor_anterior = models.TextField(blank=True, null=True)
+    valor_nuevo = models.TextField(blank=True, null=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='cambios_equipos')
+    descripcion = models.TextField(blank=True, help_text="Descripción del cambio realizado")
+    fecha_cambio = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Historial de Equipo'
+        verbose_name_plural = 'Historial de Equipos'
+        db_table = 'historial_equipos'
+        ordering = ['-fecha_cambio']
+        indexes = [
+            models.Index(fields=['equipo', '-fecha_cambio']),
+        ]
+
+    def __str__(self):
+        return f"{self.equipo.codigo} - {self.get_tipo_cambio_display()} ({self.fecha_cambio.strftime('%d/%m/%Y %H:%M')})"
 
 class MovimientoEquipo(models.Model):
     """Modelo para registrar movimientos de equipos entre ambientes."""

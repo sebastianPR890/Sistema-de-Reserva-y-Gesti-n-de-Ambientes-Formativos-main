@@ -49,7 +49,7 @@
 
                         {% if solicitud.razon %}
                         <div class="mt-3 p-3 bg-white rounded-3">
-                            <small class="text-muted d-block mb-1"><strong>Razon de la solicitud:</strong></small>
+                            <small class="text-muted d-block mb-1"><strong>Razón de la solicitud:</strong></small>
                             <p class="mb-0">{{ solicitud.razon }}</p>
                         </div>
                         {% endif %}
@@ -65,9 +65,9 @@
                             <div>
                                 <strong>Al rechazar esta solicitud:</strong>
                                 <ul class="mb-0 mt-2">
-                                    <li>El usuario mantendra su rol actual de <strong>{{ solicitud.get_rol_actual_display }}</strong></li>
-                                    <li>Se le notificara del rechazo</li>
-                                    <li>Podra enviar una nueva solicitud en el futuro</li>
+                                    <li>El usuario mantendrá su rol actual de <strong>{{ solicitud.get_rol_actual_display }}</strong></li>
+                                    <li>Se le notificará del rechazo</li>
+                                    <li>Podrá enviar una nueva solicitud en el futuro</li>
                                 </ul>
                             </div>
                         </div>
@@ -77,10 +77,10 @@
                         {% csrf_token %}
                         <div class="form-group mb-4">
                             <label for="comentario" class="form-label fw-semibold">
-                                <i class="fas fa-comment me-1"></i> Razon del rechazo (recomendado)
+                                <i class="fas fa-comment me-1"></i> Razón del rechazo (recomendado)
                             </label>
-                            <textarea class="form-control" id="comentario" name="comentario" rows="3"placeholder="Explica al usuario por que se rechaza su solicitud..."></textarea>
-                            <small class="form-text text-muted">Este comentario sera visible para el usuario y le ayudara a entender la decision.</small>
+                            <textarea class="form-control" id="comentario" name="comentario" rows="3"placeholder="Explica al usuario por qué se rechaza su solicitud..."></textarea>
+                            <small class="form-text text-muted">Este comentario será visible para el usuario y le ayudará a entender la decisión.</small>
                         </div>
 
                         <div class="d-flex gap-3 justify-content-end">

@@ -211,9 +211,18 @@
                                     </td>
                                     <td>
                                         <span class="text-dark">{{ actividad.accion }}</span>
+                                        {% if actividad.datos_antes or actividad.datos_despues %}
+                                        <button class="btn btn-sm btn-outline-success ms-2" data-bs-toggle="modal" data-bs-target="#modalCambios{{ actividad.id }}" title="Ver cambios detallados">
+                                            <i class="fas fa-expand-alt"></i>
+                                        </button>
+                                        {% endif %}
                                     </td>
                                     <td>
-                                        <span class="text-muted small">{{ actividad.descripcion|default:"—" }}</span>
+                                        {% if actividad.descripcion and actividad.descripcion != "Sin cambios detectados" %}
+                                            <div class="small" style="white-space: pre-wrap; word-break: break-word;">{{ actividad.descripcion }}</div>
+                                        {% else %}
+                                            <span class="text-muted small">{{ actividad.descripcion|default:"—" }}</span>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <small class="text-muted font-monospace">{{ actividad.ip_address|default:"—" }}</small>
@@ -282,6 +291,99 @@
         </div>
     </div>
 </div>
+
+<!-- Modales para ver cambios detallados -->
+{% for actividad in actividades %}
+    {% if actividad.datos_antes or actividad.datos_despues %}
+    <div class="modal fade" id="modalCambios{{ actividad.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-history me-2 text-success"></i>Detalles de cambios
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-dark mb-2">
+                            <i class="fas fa-bolt me-1 text-warning"></i>Acción
+                        </h6>
+                        <p class="mb-0">{{ actividad.accion }}</p>
+                    </div>
+
+                    {% if actividad.datos_antes or actividad.datos_despues %}
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-dark mb-2">
+                            <i class="fas fa-exchange-alt me-1 text-info"></i>Cambios realizados
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="30%"><i class="fas fa-tag me-1"></i>Campo</th>
+                                        <th width="35%"><i class="fas fa-arrow-left me-1 text-danger"></i>Valor anterior</th>
+                                        <th width="35%"><i class="fas fa-arrow-right me-1 text-success"></i>Valor nuevo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for campo, valor_antes in actividad.datos_antes.items %}
+                                        {% with valor_nuevo=actividad.datos_despues|get_item:campo %}
+                                        {% if valor_antes != valor_nuevo %}
+                                        <tr>
+                                            <td class="fw-semibold">{{ campo }}</td>
+                                            <td>
+                                                <span class="badge bg-danger-light text-danger">
+                                                    {{ valor_antes }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success-light text-success">
+                                                    {{ valor_nuevo }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-0">
+                        <h6 class="fw-bold text-dark mb-2">
+                            <i class="fas fa-info-circle me-1 text-secondary"></i>Información
+                        </h6>
+                        <div class="row small">
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong>Usuario:</strong> {{ actividad.usuario.nombre_completo|default:"Sistema" }}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Tipo:</strong> <span class="badge badge-warning">{{ actividad.get_tipo_accion_display }}</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong>Fecha:</strong> {{ actividad.fecha|date:"d/m/Y H:i:s" }}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>IP:</strong> <code>{{ actividad.ip_address|default:"—" }}</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {

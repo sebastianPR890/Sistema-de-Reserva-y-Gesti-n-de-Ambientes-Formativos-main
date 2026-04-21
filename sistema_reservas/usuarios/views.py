@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 from notificaciones.models import Notificacion
-from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad
+from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad, capturar_todos_campos
 from .forms import BusquedaUsuarioForm, UsuarioEditForm, PerfilEditForm
 from .models import Usuario, SolicitudCambioRol
 
@@ -64,44 +64,66 @@ def detalle_usuario(request, pk):
 def editar_usuario(request, pk):
     """Permite editar los datos de un usuario existente."""
     usuario = get_object_or_404(Usuario, pk=pk)
-    
+
     if request.method == 'POST':
-        usuario_antes = deepcopy(usuario)
-        
+        # Capturar estado ANTES
+        datos_antes = capturar_todos_campos(usuario)
+
         form = UsuarioEditForm(request.POST, instance=usuario)
-        
+
         if form.is_valid():
             usuario = form.save(commit=False)
             usuario.is_active = usuario.activo
             usuario.save()
-            
-            # Capturar cambios
-            campos_a_comparar = ['nombres', 'apellidos', 'email', 'telefono', 'rol', 'activo']
-            cambios = capturar_cambios(usuario_antes, usuario, campos_a_comparar)
-            
-            # Registrar la actualización
+
+            # Capturar estado DESPUÉS
+            datos_despues = capturar_todos_campos(usuario)
+
+            # Comparar cambios
+            cambios = {}
+            for campo, valor_antes in datos_antes.items():
+                valor_despues = datos_despues.get(campo)
+                if valor_antes != valor_despues:
+                    cambios[campo] = {
+                        'antes': valor_antes,
+                        'después': valor_despues
+                    }
+
+            # Construir descripción
+            descripcion_cambios = ""
             if cambios:
-                registrar_actualizacion(
-                    usuario=request.user,
-                    objeto=f'Usuario {usuario.nombre_completo()}',
-                    cambios=cambios,
-                    modulo='usuarios',
-                    request=request
-                )
-            
+                cambios_formateados = []
+                for campo, valores in cambios.items():
+                    antes = valores.get('antes', '')
+                    despues = valores.get('después', '')
+                    cambios_formateados.append(f"{campo}: {antes} → {despues}")
+                descripcion_cambios = "\n".join(cambios_formateados)
+
+            registrar_actividad(
+                usuario=request.user,
+                accion=f'Usuario actualizado: {usuario.nombre_completo()}',
+                descripcion=descripcion_cambios if descripcion_cambios else 'Sin cambios detectados',
+                modulo='usuarios',
+                tipo_accion='UPDATE',
+                objeto=usuario,
+                datos_antes=datos_antes if cambios else None,
+                datos_despues=datos_despues if cambios else None,
+                request=request
+            )
+
             messages.success(request, f'Usuario {usuario.nombre_completo()} actualizado exitosamente.')
-            return redirect('usuarios:lista_usuarios') 
+            return redirect('usuarios:lista_usuarios')
         else:
             messages.error(request, '❌ Error al guardar los cambios. Revisa los campos.')
-            
+
     else:
         form = UsuarioEditForm(instance=usuario)
-        
+
     context = {
         'form': form,
         'usuario': usuario,
     }
-    
+
     return render(request, 'usuarios/editar_usuario.html', context)
 
 @login_required 
@@ -116,26 +138,48 @@ def perfil_usuario(request):
 def editar_perfil(request):
     """Permite al usuario editar su propio perfil."""
     if request.method == 'POST':
-        usuario_antes = deepcopy(request.user)
-        
+        # Capturar estado ANTES
+        datos_antes = capturar_todos_campos(request.user)
+
         form = PerfilEditForm(request.POST, instance=request.user)
         if form.is_valid():
             usuario_actualizado = form.save()
-            
-            # Capturar cambios
-            campos_a_comparar = ['nombres', 'apellidos', 'email', 'telefono']
-            cambios = capturar_cambios(usuario_antes, usuario_actualizado, campos_a_comparar)
-            
-            # Registrar la actualización
+
+            # Capturar estado DESPUÉS
+            datos_despues = capturar_todos_campos(usuario_actualizado)
+
+            # Comparar cambios
+            cambios = {}
+            for campo, valor_antes in datos_antes.items():
+                valor_despues = datos_despues.get(campo)
+                if valor_antes != valor_despues:
+                    cambios[campo] = {
+                        'antes': valor_antes,
+                        'después': valor_despues
+                    }
+
+            # Construir descripción
+            descripcion_cambios = ""
             if cambios:
-                registrar_actualizacion(
-                    usuario=request.user,
-                    objeto=f'Perfil de {request.user.nombre_completo()}',
-                    cambios=cambios,
-                    modulo='usuarios',
-                    request=request
-                )
-            
+                cambios_formateados = []
+                for campo, valores in cambios.items():
+                    antes = valores.get('antes', '')
+                    despues = valores.get('después', '')
+                    cambios_formateados.append(f"{campo}: {antes} → {despues}")
+                descripcion_cambios = "\n".join(cambios_formateados)
+
+            registrar_actividad(
+                usuario=request.user,
+                accion=f'Perfil actualizado: {request.user.nombre_completo()}',
+                descripcion=descripcion_cambios if descripcion_cambios else 'Sin cambios detectados',
+                modulo='usuarios',
+                tipo_accion='UPDATE',
+                objeto=usuario_actualizado,
+                datos_antes=datos_antes if cambios else None,
+                datos_despues=datos_despues if cambios else None,
+                request=request
+            )
+
             messages.success(request, 'Perfil actualizado exitosamente.')
             return redirect('usuarios:perfil')
         else:

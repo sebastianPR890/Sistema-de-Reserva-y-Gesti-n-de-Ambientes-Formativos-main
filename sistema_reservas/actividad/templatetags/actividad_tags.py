@@ -10,5 +10,7 @@ def get_item(dictionary, key):
     Uso en template: {{ contadores|get_item:modulo_key }}
     """
     if isinstance(dictionary, dict):
-        return dictionary.get(key, 0)
-    return 0
+        valor = dictionary.get(key)
+        return valor if valor is not None else ''
+    return ''
+

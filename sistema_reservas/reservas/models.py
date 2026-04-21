@@ -50,20 +50,6 @@ class Reserva(models.Model):
             if self.fecha_inicio < timezone.now():
                 raise ValidationError('No se puede establecer una fecha de inicio en el pasado.')
 
-            # Aplicar regla de 3 días solo al crear o cuando la fecha_inicio cambia
-            fecha_inicio_changed = True
-            if self.pk:
-                try:
-                    original = Reserva.objects.get(pk=self.pk)
-                    fecha_inicio_changed = original.fecha_inicio != self.fecha_inicio
-                except Reserva.DoesNotExist:
-                    pass
-
-            if fecha_inicio_changed:
-                minimo = timezone.now() + timedelta(days=3)
-                if self.fecha_inicio < minimo:
-                    raise ValidationError('Las reservas deben realizarse con al menos 3 días de antelación.')
-
         if self.ambiente and self.numero_asistentes is not None:
             if self.numero_asistentes > self.ambiente.capacidad:
                 raise ValidationError(
@@ -180,3 +166,39 @@ class Reserva(models.Model):
 
     def __str__(self):
         return f"Reserva {self.id} - {self.ambiente.nombre} ({self.fecha_inicio.strftime('%d/%m/%Y %H:%M')})"
+
+
+class HistorialReserva(models.Model):
+    """Modelo para registrar el historial completo de cambios en reservas."""
+
+    TIPOS_CAMBIO = [
+        ('estado', 'Cambio de Estado'),
+        ('fechas', 'Cambio de Fechas'),
+        ('ambiente', 'Cambio de Ambiente'),
+        ('detalles', 'Cambio de Detalles'),
+        ('aprobacion', 'Aprobación'),
+        ('rechazo', 'Rechazo'),
+        ('cancelacion', 'Cancelación'),
+        ('otro', 'Otro Cambio'),
+    ]
+
+    reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, related_name='historial')
+    tipo_cambio = models.CharField(max_length=20, choices=TIPOS_CAMBIO)
+    campo = models.CharField(max_length=100, blank=True, help_text="Campo que fue modificado")
+    valor_anterior = models.TextField(blank=True, null=True)
+    valor_nuevo = models.TextField(blank=True, null=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='cambios_reservas')
+    descripcion = models.TextField(blank=True, help_text="Descripción del cambio realizado")
+    fecha_cambio = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Historial de Reserva'
+        verbose_name_plural = 'Historial de Reservas'
+        db_table = 'historial_reservas'
+        ordering = ['-fecha_cambio']
+        indexes = [
+            models.Index(fields=['reserva', '-fecha_cambio']),
+        ]
+
+    def __str__(self):
+        return f"Reserva {self.reserva.id} - {self.get_tipo_cambio_display()} ({self.fecha_cambio.strftime('%d/%m/%Y %H:%M')})"

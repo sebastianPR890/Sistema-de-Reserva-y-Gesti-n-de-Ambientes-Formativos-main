@@ -9,7 +9,7 @@
                     <a href="{% url 'usuarios:perfil' %}"><i class="fas fa-arrow-left me-1"></i> Volver al Perfil</a>
                 </nav>
                 <h2><i class="fas fa-user-edit"></i> Editar Perfil</h2>
-                <p class="page-subtitle">Actualiza tu informacion personal</p>
+                <p class="page-subtitle">Actualiza tu información personal</p>
             </div>
 
             <div class="card-std">
@@ -29,8 +29,8 @@
                         <div class="d-flex align-items-start">
                             <div class="alert-icon"><i class="fas fa-info-circle"></i></div>
                             <div class="flex-grow-1">
-                                <h6 class="alert-heading fw-bold mb-1">Informacion importante</h6>
-                                <p class="mb-0 small">Manten tu informacion actualizada para recibir notificaciones y confirmaciones de tus reservas.</p>
+                                <h6 class="alert-heading fw-bold mb-1">Información importante</h6>
+                                <p class="mb-0 small">Mantén tu información actualizada para recibir notificaciones y confirmaciones de tus reservas.</p>
                             </div>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
 
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-envelope me-1 text-success"></i> Correo Electronico <span class="text-danger">*</span>
+                                <i class="fas fa-envelope me-1 text-success"></i> Correo Electrónico <span class="text-danger">*</span>
                             </label>
                             <input type="email" name="email" class="form-control"
                                 value="{{ form.email.value|default:'' }}" placeholder="ejemplo@correo.com" required>
@@ -81,7 +81,7 @@
                             </div>
                             {% endif %}
                             <small class="form-text text-muted">
-                                <i class="fas fa-info-circle me-1"></i>Asegurate de usar un correo valido para recibir notificaciones
+                                <i class="fas fa-info-circle me-1"></i>Asegúrate de usar un correo válido para recibir notificaciones
                             </small>
                         </div>
 
@@ -97,7 +97,7 @@
 
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-phone me-1 text-success"></i> Telefono <span class="text-danger">*</span>
+                                <i class="fas fa-phone me-1 text-success"></i> Teléfono <span class="text-danger">*</span>
                             </label>
                             <input type="tel" name="telefono" class="form-control"
                                 value="{{ form.telefono.value|default:'' }}" placeholder="3001234567" required>

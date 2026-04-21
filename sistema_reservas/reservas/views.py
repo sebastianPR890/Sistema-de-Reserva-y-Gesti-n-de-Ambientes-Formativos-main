@@ -17,7 +17,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 
 from ambientes.models import Ambiente
 from notificaciones.models import Notificacion
-from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad
+from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad, capturar_todos_campos
+from .utils import registrar_cambio_reserva
 from .models import Reserva
 from .forms import ReservaForm
 
@@ -121,28 +122,57 @@ def editar_reserva(request, pk):
         return redirect('reservas:lista_reservas')
 
     if request.method == 'POST':
-        # Capturar datos anteriores
-        reserva_antes = deepcopy(reserva)
-        
+        # Capturar estado ANTES
+        datos_antes = capturar_todos_campos(reserva)
+
         form = ReservaForm(request.POST, instance=reserva)
         if form.is_valid():
             reserva_actualizada = form.save()
-            
-            # Capturar cambios
-            campos_a_comparar = ['fecha_inicio', 'fecha_fin', 'proposito', 'numero_asistentes', 
-                                'observaciones', 'ambiente_id']
-            cambios = capturar_cambios(reserva_antes, reserva_actualizada, campos_a_comparar)
-            
-            # Registrar la actualización
+
+            # Capturar estado DESPUÉS
+            datos_despues = capturar_todos_campos(reserva_actualizada)
+
+            # Comparar cambios
+            cambios = {}
+            for campo, valor_antes in datos_antes.items():
+                valor_despues = datos_despues.get(campo)
+                if valor_antes != valor_despues:
+                    cambios[campo] = {
+                        'antes': valor_antes,
+                        'después': valor_despues
+                    }
+
+            # Construir descripción
+            descripcion_cambios = ""
             if cambios:
-                registrar_actualizacion(
+                cambios_formateados = []
+                for campo, valores in cambios.items():
+                    antes = valores.get('antes', '')
+                    despues = valores.get('después', '')
+                    cambios_formateados.append(f"{campo}: {antes} → {despues}")
+                descripcion_cambios = "\n".join(cambios_formateados)
+
+            registrar_actividad(
+                usuario=request.user,
+                accion=f'Reserva actualizada: {reserva.pk}',
+                descripcion=descripcion_cambios if descripcion_cambios else 'Sin cambios detectados',
+                modulo='reservas',
+                tipo_accion='UPDATE',
+                objeto=reserva_actualizada,
+                datos_antes=datos_antes if cambios else None,
+                datos_despues=datos_despues if cambios else None,
+                request=request
+            )
+
+            if cambios:
+                # Registrar en el historial de la reserva
+                registrar_cambio_reserva(
+                    reserva_antes=reserva,
+                    reserva_despues=reserva_actualizada,
                     usuario=request.user,
-                    objeto=f'Reserva {reserva.pk}',
-                    cambios=cambios,
-                    modulo='reservas',
-                    request=request
+                    descripcion=descripcion_cambios
                 )
-            
+
             Notificacion.crear(
                 usuario=request.user,
                 titulo='Reserva Actualizada',
@@ -157,35 +187,6 @@ def editar_reserva(request, pk):
 
 
 @login_required
-def eliminar_reserva(request, pk):
-    """Permite eliminar una reserva."""
-    reserva = get_object_or_404(Reserva, pk=pk)
-
-    if reserva.usuario != request.user and not request.user.puede_gestionar_recursos():
-        return HttpResponseForbidden("No tienes permiso para eliminar esta reserva.")
-
-    if request.method == 'POST':
-        fecha_inicio_str = reserva.fecha_inicio.strftime("%d/%m/%Y a las %H:%M")
-        registrar_actividad(
-            usuario=request.user,
-            accion=f'Reserva eliminada: {reserva.ambiente.nombre}',
-            descripcion=f'Fecha: {fecha_inicio_str} | Estado anterior: {reserva.get_estado_display()}',
-            modulo='reservas',
-            tipo_accion='DELETE',
-            request=request,
-        )
-        reserva.delete()
-        Notificacion.crear(
-            usuario=request.user,
-            titulo='Reserva Eliminada',
-            mensaje=f'Tu reserva del {fecha_inicio_str} ha sido eliminada.',
-            tipo='reserva'
-        )
-        messages.success(request, 'Reserva eliminada correctamente.')
-        return redirect('reservas:lista_reservas')
-        
-    return render(request, 'reservas/eliminar_reserva.html', {'reserva': reserva})
-
 @login_required
 def descargar_reporte_pdf(request):
     """Genera y descarga un reporte PDF de las reservas."""

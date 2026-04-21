@@ -26,7 +26,7 @@
                     </div>
                     {% if notificaciones and no_leidas > 0 %}
                     <button id="marcarTodasLeidas" class="btn-std btn-success">
-                        <i class="fas fa-check-double me-2"></i>Marcar Todas como Leidas
+                        <i class="fas fa-check-double me-2"></i>Marcar Todas como Leídas
                     </button>
                     {% endif %}
                 </div>
@@ -55,7 +55,7 @@
                             </div>
                             <div>
                                 <div class="stat-number">{{ leidas|default:0 }}</div>
-                                <div class="stat-label">Leidas</div>
+                                <div class="stat-label">Leídas</div>
                             </div>
                         </div>
                     </div>
@@ -84,10 +84,10 @@
                             <i class="fas fa-list me-1"></i> Todas
                         </a>
                         <a href="?estado=no_leidas" class="btn-std {% if estado_filtro == 'no_leidas' %}btn-success{% else %}btn-outline-secondary{% endif %}">
-                            <i class="fas fa-envelope me-1"></i> No Leidas
+                            <i class="fas fa-envelope me-1"></i> No Leídas
                         </a>
                         <a href="?estado=leidas" class="btn-std {% if estado_filtro == 'leidas' %}btn-success{% else %}btn-outline-secondary{% endif %}">
-                            <i class="fas fa-envelope-open me-1"></i> Leidas
+                            <i class="fas fa-envelope-open me-1"></i> Leídas
                         </a>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                                     {% if not notificacion.leida %}
                                     <button class="btn-std btn-success marcar-leida" data-id="{{ notificacion.id }}">
                                         <i class="fas fa-check me-1"></i>
-                                        Marcar como Leida
+                                        Marcar como Leída
                                     </button>
                                     {% endif %}
                                 </div>
@@ -203,7 +203,7 @@
                             <i class="fas fa-question-circle"></i>
                         </div>
                         <div>
-                            <h6 class="mb-1 fw-bold text-success">Necesitas ayuda?</h6>
+                            <h6 class="mb-1 fw-bold text-success">¿Necesitas ayuda?</h6>
                             <small class="text-muted">
                                 Las notificaciones te informan sobre el estado de tus reservas, aprobaciones y cambios importantes en el sistema.
                             </small>
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnTodas = document.getElementById('marcarTodasLeidas');
     if (btnTodas) {
         btnTodas.addEventListener('click', function() {
-            if (!confirm('Estas seguro de marcar todas las notificaciones como leidas?')) {
+            if (!confirm('¿Estás seguro de marcar todas las notificaciones como leídas?')) {
                 return;
             }
 

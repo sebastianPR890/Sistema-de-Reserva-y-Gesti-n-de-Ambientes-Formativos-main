@@ -101,7 +101,7 @@
             </div>
 
             {% if is_paginated %}
-            <nav class="pagination-std" aria-label="Paginacion de movimientos">
+            <nav class="pagination-std" aria-label="Paginación de movimientos">
                 <ul class="pagination">
                     {% if page_obj.has_previous %}
                     <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
@@ -122,7 +122,7 @@
             <div class="empty-state-std">
                 <div class="empty-icon"><i class="fas fa-exchange-alt"></i></div>
                 <h5>No hay movimientos registrados</h5>
-                <p>Aun no se han registrado movimientos de equipos.</p>
+                <p>Aún no se han registrado movimientos de equipos.</p>
                 <a href="{% url 'equipos:movimiento_crear' %}" class="btn btn-std btn-success">
                     <i class="fas fa-plus"></i> Registrar Movimiento
                 </a>

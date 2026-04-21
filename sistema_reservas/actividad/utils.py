@@ -1,4 +1,5 @@
 from .models import RegistroActividad
+from django.forms.models import model_to_dict
 
 
 def _obtener_ip(request):
@@ -11,17 +12,34 @@ def _obtener_ip(request):
     return request.META.get('REMOTE_ADDR')
 
 
+def _serializar_valor(valor):
+    """Convierte un valor a una representación serializable para JSON."""
+    if hasattr(valor, 'pk'):  # Es una instancia de modelo
+        return f"{type(valor).__name__}({valor.pk}): {str(valor)}"
+    elif isinstance(valor, bool):
+        return 'Sí' if valor else 'No'
+    elif valor is None:
+        return 'N/A'
+    else:
+        return str(valor)
+
+
 def registrar_actividad(usuario, accion, descripcion='', modulo='sistema',
                         request=None, tipo_accion='OTHER', objeto=None,
                         datos_antes=None, datos_despues=None):
     """
     Registra una actividad en el sistema.
 
-    Parámetros nuevos (opcionales para retrocompatibilidad):
-    - tipo_accion: Clave de RegistroActividad.TIPOS_ACCION (CREATE, UPDATE, DELETE, etc.)
-    - objeto: Instancia del modelo afectado; se extraen objeto_tipo y objeto_id automáticamente.
-    - datos_antes: Dict con el estado previo del objeto (para auditoría de cambios).
-    - datos_despues: Dict con el estado posterior del objeto.
+    Parámetros:
+    - usuario: Usuario que realiza la acción
+    - accion: Descripción breve de la acción
+    - descripcion: Descripción detallada
+    - modulo: Módulo del sistema (reservas, usuarios, ambientes, equipos, sesion, sistema)
+    - request: HttpRequest para obtener la IP
+    - tipo_accion: CREATE, UPDATE, DELETE, LOGIN, LOGOUT, APPROVE, REJECT, CANCEL, EXPORT, OTHER
+    - objeto: Instancia del modelo afectado
+    - datos_antes: Dict con estado previo
+    - datos_despues: Dict con estado posterior
     """
     RegistroActividad.objects.create(
         usuario=usuario,
@@ -37,19 +55,70 @@ def registrar_actividad(usuario, accion, descripcion='', modulo='sistema',
     )
 
 
+def capturar_todos_campos(instancia):
+    """
+    Captura TODOS los campos de una instancia como dict.
+    Excluye campos de relación inversa y métodos.
+    """
+    resultado = {}
+    for campo in instancia._meta.fields:
+        try:
+            valor = getattr(instancia, campo.name)
+            resultado[campo.name] = _serializar_valor(valor)
+        except Exception as e:
+            resultado[campo.name] = f"Error: {str(e)}"
+    return resultado
+
+
+def capturar_cambios(instancia_antes, instancia_despues, campos_a_comparar=None):
+    """
+    Compara dos instancias de un modelo y retorna los cambios.
+
+    Si campos_a_comparar es None, compara TODOS los campos.
+
+    Retorna:
+    - Diccionario con los cambios: {'campo': {'antes': valor, 'después': valor}}
+    """
+    # Si no se especifican campos, usar todos
+    if campos_a_comparar is None:
+        campos_a_comparar = [f.name for f in instancia_antes._meta.fields]
+
+    cambios = {}
+
+    for campo in campos_a_comparar:
+        try:
+            valor_antes = getattr(instancia_antes, campo, None)
+            valor_despues = getattr(instancia_despues, campo, None)
+
+            valor_antes_str = _serializar_valor(valor_antes)
+            valor_despues_str = _serializar_valor(valor_despues)
+
+            if valor_antes_str != valor_despues_str:
+                cambios[campo] = {
+                    'antes': valor_antes_str,
+                    'después': valor_despues_str
+                }
+        except Exception as e:
+            cambios[campo] = {
+                'antes': 'Error',
+                'después': f'Error al comparar: {str(e)}'
+            }
+
+    return cambios
+
+
 def registrar_actualizacion(usuario, objeto, cambios, modulo='sistema',
                              request=None, instancia=None):
     """
     Registra una actualización de un objeto capturando los cambios realizados.
 
     Parámetros:
-    - usuario: Usuario que realiza la acción.
-    - objeto: Representación en string del objeto actualizado.
-    - cambios: Dict con {'campo': {'antes': valor_anterior, 'después': valor_nuevo}}.
-    - modulo: Módulo del sistema donde ocurre la acción.
-    - request: HttpRequest para obtener la IP.
-    - instancia: Instancia del modelo afectado (nuevo, opcional). Permite registrar
-                 objeto_tipo, objeto_id, datos_antes y datos_despues automáticamente.
+    - usuario: Usuario que realiza la acción
+    - objeto: Representación en string del objeto actualizado
+    - cambios: Dict con {'campo': {'antes': valor_anterior, 'después': valor_nuevo}}
+    - modulo: Módulo del sistema
+    - request: HttpRequest para obtener la IP
+    - instancia: Instancia del modelo afectado
     """
     if not cambios:
         return
@@ -80,29 +149,3 @@ def registrar_actualizacion(usuario, objeto, cambios, modulo='sistema',
         ip_address=_obtener_ip(request),
     )
 
-
-def capturar_cambios(instancia_antes, instancia_despues, campos_a_comparar):
-    """
-    Compara dos instancias de un modelo y retorna los cambios en los campos especificados.
-
-    Retorna:
-    - Diccionario con los cambios: {'campo': {'antes': valor, 'después': valor}}
-    """
-    cambios = {}
-
-    for campo in campos_a_comparar:
-        valor_antes = getattr(instancia_antes, campo, None)
-        valor_despues = getattr(instancia_despues, campo, None)
-
-        if isinstance(valor_antes, bool):
-            valor_antes = 'Sí' if valor_antes else 'No'
-        if isinstance(valor_despues, bool):
-            valor_despues = 'Sí' if valor_despues else 'No'
-
-        if valor_antes != valor_despues:
-            cambios[campo] = {
-                'antes': str(valor_antes),
-                'después': str(valor_despues)
-            }
-
-    return cambios

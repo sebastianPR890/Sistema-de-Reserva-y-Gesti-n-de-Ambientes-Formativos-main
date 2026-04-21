@@ -14,7 +14,7 @@ from .models import Ambiente
 from .forms import AmbienteForm, BusquedaAmbienteForm, CrearAmbienteForm
 from equipos.forms import EquipoForm, EquipoExternoForm
 from equipos.models import Equipo
-from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad
+from actividad.utils import registrar_actualizacion, capturar_cambios, registrar_actividad, capturar_todos_campos
 
 class StaffRequiredMixin(UserPassesTestMixin):
     """Mixin que requiere que el usuario sea staff o coordinador."""
@@ -85,27 +85,50 @@ class AmbienteUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
     success_url = reverse_lazy('ambientes:lista')
 
     def form_valid(self, form):
-        # Capturar datos anteriores
-        ambiente_antes = deepcopy(self.object)
-        
-        # Guardar el formulario
+        # Obtener estado ANTES de la BD
+        ambiente_db = Ambiente.objects.get(pk=self.object.pk)
+        datos_antes = capturar_todos_campos(ambiente_db)
+
+        # Guardar los cambios
         response = super().form_valid(form)
-        
-        # Capturar cambios
-        campos_a_comparar = ['nombre', 'codigo', 'descripcion', 'capacidad', 'tipo', 'ubicacion', 'activo']
-        cambios = capturar_cambios(ambiente_antes, self.object, campos_a_comparar)
-        
-        # Registrar la actualización
+
+        # Capturar estado DESPUÉS de guardar
+        datos_despues = capturar_todos_campos(self.object)
+
+        # Comparar y detectar cambios
+        cambios = {}
+        for campo in datos_antes.keys():
+            valor_antes = datos_antes.get(campo, '')
+            valor_despues = datos_despues.get(campo, '')
+            if str(valor_antes) != str(valor_despues):
+                cambios[campo] = {
+                    'antes': valor_antes,
+                    'después': valor_despues
+                }
+
+        # Construir descripción de cambios
+        descripcion_cambios = ""
         if cambios:
-            registrar_actualizacion(
-                usuario=self.request.user,
-                objeto=f'Ambiente {self.object.nombre}',
-                cambios=cambios,
-                modulo='ambientes',
-                request=self.request,
-                instancia=self.object,
-            )
-        
+            cambios_formateados = []
+            for campo, valores in cambios.items():
+                antes = valores.get('antes', '—')
+                despues = valores.get('después', '—')
+                cambios_formateados.append(f"{campo}: {antes} → {despues}")
+            descripcion_cambios = "\n".join(cambios_formateados)
+
+        # Registrar actividad SIEMPRE
+        registrar_actividad(
+            usuario=self.request.user,
+            accion=f'Ambiente actualizado: {self.object.nombre}',
+            descripcion=descripcion_cambios if descripcion_cambios else 'Sin cambios detectados',
+            modulo='ambientes',
+            tipo_accion='UPDATE',
+            objeto=self.object,
+            datos_antes=datos_antes,
+            datos_despues=datos_despues,
+            request=self.request,
+        )
+
         messages.success(self.request, "Ambiente actualizado exitosamente.")
         return response
 

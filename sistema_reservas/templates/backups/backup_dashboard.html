@@ -53,7 +53,7 @@
                             </div>
                             <div>
                                 <div class="stat-number">{% if backups %}{{ backups.0.date|date:"d/m/Y" }}{% else %}--{% endif %}</div>
-                                <div class="stat-label">Ultimo Backup</div>
+                                <div class="stat-label">Último Backup</div>
                             </div>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                             </div>
                             <div>
                                 <div class="stat-number">{% if backups %}{{ backups.0.size }} MB{% else %}0 MB{% endif %}</div>
-                                <div class="stat-label">Tamano Ultimo Backup</div>
+                                <div class="stat-label">Tamaño Último Backup</div>
                             </div>
                         </div>
                     </div>
@@ -99,7 +99,7 @@
                                         <i class="fas fa-calendar text-success me-2"></i>Fecha
                                     </th>
                                     <th>
-                                        <i class="fas fa-weight text-success me-2"></i>Tamano
+                                        <i class="fas fa-weight text-success me-2"></i>Tamaño
                                     </th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
@@ -175,11 +175,11 @@
                                     <i class="fas fa-info-circle"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-2 fw-bold text-success">Informacion sobre Backups</h6>
+                                    <h6 class="mb-2 fw-bold text-success">Información sobre Backups</h6>
                                     <ul class="mb-0 text-muted small">
                                         <li>Los backups se almacenan de forma segura en el servidor</li>
                                         <li>Se recomienda crear backups regularmente antes de cambios importantes</li>
-                                        <li>La restauracion reemplazara todos los datos actuales</li>
+                                        <li>La restauración reemplazará todos los datos actuales</li>
                                     </ul>
                                 </div>
                             </div>
@@ -202,7 +202,7 @@
         <div class="modal-content border-0 rounded-4 overflow-hidden">
             <div class="modal-header bg-warning-gradient text-white border-0 py-3">
                 <h5 class="modal-title fw-bold" id="restoreModalLabel">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Restauracion
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Restauración
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -214,9 +214,9 @@
                 </div>
                 <div class="alert alert-warning border-0 rounded-3">
                     <strong><i class="fas fa-exclamation-circle me-2"></i>ADVERTENCIA:</strong>
-                    <p class="mb-0 mt-2">Esta accion reemplazara completamente la base de datos actual con el backup seleccionado. <strong>Todos los datos actuales se perderan.</strong></p>
+                    <p class="mb-0 mt-2">Esta acción reemplazará completamente la base de datos actual con el backup seleccionado. <strong>Todos los datos actuales se perderán.</strong></p>
                 </div>
-                <p class="text-center text-muted">¿Estas seguro de que deseas continuar?</p>
+                <p class="text-center text-muted">¿Estás seguro de que deseas continuar?</p>
             </div>
             <div class="modal-footer border-0 pt-0 pb-4 px-4">
                 <button type="button" class="btn btn-std btn-outline-secondary" data-bs-dismiss="modal">
@@ -226,7 +226,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="confirm" value="yes">
                     <button type="submit" class="btn btn-std btn-warning">
-                        <i class="fas fa-redo"></i> Si, Restaurar
+                        <i class="fas fa-redo"></i> Sí, Restaurar
                     </button>
                 </form>
             </div>
@@ -240,7 +240,7 @@
         <div class="modal-content border-0 rounded-4 overflow-hidden">
             <div class="modal-header bg-danger-gradient text-white border-0 py-3">
                 <h5 class="modal-title fw-bold" id="deleteModalLabel">
-                    <i class="fas fa-trash me-2"></i>Confirmar Eliminacion
+                    <i class="fas fa-trash me-2"></i>Confirmar Eliminación
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -250,10 +250,10 @@
                         <i class="fas fa-trash-alt"></i>
                     </div>
                 </div>
-                <p class="text-center">¿Estas seguro de que deseas eliminar este backup?</p>
+                <p class="text-center">¿Estás seguro de que deseas eliminar este backup?</p>
                 <p class="text-center text-danger fw-bold">
                     <i class="fas fa-exclamation-triangle me-1"></i>
-                    Esta accion no se puede deshacer.
+                    Esta acción no se puede deshacer.
                 </p>
             </div>
             <div class="modal-footer border-0 pt-0 pb-4 px-4">
@@ -263,7 +263,7 @@
                 <form id="deleteForm" method="POST" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-std btn-danger">
-                        <i class="fas fa-trash"></i> Si, Eliminar
+                        <i class="fas fa-trash"></i> Sí, Eliminar
                     </button>
                 </form>
             </div>

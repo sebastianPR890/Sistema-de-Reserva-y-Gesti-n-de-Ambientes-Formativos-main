@@ -8,16 +8,16 @@
     <div class="delete-card-std">
         <div class="delete-header">
             <i class="fas fa-exclamation-triangle"></i>
-            <h4>Confirmar Eliminacion de Ambiente</h4>
+            <h4>Confirmar Eliminación de Ambiente</h4>
         </div>
         <div class="delete-body">
             <p>
-                ¿Estas seguro de que deseas eliminar el ambiente
-                "<strong>{{ object.nombre }}</strong>" con codigo <strong>{{ object.codigo }}</strong>?
+                ¿Estás seguro de que deseas eliminar el ambiente
+                "<strong>{{ object.nombre }}</strong>" con código <strong>{{ object.codigo }}</strong>?
             </p>
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-circle me-2"></i>
-                Esta accion no se puede deshacer y el ambiente sera eliminado permanentemente.
+                Esta acción no se puede deshacer y el ambiente será eliminado permanentemente.
             </div>
             <form method="post">
                 {% csrf_token %}

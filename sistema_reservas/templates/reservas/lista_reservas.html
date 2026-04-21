@@ -9,7 +9,7 @@
             <div>
                 <h2>
                     <i class="fas fa-calendar-check"></i>
-                    Gestion de Reservas
+                    Gestión de Reservas
                 </h2>
                 <p class="page-subtitle">Administra y controla todas las reservas de ambientes</p>
             </div>
@@ -256,13 +256,6 @@
                                         title="Editar reserva">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{% url 'reservas:eliminar_reserva' reserva.pk %}"
-                                        class="btn-icon-std btn-delete"
-                                        data-bs-toggle="tooltip"
-                                        title="Eliminar reserva"
-                                        onclick="return confirm('¿Está seguro de eliminar esta reserva?')">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -315,11 +308,11 @@
                     <i class="fas fa-lightbulb"></i>
                 </div>
                 <div>
-                    <h6 class="mb-2 fw-bold text-color-primary">Consejos utiles</h6>
+                    <h6 class="mb-2 fw-bold text-color-primary">Consejos útiles</h6>
                     <ul class="mb-0 small text-muted ps-3">
-                        <li>Usa el buscador para encontrar reservas rapidamente</li>
+                        <li>Usa el buscador para encontrar reservas rápidamente</li>
                         <li>Los colores de las tarjetas indican el estado de tus reservas</li>
-                        <li>Puedes editar o eliminar reservas desde la columna de acciones</li>
+                        <li>Puedes editar o cancelar reservas desde la columna de acciones</li>
                     </ul>
                 </div>
             </div>
